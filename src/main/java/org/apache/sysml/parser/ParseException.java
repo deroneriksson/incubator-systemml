@@ -72,21 +72,21 @@ public class ParseException extends Exception
    * this object has been created due to a parse error, the token
    * following this token will (therefore) be the first error token.
    */
-  public Token currentToken;
+//  public Token currentToken;
 
   /**
    * Each entry in this array is an array of integers.  Each array
    * of integers represents a sequence of tokens (by their ordinal
    * values) that is expected at this point of the parse.
    */
-  public int[][] expectedTokenSequences;
+//  public int[][] expectedTokenSequences;
 
   /**
    * This is a reference to the "tokenImage" array of the generated
    * parser within which the parse error occurred.  This array is
    * defined in the generated ...Constants interface.
    */
-  public String[] tokenImage;
+//  public String[] tokenImage;
 
 }
 /* JavaCC - OriginalChecksum=f4855557e750c030aaf6a53d0d8438bb (do not edit this line) */

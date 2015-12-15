@@ -63,14 +63,14 @@ public class DMLParseException extends ParseException
 			ParseException parseEx = (ParseException)e;
 			int beginLine = -1, beginColumn = -1;
 			String errorToken = null;
-			if (parseEx.currentToken != null){
-				beginLine    = parseEx.currentToken.beginLine;
-				beginColumn  = parseEx.currentToken.beginColumn;
-				errorToken   = parseEx.currentToken.image;
-				newMsg =  "ERROR: " + _filename + " -- line " + beginLine + ", column " + beginColumn + " -- " + "Parsing error around token \"" + errorToken + "\"";
-			} else {
+//			if (parseEx.currentToken != null){
+//				beginLine    = parseEx.currentToken.beginLine;
+//				beginColumn  = parseEx.currentToken.beginColumn;
+//				errorToken   = parseEx.currentToken.image;
+//				newMsg =  "ERROR: " + _filename + " -- line " + beginLine + ", column " + beginColumn + " -- " + "Parsing error around token \"" + errorToken + "\"";
+//			} else {
 				newMsg =  "ERROR: " + _filename + " -- line " + beginLine + ", column " + beginColumn + " -- " + "Parsing error with unspecified token";
-			}
+//			}
 		}
 		
 		_exceptionList.add(new DMLParseException(_filename, newMsg));
