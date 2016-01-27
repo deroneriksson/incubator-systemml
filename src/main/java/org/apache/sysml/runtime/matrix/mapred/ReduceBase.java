@@ -100,7 +100,7 @@ public class ReduceBase extends MRBaseForCommonInstructions
 	{	
 		super.configure(job);
 		
-		reducerID = job.get("mapred.task.id");
+		reducerID = job.get(MRConfigurationNames.MR_TASK_ID);
 		dimsUnknownFilePrefix = job.get("dims.unknown.file.prefix");
 
 		

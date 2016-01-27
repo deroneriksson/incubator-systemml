@@ -29,7 +29,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-
 import org.apache.sysml.runtime.matrix.data.MatrixCell;
 import org.apache.sysml.runtime.matrix.data.MatrixPackedCell;
 import org.apache.sysml.runtime.matrix.data.MatrixValue;
@@ -181,7 +180,7 @@ implements Mapper<Writable, Writable, Writable, Writable>
 	{
 		super.configure(job);
 		
-		mapperID = job.get("mapred.task.id");
+		mapperID = job.get(MRConfigurationNames.MR_TASK_ID);
 		dimsUnknownFilePrefix = job.get("dims.unknown.file.prefix");
 		
 		_filterEmptyInputBlocks = allowsFilterEmptyInputBlocks();
