@@ -27,7 +27,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
@@ -36,8 +35,8 @@ import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.wink.json4j.JSONException;
-import org.apache.wink.json4j.JSONObject;
+import org.apache.hadoop.mapreduce.MRJobConfig;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.parser.DataExpression;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -50,9 +49,10 @@ import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
 import org.apache.sysml.utils.JSONHelper;
+import org.apache.wink.json4j.JSONException;
+import org.apache.wink.json4j.JSONObject;
 
 
-@SuppressWarnings("deprecation")
 public class TfUtils implements Serializable{
 	
 	private static final long serialVersionUID = 526252850872633125L;
@@ -103,7 +103,7 @@ public class TfUtils implements Serializable{
 	
 	public static String getPartFileName(JobConf job) throws IOException {
 		FileSystem fs = FileSystem.get(job);
-		Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs);
+		Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 		return thisPath.toString();
 	}
 	
@@ -111,7 +111,7 @@ public class TfUtils implements Serializable{
 		FileSystem fs = FileSystem.get(job);
 		
 		String thisfile=getPartFileName(job);
-		Path smallestFilePath=new Path(job.get(MRJobConfiguration.TF_SMALLEST_FILE)).makeQualified(fs);
+		Path smallestFilePath=new Path(job.get(MRJobConfiguration.TF_SMALLEST_FILE)).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 		
 		if(thisfile.toString().equals(smallestFilePath.toString()))
 			return true;
@@ -339,7 +339,9 @@ public class TfUtils implements Serializable{
 		
 		if(fromLocalFS) {
 			// metadata must be read from local file system (e.g., distributed cache in the case of Hadoop)
-			tfMtdDir = (DistributedCache.getLocalCacheFiles(job))[0];
+//			tfMtdDir = (DistributedCache.getLocalCacheFiles(job))[0];
+			// TODO do correctly
+			tfMtdDir = StringUtils.stringToPath(job.getStrings(MRJobConfig.CACHE_LOCALFILES))[0];
 			fs = FileSystem.getLocal(job);
 		}
 		else {
@@ -510,7 +512,8 @@ public class TfUtils implements Serializable{
 		if ( files.length != 1 )
 			throw new IOException("Expecting a single file under counters file: " + path.toString());
 		
-		Reader reader = new SequenceFile.Reader(fs, files[0], job);
+//		Reader reader = new SequenceFile.Reader(fs, files[0], job);
+		Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(files[0].makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 		
 		return reader;
 	}

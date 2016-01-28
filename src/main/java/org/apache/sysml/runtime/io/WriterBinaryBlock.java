@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -65,16 +66,18 @@ public class WriterBinaryBlock extends MatrixWriter
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void writeEmptyMatrixToHDFS(String fname, long rlen, long clen, int brlen, int bclen) 
 		throws IOException, DMLRuntimeException 
 	{
 		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path,
-				                        MatrixIndexes.class, MatrixBlock.class);
+//		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path,
+//				                        MatrixIndexes.class, MatrixBlock.class);
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+				SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		
 		MatrixIndexes index = new MatrixIndexes(1, 1);
 		MatrixBlock block = new MatrixBlock((int)Math.min(rlen, brlen),
@@ -96,7 +99,6 @@ public class WriterBinaryBlock extends MatrixWriter
 	 * @throws DMLUnsupportedOperationException 
 	 * @throws DMLRuntimeException 
 	 */
-	@SuppressWarnings("deprecation")
 	protected void writeBinaryBlockMatrixToHDFS( Path path, JobConf job, MatrixBlock src, long rlen, long clen, int brlen, int bclen, int replication )
 		throws IOException, DMLRuntimeException, DMLUnsupportedOperationException
 	{
@@ -113,12 +115,21 @@ public class WriterBinaryBlock extends MatrixWriter
 		if( replication > 0 ) //if replication specified (otherwise default)
 		{
 			//copy of SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class), except for replication
-			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
-					                         (short)replication, fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());	
+//			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
+//					                         (short)replication, fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());
+			
+			writer = SequenceFile.createWriter(job,
+//					SequenceFile.Writer.file(path), // needed?
+					SequenceFile.Writer.stream(fs.create(path, true, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096), (short) replication, fs.getDefaultBlockSize(path), null)),
+					SequenceFile.Writer.metadata(new SequenceFile.Metadata()), // needed?
+					SequenceFile.Writer.keyClass(MatrixIndexes.class),
+					SequenceFile.Writer.valueClass(MatrixBlock.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 		}
 		else	
 		{
-			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+//			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+			writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class), SequenceFile.Writer.compression(CompressionType.NONE));
 		}
 		
 		try
@@ -190,7 +201,6 @@ public class WriterBinaryBlock extends MatrixWriter
 	 * @throws DMLUnsupportedOperationException 
 	 * @throws DMLRuntimeException 
 	 */
-	@SuppressWarnings("deprecation")
 	protected void writeDiagBinaryBlockMatrixToHDFS( Path path, JobConf job, MatrixBlock src, long rlen, long clen, int brlen, int bclen, int replication ) 
 		throws IOException, DMLRuntimeException, DMLUnsupportedOperationException
 	{
@@ -207,12 +217,23 @@ public class WriterBinaryBlock extends MatrixWriter
 		if( replication > 0 ) //if replication specified (otherwise default)
 		{
 			//copy of SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class), except for replication
-			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
-					                         (short)replication, fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());	
+//			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
+//					                         (short)replication, fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());
+			
+			writer = SequenceFile.createWriter(job,
+//					SequenceFile.Writer.file(path), // needed?
+					SequenceFile.Writer.stream(fs.create(path, true, job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096), (short) replication, fs.getDefaultBlockSize(path), null)),
+					SequenceFile.Writer.metadata(new SequenceFile.Metadata()), // needed?
+					SequenceFile.Writer.keyClass(MatrixIndexes.class),
+					SequenceFile.Writer.valueClass(MatrixBlock.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 		}
 		else	
 		{
-			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+//			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+			writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+					SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 		}
 		
 		try
@@ -295,12 +316,11 @@ public class WriterBinaryBlock extends MatrixWriter
 	 * @throws DMLRuntimeException
 	 * @throws DMLUnsupportedOperationException
 	 */
-	@SuppressWarnings("deprecation")
 	public void writePartitionedBinaryBlockMatrixToHDFS( Path path, JobConf job, MatrixBlock src, long rlen, long clen, int brlen, int bclen, PDataPartitionFormat pformat )
 			throws IOException, DMLRuntimeException, DMLUnsupportedOperationException
 	{
 		boolean sparse = src.isInSparseFormat();
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 		
 		//set up preferred custom serialization framework for binary block format
 		if( MRJobConfiguration.USE_BINARYBLOCK_SERIALIZATION )
@@ -322,7 +342,10 @@ public class WriterBinaryBlock extends MatrixWriter
 					// 1) create sequence file writer, with right replication factor 
 					// (config via 'dfs.replication' not possible since sequence file internally calls fs.getDefaultReplication())
 					Path path2 = new Path(path.toString()+File.separator+(++count));
-					SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path2, MatrixIndexes.class, MatrixBlock.class);
+//					SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path2, MatrixIndexes.class, MatrixBlock.class);
+					SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path2),
+							SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+							SequenceFile.Writer.compression(CompressionType.NONE));
 					
 					//3) reblock and write
 					try
@@ -372,7 +395,10 @@ public class WriterBinaryBlock extends MatrixWriter
 					// 1) create sequence file writer, with right replication factor 
 					// (config via 'dfs.replication' not possible since sequence file internally calls fs.getDefaultReplication())
 					Path path2 = new Path(path.toString()+File.separator+(++count));
-					SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path2, MatrixIndexes.class, MatrixBlock.class);
+//					SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path2, MatrixIndexes.class, MatrixBlock.class);
+					SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path2),
+							SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+							SequenceFile.Writer.compression(CompressionType.NONE));
 					
 					//3) reblock and write
 					try

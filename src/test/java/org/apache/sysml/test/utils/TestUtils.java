@@ -19,9 +19,9 @@
 
 package org.apache.sysml.test.utils;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
@@ -54,6 +54,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.data.IJV;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
@@ -1561,11 +1562,13 @@ public class TestUtils
 	 * @param matrix
 	 *            matrix
 	 */
-	@SuppressWarnings("deprecation")
 	public static void writeBinaryTestMatrixCells(String file, double[][] matrix) {
 		try {
-			SequenceFile.Writer writer = new SequenceFile.Writer(FileSystem.get(conf), conf, new Path(file),
-					MatrixIndexes.class, MatrixCell.class);
+//			SequenceFile.Writer writer = new SequenceFile.Writer(FileSystem.get(conf), conf, new Path(file),
+//					MatrixIndexes.class, MatrixCell.class);
+			SequenceFile.Writer writer = SequenceFile.createWriter(conf, SequenceFile.Writer.file(new Path(file)),
+					SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 
 			MatrixIndexes index = new MatrixIndexes();
 			MatrixCell value = new MatrixCell();
@@ -1602,12 +1605,14 @@ public class TestUtils
 	 * @param sparseFormat
 	 *            sparse format
 	 */
-	@SuppressWarnings("deprecation")
 	public static void writeBinaryTestMatrixBlocks(String file, double[][] matrix, int rowsInBlock, int colsInBlock,
 			boolean sparseFormat) {
 		try {
-			SequenceFile.Writer writer = new SequenceFile.Writer(FileSystem.get(conf), conf, new Path(file),
-					MatrixIndexes.class, MatrixBlock.class);
+//			SequenceFile.Writer writer = new SequenceFile.Writer(FileSystem.get(conf), conf, new Path(file),
+//					MatrixIndexes.class, MatrixBlock.class);
+			SequenceFile.Writer writer = SequenceFile.createWriter(conf, SequenceFile.Writer.file(new Path(file)),
+					SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 
 			MatrixIndexes index = new MatrixIndexes();
 			MatrixBlock value = new MatrixBlock();
@@ -1853,7 +1858,6 @@ public class TestUtils
 	 *            directory containing the matrix
 	 * @return matrix characteristics
 	 */
-	@SuppressWarnings("deprecation")
 	public static BinaryMatrixCharacteristics readCellsFromSequenceFile(String directory) {
 		try {
 			FileSystem fs = FileSystem.get(conf);
@@ -1865,7 +1869,8 @@ public class TestUtils
 			MatrixIndexes indexes = new MatrixIndexes();
 			MatrixCell value = new MatrixCell();
 			for (FileStatus file : files) {
-				SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), file.getPath(), conf);
+//				SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), file.getPath(), conf);
+				SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file.getPath()));
 
 				while (reader.next(indexes, value)) {
 					if (rows < indexes.getRowIndex())
@@ -1911,7 +1916,6 @@ public class TestUtils
 	 *            columns in block
 	 * @return matrix characteristics
 	 */
-	@SuppressWarnings("deprecation")
 	public static BinaryMatrixCharacteristics readBlocksFromSequenceFile(String directory, int rowsInBlock,
 			int colsInBlock) {
 		try {
@@ -1926,7 +1930,8 @@ public class TestUtils
 			MatrixIndexes indexes = new MatrixIndexes();
 			MatrixBlock value = new MatrixBlock();
 			for (FileStatus file : files) {
-				SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), file.getPath(), conf);
+//				SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(conf), file.getPath(), conf);
+				SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file.getPath()));
 
 				while (reader.next(indexes, value)) {
 					if (value.getNumRows() < rowsInBlock) {

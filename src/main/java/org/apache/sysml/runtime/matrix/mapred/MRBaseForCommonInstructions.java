@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Reporter;
-
+import org.apache.hadoop.mapreduce.MRJobConfig;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLUnsupportedOperationException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
@@ -55,7 +55,6 @@ import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.MatrixValue;
 
 
-@SuppressWarnings("deprecation")
 public class MRBaseForCommonInstructions extends MapReduceBase
 {
 	
@@ -306,7 +305,10 @@ public class MRBaseForCommonInstructions extends MapReduceBase
 		
 		String[] inputIndices = MRJobConfiguration.getInputPaths(job);
 		String[] dcIndices = MRJobConfiguration.getDistCacheInputIndices(job).split(Instruction.INSTRUCTION_DELIM);
-		Path[] dcFiles = DistributedCache.getLocalCacheFiles(job);
+//		Path[] dcFiles = DistributedCache.getLocalCacheFiles(job);
+		// use JobContext#getLocalCacheFiles() ?
+		Path[] dcFiles = StringUtils.stringToPath(job.getStrings(MRJobConfig.CACHE_LOCALFILES));
+		
 		PDataPartitionFormat[] inputPartitionFormats = MRJobConfiguration.getInputPartitionFormats(job);
 		
 		DistributedCacheInput[] dcInputs = new DistributedCacheInput[dcIndices.length];

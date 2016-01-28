@@ -30,12 +30,12 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.wink.json4j.JSONException;
-
 import org.apache.sysml.runtime.matrix.CSVReblockMR.OffsetCount;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 
@@ -100,11 +100,13 @@ public class GTFMTDReducer implements Reducer<IntWritable, DistinctValue, Text, 
 	{
 		Collections.sort(list);
 		
-		@SuppressWarnings("deprecation")
-		SequenceFile.Writer writer = new SequenceFile.Writer(
-				FileSystem.get(_rJob), _rJob, 
-				new Path(_agents.getOffsetFile()+"/part-00000"), 
-				ByteWritable.class, OffsetCount.class);
+//		SequenceFile.Writer writer = new SequenceFile.Writer(
+//				FileSystem.get(_rJob), _rJob, 
+//				new Path(_agents.getOffsetFile()+"/part-00000"), 
+//				ByteWritable.class, OffsetCount.class);
+		SequenceFile.Writer writer = SequenceFile.createWriter(_rJob, SequenceFile.Writer.file(new Path(_agents.getOffsetFile()+"/part-00000")),
+				SequenceFile.Writer.keyClass(ByteWritable.class), SequenceFile.Writer.valueClass(OffsetCount.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		
 		long lineOffset=0;
 		for(OffsetCount oc: list)

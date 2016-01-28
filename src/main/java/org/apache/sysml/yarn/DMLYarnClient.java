@@ -269,7 +269,6 @@ public class DMLYarnClient
 	 * @throws DMLRuntimeException
 	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("deprecation")
 	private void copyResourcesToHdfsWorkingDir( YarnConfiguration yconf, String hdfsWD ) 
 		throws ParseException, IOException, DMLRuntimeException, InterruptedException 
 	{
@@ -288,7 +287,7 @@ public class DMLYarnClient
 		//_dmlConfig.makeQualifiedScratchSpacePath(); 
 		fout.writeBytes(_dmlConfig.serializeDMLConfig() + "\n");
 		fout.close();
-		_hdfsDMLConfig = confPath.makeQualified(fs).toString();
+		_hdfsDMLConfig = confPath.makeQualified(fs.getUri(), fs.getWorkingDirectory()).toString();
 		LOG.debug("DML config written to HDFS file: "+_hdfsDMLConfig+"");
 
 		//serialize the dml script to HDFS file
@@ -296,7 +295,7 @@ public class DMLYarnClient
 		FSDataOutputStream fout2 = fs.create(scriptPath, true);
 		fout2.writeBytes(_dmlScript);
 		fout2.close();
-		_hdfsDMLScript = scriptPath.makeQualified(fs).toString();
+		_hdfsDMLScript = scriptPath.makeQualified(fs.getUri(), fs.getWorkingDirectory()).toString();
 		LOG.debug("DML script written to HDFS file: "+_hdfsDMLScript+"");
 		
 		// copy local jar file to HDFS (try to get the original jar filename)
@@ -313,7 +312,7 @@ public class DMLYarnClient
 		Path srcPath = new Path(fname);
 		Path dstPath = new Path(hdfsWD, srcPath.getName());
 		FileUtil.copy(FileSystem.getLocal(yconf), srcPath, fs, dstPath, false, true, yconf);
-		_hdfsJarFile = dstPath.makeQualified(fs).toString();	
+		_hdfsJarFile = dstPath.makeQualified(fs.getUri(), fs.getWorkingDirectory()).toString();	
 		LOG.debug("Jar file copied from local file: "+srcPath.toString()+" to HDFS file: "+dstPath.toString());
 	}
 	

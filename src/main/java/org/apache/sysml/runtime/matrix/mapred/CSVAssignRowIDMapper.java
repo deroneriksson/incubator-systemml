@@ -92,7 +92,6 @@ public class CSVAssignRowIDMapper extends MapReduceBase implements Mapper<LongWr
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void configure(JobConf job)
 	{	
 		byte thisIndex;
@@ -101,10 +100,10 @@ public class CSVAssignRowIDMapper extends MapReduceBase implements Mapper<LongWr
 			thisIndex=MRJobConfiguration.getInputMatrixIndexesInMapper(job).get(0);
 			outKey.set(thisIndex);
 			FileSystem fs=FileSystem.get(job);
-			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs);
+			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			filename=thisPath.toString();
 			String[] strs=job.getStrings(CSVReblockMR.SMALLEST_FILE_NAME_PER_INPUT);
-			Path headerPath=new Path(strs[thisIndex]).makeQualified(fs);
+			Path headerPath=new Path(strs[thisIndex]).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			if(headerPath.toString().equals(filename))
 				headerFile=true;
 		} catch (IOException e) {

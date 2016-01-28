@@ -44,7 +44,6 @@ import org.apache.sysml.runtime.matrix.mapred.CSVReblockMapper.IndexedBlockRow;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MapperBase;
 
-@SuppressWarnings("deprecation")
 public class ApplyTfBBMapper extends MapperBase implements Mapper<LongWritable, Text, TaggedFirstSecondIndexes, CSVReblockMR.BlockRow>{
 	
 	boolean _partFileWithHeader = false;
@@ -72,10 +71,11 @@ public class ApplyTfBBMapper extends MapperBase implements Mapper<LongWritable, 
 			Path p=new Path(job.get(CSVReblockMR.ROWID_FILE_NAME));
 			
 			FileSystem fs = FileSystem.get(job);
-			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs);
+			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			String thisfile=thisPath.toString();
 
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(p.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			while (reader.next(key, value)) {
 				// "key" needn't be checked since the offset file has information about a single CSV input (the raw data file)
 				if(thisfile.equals(value.filename))

@@ -470,7 +470,6 @@ public class DMLConfig
 	 * 
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	public void makeQualifiedScratchSpacePath() 
 		throws IOException
 	{
@@ -480,7 +479,7 @@ public class DMLConfig
 			
 			FileSystem fs = FileSystem.get(ConfigurationManager.getCachedJobConf());
 			String fname = elem.getFirstChild().getNodeValue();
-			Path path = new Path(fname).makeQualified(fs);
+			Path path = new Path(fname).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			
 			elem.getFirstChild().setNodeValue(path.toString());
 		}

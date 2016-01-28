@@ -20,12 +20,12 @@
 package org.apache.sysml.runtime.transform;
 import java.util.HashSet;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.Counters.Group;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.instructions.InstructionParser;
@@ -53,7 +53,6 @@ import org.apache.sysml.runtime.util.MapReduceTool;
  * 
  */
 
-@SuppressWarnings("deprecation")
 public class ApplyTfBBMR {
 	
 	public static JobReturn runJob(String inputPath, String rblkInst, String otherInst, String specPath, String mapsPath, String tmpPath, String outputPath, String partOffsetsFile, CSVFileFormatProperties inputDataProperties, long numRows, long numColsBefore, long numColsAfter, int replication, String headerLine) throws Exception {
@@ -121,12 +120,20 @@ public class ApplyTfBBMR {
 		MRJobConfiguration.setUniqueWorkingDir(job);
 		
 		// Add transformation metadata file as well as partOffsetsFile to Distributed cache
-		DistributedCache.addCacheFile((new Path(mapsPath)).toUri(), job);
-		DistributedCache.createSymlink(job);
+		// TODO do this correctly
+//		DistributedCache.addCacheFile((new Path(mapsPath)).toUri(), job);
+	    String files = job.get(MRJobConfig.CACHE_FILES);
+	    job.set(MRJobConfig.CACHE_FILES, files == null ? (new Path(mapsPath)).toUri().toString() : files + ","
+	             + (new Path(mapsPath)).toUri().toString());
+//		DistributedCache.createSymlink(job); // NO OP - remove
 		
 		Path cachefile=new Path(new Path(partOffsetsFile), "part-00000");
-		DistributedCache.addCacheFile(cachefile.toUri(), job);
-		DistributedCache.createSymlink(job);
+		// TODO do this correctly
+//		DistributedCache.addCacheFile(cachefile.toUri(), job);
+//	    String files = job.get(MRJobConfig.CACHE_FILES);
+	    job.set(MRJobConfig.CACHE_FILES, files == null ? cachefile.toUri().toString() : files + ","
+	             + cachefile.toUri().toString());
+//		DistributedCache.createSymlink(job); // NO OP - remove
 		
 		job.set(MRJobConfiguration.TF_HAS_HEADER, 	Boolean.toString(inputDataProperties.hasHeader()));
 		job.set(MRJobConfiguration.TF_DELIM, 		inputDataProperties.getDelim());

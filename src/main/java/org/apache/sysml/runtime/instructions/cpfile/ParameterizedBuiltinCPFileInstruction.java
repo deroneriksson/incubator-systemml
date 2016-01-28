@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.InputSplit;
@@ -352,7 +353,6 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 		 * @throws IOException
 		 * @throws DMLRuntimeException
 		 */
-		@SuppressWarnings("deprecation")
 		public void createBinaryCellStagingFile( String fnameOld, String stagingDir ) 
 			throws IOException, DMLRuntimeException
 		{
@@ -370,7 +370,8 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 
 			for(Path lpath: MatrixReader.getSequenceFilePaths(fs, path))
 			{
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				try
 				{
 					while(reader.next(key, value))
@@ -411,7 +412,6 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 		 * @throws IOException
 		 * @throws DMLRuntimeException
 		 */
-		@SuppressWarnings("deprecation")
 		public boolean createBinaryBlockStagingFile( String fnameOld, String stagingDir ) 
 			throws IOException, DMLRuntimeException
 		{
@@ -428,7 +428,8 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 			
 			for(Path lpath : MatrixReader.getSequenceFilePaths(fs, path))
 			{
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				
 				try
 				{
@@ -712,7 +713,6 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 		 * @throws IOException
 		 * @throws DMLRuntimeException
 		 */
-		@SuppressWarnings("deprecation")
 		public void createCellResultFile( String fnameNew, String stagingDir, long rlen, long clen, int brlen, int bclen, InputInfo ii ) 
 			throws IOException, DMLRuntimeException
 		{
@@ -728,7 +728,10 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 			if( ii == InputInfo.TextCellInputInfo )
 				twriter = new BufferedWriter(new OutputStreamWriter(fs.create(path,true)));	
 			else if( ii == InputInfo.BinaryCellInputInfo )
-				bwriter = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class);
+//				bwriter = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class);
+				bwriter = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+						SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+						SequenceFile.Writer.compression(CompressionType.NONE));
 			else
 				throw new DMLRuntimeException("Unsupported cell input info: "+InputInfo.inputInfoToString(ii));
 			
@@ -830,18 +833,20 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 		 * @throws IOException
 		 * @throws DMLRuntimeException
 		 */
-		@SuppressWarnings("deprecation")
 		public void createBlockResultFile( String fnameNew, String stagingDir, long rlen, long clen, long newlen, long nnz, int brlen, int bclen, InputInfo ii ) 
 			throws IOException, DMLRuntimeException
 		{
 			//prepare input
 			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());	
 			Path path = new Path(fnameNew);
-			FileSystem fs = FileSystem.get(job);
+//			FileSystem fs = FileSystem.get(job);
 			String metaOut = stagingDir+"/meta";
 	
 			//prepare output
-			SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+//			SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+			SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+					SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 			
 			MatrixIndexes key = new MatrixIndexes(); 
 			
@@ -1000,18 +1005,20 @@ public class ParameterizedBuiltinCPFileInstruction extends ParameterizedBuiltinC
 		 * @throws IOException
 		 * @throws DMLRuntimeException
 		 */
-		@SuppressWarnings("deprecation")
 		public void createBlockResultFileDiag( String fnameNew, String stagingDir, long rlen, long clen, long newlen, long nnz, int brlen, int bclen, InputInfo ii ) 
 			throws IOException, DMLRuntimeException
 		{
 			//prepare input
 			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());	
 			Path path = new Path(fnameNew);
-			FileSystem fs = FileSystem.get(job);
+//			FileSystem fs = FileSystem.get(job);
 			String metaOut = stagingDir+"/meta";
 	
 			//prepare output
-			SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+//			SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+			SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+					SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+					SequenceFile.Writer.compression(CompressionType.NONE));
 			MatrixIndexes key = new MatrixIndexes(); 
 			HashSet<Long> writtenBlocks = new HashSet<Long>();
 			

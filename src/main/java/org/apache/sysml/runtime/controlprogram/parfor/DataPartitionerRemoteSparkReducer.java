@@ -23,12 +23,11 @@ import java.io.File;
 import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Writable;
 import org.apache.spark.api.java.function.VoidFunction;
-
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLUnsupportedOperationException;
@@ -56,8 +55,7 @@ public class DataPartitionerRemoteSparkReducer implements VoidFunction<Tuple2<Lo
 		//_oi = oi;
 	}
 
-	@Override
-	@SuppressWarnings("deprecation")	
+	@Override	
 	public void call(Tuple2<Long, Iterable<Writable>> arg0)
 		throws Exception 
 	{
@@ -70,9 +68,11 @@ public class DataPartitionerRemoteSparkReducer implements VoidFunction<Tuple2<Lo
 		try
 		{			
 			Configuration job = new Configuration(ConfigurationManager.getCachedJobConf());
-			FileSystem fs = FileSystem.get(job);
+//			FileSystem fs = FileSystem.get(job);
 			Path path = new Path(_fnameNew + File.separator + key);
-			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+//			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class);
+			writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+					SequenceFile.Writer.valueClass(MatrixBlock.class), SequenceFile.Writer.compression(CompressionType.NONE));
 			while( valueList.hasNext() )
 			{
 				PairWritableBlock pair = (PairWritableBlock) valueList.next();

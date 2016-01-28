@@ -21,7 +21,6 @@ package org.apache.sysml.runtime.transform;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,6 +34,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.sysml.runtime.matrix.CSVReblockMR;
 import org.apache.sysml.runtime.matrix.JobReturn;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
@@ -43,7 +43,6 @@ import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 
 
-@SuppressWarnings("deprecation")
 public class ApplyTfCSVMR {
 	
 	public static JobReturn runJob(String inputPath, String specPath, String mapsPath, String tmpPath, String outputPath, String partOffsetsFile, CSVFileFormatProperties inputDataProperties, long numCols, int replication, String headerLine) throws IOException, ClassNotFoundException, InterruptedException {
@@ -58,12 +57,17 @@ public class ApplyTfCSVMR {
 		job.setNumReduceTasks(0);
 	
 		// Add transformation metadata file as well as partOffsetsFile to Distributed cache
-		DistributedCache.addCacheFile((new Path(mapsPath)).toUri(), job);
-		DistributedCache.createSymlink(job);
+//		DistributedCache.addCacheFile((new Path(mapsPath)).toUri(), job);
+//		DistributedCache.createSymlink(job);
+	    String files = job.get(MRJobConfig.CACHE_FILES);
+	    job.set(MRJobConfig.CACHE_FILES, files == null ? (new Path(mapsPath)).toUri().toString() : files + ","
+	             + (new Path(mapsPath)).toUri().toString());
 		
 		Path cachefile=new Path(partOffsetsFile);
-		DistributedCache.addCacheFile(cachefile.toUri(), job);
-		DistributedCache.createSymlink(job);
+//		DistributedCache.addCacheFile(cachefile.toUri(), job);
+//		DistributedCache.createSymlink(job);
+	    job.set(MRJobConfig.CACHE_FILES, files == null ? cachefile.toUri().toString() : files + ","
+	             + cachefile.toUri().toString());
 		
 		// set input and output properties
 		job.setInputFormat(TextInputFormat.class);

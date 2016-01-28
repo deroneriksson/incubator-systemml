@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,6 +39,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.instructions.MRJobInstruction;
@@ -59,7 +59,6 @@ import org.apache.sysml.runtime.transform.TfUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
 
 
-@SuppressWarnings("deprecation")
 public class CSVReblockMR 
 {
 	public static final String NUM_ROWS_IN_MATRIX="num.rows.in.matrix.";
@@ -216,7 +215,7 @@ public class CSVReblockMR
 		Path p=new Path(inputPath);
 		FileSystem fs = p.getFileSystem(job);
 		if(!fs.isDirectory(p))
-			smallestFile=p.makeQualified(fs).toString();
+			smallestFile=p.makeQualified(fs.getUri(), fs.getWorkingDirectory()).toString();
 		else
 		{
 			FileStatus[] stats=fs.listStatus(p, hiddenFileFilter);
@@ -253,7 +252,7 @@ public class CSVReblockMR
 			Path p=new Path(inputs[i]);
 			FileSystem fs = p.getFileSystem(job);
 			if(!fs.isDirectory(p))
-				smallestFiles[i]=p.makeQualified(fs).toString();
+				smallestFiles[i]=p.makeQualified(fs.getUri(), fs.getWorkingDirectory()).toString();
 			else
 			{
 				FileStatus[] stats=fs.listStatus(p, hiddenFileFilter);
@@ -453,8 +452,14 @@ public class CSVReblockMR
 		//set unique working dir
 		MRJobConfiguration.setUniqueWorkingDir(job);
 		Path cachefile=new Path(counterFile, "part-00000");
-		DistributedCache.addCacheFile(cachefile.toUri(), job);
-		DistributedCache.createSymlink(job);
+//		DistributedCache.addCacheFile(cachefile.toUri(), job);
+		String files = job.get(MRJobConfig.CACHE_FILES);
+		job.set(MRJobConfig.CACHE_FILES, files == null ? cachefile.toUri().toString() : files + ","
+				+ cachefile.toUri().toString());
+
+		// remove - NO-OP
+//		DistributedCache.createSymlink(job);
+		
 		job.set(ROWID_FILE_NAME, cachefile.toString());
 		
 		RunningJob runjob=JobClient.runJob(job);

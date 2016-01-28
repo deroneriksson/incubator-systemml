@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
@@ -345,7 +346,6 @@ public class ResultMergeLocalFile extends ResultMerge
 	 * @param inMO
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void mergeBinaryCellWithoutComp( String fnameNew, MatrixObject outMo, ArrayList<MatrixObject> inMO ) 
 		throws DMLRuntimeException
 	{
@@ -364,7 +364,9 @@ public class ResultMergeLocalFile extends ResultMerge
 			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
 			FileSystem fs = FileSystem.get(job);
 			Path path = new Path( fnameNew );					
-			SequenceFile.Writer out = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+//			SequenceFile.Writer out = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+			SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+					SequenceFile.Writer.valueClass(MatrixCell.class), SequenceFile.Writer.compression(CompressionType.NONE));
 			
 			MatrixIndexes key = new MatrixIndexes();
 			MatrixCell value = new MatrixCell();
@@ -380,12 +382,13 @@ public class ResultMergeLocalFile extends ResultMerge
 					
 					for(Path lpath : MatrixReader.getSequenceFilePaths(fs, tmpPath) )
 					{
-						SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,tmpJob);
+//						SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,tmpJob);
+						SequenceFile.Reader reader = new SequenceFile.Reader(tmpJob, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 						try
 						{
 							while(reader.next(key, value))
 							{
-								out.append(key, value);
+								writer.append(key, value);
 							}
 						}
 						finally
@@ -398,8 +401,8 @@ public class ResultMergeLocalFile extends ResultMerge
 			}
 			finally
 			{
-				if( out != null )
-					out.close();
+				if( writer != null )
+					writer.close();
 			}
 		}
 		catch(Exception ex)
@@ -535,7 +538,6 @@ public class ResultMergeLocalFile extends ResultMerge
 	 * @param mo
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	private void createBinaryBlockStagingFile( String fnameStaging, MatrixObject mo ) 
 		throws IOException
 	{		
@@ -548,7 +550,8 @@ public class ResultMergeLocalFile extends ResultMerge
 		
 		for(Path lpath : MatrixReader.getSequenceFilePaths(fs, tmpPath))
 		{
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,tmpJob);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,tmpJob);
+			SequenceFile.Reader reader = new SequenceFile.Reader(tmpJob, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			try
 			{
 				while(reader.next(key, value)) //for each block
@@ -650,7 +653,6 @@ public class ResultMergeLocalFile extends ResultMerge
 	 * @throws IOException
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void createBinaryCellStagingFile( String fnameStaging, MatrixObject mo, long ID ) 
 		throws IOException, DMLRuntimeException
 	{		
@@ -668,7 +670,8 @@ public class ResultMergeLocalFile extends ResultMerge
 		
 		for(Path lpath: MatrixReader.getSequenceFilePaths(fs, path))
 		{
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			try
 			{
 				while(reader.next(key, value))
@@ -755,12 +758,11 @@ public class ResultMergeLocalFile extends ResultMerge
 	 * @throws IOException
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void createBinaryBlockResultFile( String fnameStaging, String fnameStagingCompare, String fnameNew, MatrixFormatMetaData metadata, boolean withCompare ) 
 		throws IOException, DMLRuntimeException
 	{
 		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 		Path path = new Path( fnameNew );	
 		
 		MatrixCharacteristics mc = metadata.getMatrixCharacteristics();
@@ -769,7 +771,10 @@ public class ResultMergeLocalFile extends ResultMerge
 		int brlen = mc.getRowsPerBlock();
 		int bclen = mc.getColsPerBlock();
 		
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class); //beware ca 50ms
+//		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class); //beware ca 50ms
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+				SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		try
 		{
 			MatrixIndexes indexes = new MatrixIndexes();
@@ -1012,13 +1017,12 @@ public class ResultMergeLocalFile extends ResultMerge
 	 * @throws IOException
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void createBinaryCellResultFile( String fnameStaging, String fnameStagingCompare, String fnameNew, MatrixFormatMetaData metadata, boolean withCompare ) 
 		throws IOException, DMLRuntimeException
 	{
 		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
-		FileSystem fs = FileSystem.get(job);
-		Path path = new Path( fnameNew );	
+//		FileSystem fs = FileSystem.get(job);
+		Path path = new Path( fnameNew );
 		
 		MatrixCharacteristics mc = metadata.getMatrixCharacteristics();
 		long rlen = mc.getRows();
@@ -1030,7 +1034,10 @@ public class ResultMergeLocalFile extends ResultMerge
 		MatrixIndexes indexes = new MatrixIndexes(1,1);
 		MatrixCell cell = new MatrixCell(0);	
 		
-		SequenceFile.Writer out = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+//		SequenceFile.Writer out = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+				SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		try
 		{
 			boolean written=false;
@@ -1110,7 +1117,7 @@ public class ResultMergeLocalFile extends ResultMerge
 								IJV lcell = iter.next();
 								indexes.setIndexes(row_offset+lcell.i, col_offset+lcell.j);
 								cell.setValue(lcell.v);
-								out.append(indexes,cell);
+								writer.append(indexes,cell);
 								written = true;
 							}
 						}
@@ -1124,7 +1131,7 @@ public class ResultMergeLocalFile extends ResultMerge
 									{
 										indexes.setIndexes(row_offset+i, col_offset+j);
 										cell.setValue(lvalue);
-										out.append(indexes,cell);
+										writer.append(indexes,cell);
 										written = true;
 									}
 								}
@@ -1133,12 +1140,12 @@ public class ResultMergeLocalFile extends ResultMerge
 				}	
 			
 			if( !written )
-				out.append(indexes,cell);
+				writer.append(indexes,cell);
 		}
 		finally
 		{
-			if( out != null )
-				out.close();
+			if( writer != null )
+				writer.close();
 		}
 	}
 

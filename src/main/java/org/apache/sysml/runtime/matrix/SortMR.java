@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -43,6 +42,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Partitioner;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.SortKeys;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -76,7 +76,6 @@ import org.apache.sysml.runtime.util.MapReduceTool;
 /**
  * TODO fix issues sortindex mappers
  */
-@SuppressWarnings("deprecation")
 public class SortMR 
 {
     private static final Log LOG = LogFactory.getLog(SortMR.class.getName());
@@ -117,7 +116,8 @@ public class SortMR
     private ArrayList<WritableComparable> readPartitions(FileSystem fs, Path p, JobConf job) 
     	throws IOException 
     {
-    	SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+//    	SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+    	SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(p.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
     	ArrayList<WritableComparable> parts = new ArrayList<WritableComparable>();
     	try 
     	{
@@ -191,7 +191,8 @@ public class SortMR
 	   
 	    //setup input/output paths
 	    Path inputDir = new Path(input);
-	    inputDir = inputDir.makeQualified(inputDir.getFileSystem(job));
+	    inputDir = inputDir.makeQualified(inputDir.getFileSystem(job).getUri(), inputDir.getFileSystem(job).getWorkingDirectory());
+	    
 	    SamplingSortMRInputFormat.setInputPaths(job, inputDir);
 	    Path outpath = new Path(tmpOutput);
 	    FileOutputFormat.setOutputPath(job, outpath);	    
@@ -241,8 +242,14 @@ public class SortMR
 	    
 	    
 	    //setup distributed cache
-	    DistributedCache.addCacheFile(partitionUri, job);
-	    DistributedCache.createSymlink(job);
+	    // TODO - replace DistributedCache.addCacheFile(partitionUri, job) properly
+	    String files = job.get(MRJobConfig.CACHE_FILES);
+	    job.set(MRJobConfig.CACHE_FILES, files == null ? partitionUri.toString() : files + ","
+	             + partitionUri.toString());
+//	    DistributedCache.addCacheFile(partitionUri, job);
+	    
+	    // NO OP - remove
+//	    DistributedCache.createSymlink(job);
 	    
 	    //setup replication factor
 	    job.setInt(MRConfigurationNames.DFS_REPLICATION, replication);

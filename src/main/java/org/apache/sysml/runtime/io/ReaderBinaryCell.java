@@ -76,7 +76,6 @@ public class ReaderBinaryCell extends MatrixReader
 	 * @param bclen
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	private void readBinaryCellMatrixFromHDFS( Path path, JobConf job, FileSystem fs, MatrixBlock dest, long rlen, long clen, int brlen, int bclen )
 		throws IOException
 	{
@@ -91,7 +90,8 @@ public class ReaderBinaryCell extends MatrixReader
 			for( Path lpath : getSequenceFilePaths(fs,path) ) //1..N files 
 			{
 				//directly read from sequence files (individual partfiles)
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				
 				try
 				{

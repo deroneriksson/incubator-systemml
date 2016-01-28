@@ -143,7 +143,6 @@ public class CSVReblockMapper extends MapperBase implements Mapper<LongWritable,
 	}	
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void configure(JobConf job)
 	{
 		super.configure(job);
@@ -154,16 +153,17 @@ public class CSVReblockMapper extends MapperBase implements Mapper<LongWritable,
 		try 
 		{
 			FileSystem fs = FileSystem.get(job);
-			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs);
+			Path thisPath=new Path(job.get(MRConfigurationNames.MR_MAP_INPUT_FILE)).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			String filename=thisPath.toString();
-			Path headerPath=new Path(job.getStrings(CSVReblockMR.SMALLEST_FILE_NAME_PER_INPUT)[matrixIndex]).makeQualified(fs);
+			Path headerPath=new Path(job.getStrings(CSVReblockMR.SMALLEST_FILE_NAME_PER_INPUT)[matrixIndex]).makeQualified(fs.getUri(), fs.getWorkingDirectory());
 			if(headerPath.toString().equals(filename))
 				headerFile=true;
 			
 			ByteWritable key=new ByteWritable();
 			OffsetCount value=new OffsetCount();
 			Path p=new Path(job.get(CSVReblockMR.ROWID_FILE_NAME));
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs, p, job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(p.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			while (reader.next(key, value)) {
 				if(key.get()==matrixIndex && filename.equals(value.filename))
 					offsetMap.put(value.fileOffset, value.count);

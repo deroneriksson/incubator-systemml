@@ -29,11 +29,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-
 import org.apache.sysml.runtime.controlprogram.parfor.util.PairWritableBlock;
 import org.apache.sysml.runtime.controlprogram.parfor.util.PairWritableCell;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
@@ -175,7 +175,6 @@ public class DataPartitionerRemoteReducer
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		protected void processKeyValueList(LongWritable key, Iterator<Writable> valueList, OutputCollector<Writable, Writable> out, Reporter reporter)
 			throws IOException 
 		{
@@ -183,7 +182,9 @@ public class DataPartitionerRemoteReducer
 			try
 			{			
 				Path path = new Path(_fnameNew+"/"+key.get());
-				writer = new SequenceFile.Writer(_fs, _job, path, MatrixIndexes.class, MatrixCell.class);
+//				writer = new SequenceFile.Writer(_fs, _job, path, MatrixIndexes.class, MatrixCell.class);
+				writer = SequenceFile.createWriter(_job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+						SequenceFile.Writer.valueClass(MatrixCell.class), SequenceFile.Writer.compression(CompressionType.NONE));
 				while( valueList.hasNext() )
 				{
 					PairWritableCell pairValue = (PairWritableCell)valueList.next();
@@ -207,7 +208,6 @@ public class DataPartitionerRemoteReducer
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		protected void processKeyValueList(LongWritable key, Iterator<Writable> valueList, OutputCollector<Writable, Writable> out, Reporter reporter)
 			throws IOException 
 		{
@@ -215,7 +215,9 @@ public class DataPartitionerRemoteReducer
 			try
 			{			
 				Path path = new Path(_fnameNew+"/"+key.get());
-				writer = new SequenceFile.Writer(_fs, _job, path, MatrixIndexes.class, MatrixBlock.class);
+//				writer = new SequenceFile.Writer(_fs, _job, path, MatrixIndexes.class, MatrixBlock.class);
+				writer = SequenceFile.createWriter(_job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+						SequenceFile.Writer.valueClass(MatrixBlock.class), SequenceFile.Writer.compression(CompressionType.NONE));
 				while( valueList.hasNext() )
 				{
 					PairWritableBlock pairValue = (PairWritableBlock)valueList.next();

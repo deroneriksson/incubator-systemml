@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -142,7 +143,6 @@ public class WriterBinaryBlockParallel extends WriterBinaryBlock
 		}
 	
 		@Override
-		@SuppressWarnings("deprecation")
 		public Object call() throws Exception 
 		{
 			// 1) create sequence file writer, with right replication factor 
@@ -151,12 +151,22 @@ public class WriterBinaryBlockParallel extends WriterBinaryBlock
 			if( _replication > 0 ) //if replication specified (otherwise default)
 			{
 				//copy of SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class), except for replication
-				writer = new SequenceFile.Writer(_fs, _job, _path, MatrixIndexes.class, MatrixBlock.class, _job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
-						                         (short)_replication, _fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());	
+//				writer = new SequenceFile.Writer(_fs, _job, _path, MatrixIndexes.class, MatrixBlock.class, _job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096),
+//						                         (short)_replication, _fs.getDefaultBlockSize(), null, new SequenceFile.Metadata());
+				writer = SequenceFile.createWriter(_job,
+//						SequenceFile.Writer.file(_path), // needed?
+						SequenceFile.Writer.stream(_fs.create(_path, true, _job.getInt(MRConfigurationNames.IO_FILE_BUFFER_SIZE, 4096), (short) _replication, _fs.getDefaultBlockSize(_path), null)),
+						SequenceFile.Writer.metadata(new SequenceFile.Metadata()), // needed?
+						SequenceFile.Writer.keyClass(MatrixIndexes.class),
+						SequenceFile.Writer.valueClass(MatrixBlock.class),
+						SequenceFile.Writer.compression(CompressionType.NONE));
 			}
 			else	
 			{
-				writer = new SequenceFile.Writer(_fs, _job, _path, MatrixIndexes.class, MatrixBlock.class);
+//				writer = new SequenceFile.Writer(_fs, _job, _path, MatrixIndexes.class, MatrixBlock.class);
+				writer = SequenceFile.createWriter(_job, SequenceFile.Writer.file(_path),
+						SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixBlock.class),
+						SequenceFile.Writer.compression(CompressionType.NONE));
 			}
 			
 			try

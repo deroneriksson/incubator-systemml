@@ -249,7 +249,6 @@ public class RemoteDPParForMR
 	 * @return
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	public static LocalVariableMap [] readResultFile( JobConf job, String fname )
 		throws DMLRuntimeException, IOException
 	{
@@ -263,7 +262,8 @@ public class RemoteDPParForMR
 		int countAll = 0;
 		for( Path lpath : MatrixReader.getSequenceFilePaths(fs, path) )
 		{
-			SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(job),lpath,job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(job),lpath,job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			try
 			{
 				while( reader.next(key, value) )

@@ -131,7 +131,6 @@ public class ReaderBinaryBlock extends MatrixReader
 	 * @throws InstantiationException
 	 * @throws DMLRuntimeException 
 	 */
-	@SuppressWarnings("deprecation")
 	private static void readBinaryBlockMatrixFromHDFS( Path path, JobConf job, FileSystem fs, MatrixBlock dest, long rlen, long clen, int brlen, int bclen )
 		throws IOException, DMLRuntimeException
 	{
@@ -147,7 +146,8 @@ public class ReaderBinaryBlock extends MatrixReader
 		for( Path lpath : getSequenceFilePaths(fs, path) ) //1..N files 
 		{
 			//directly read from sequence files (individual partfiles)
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			
 			try
 			{
@@ -216,7 +216,6 @@ public class ReaderBinaryBlock extends MatrixReader
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	@SuppressWarnings("deprecation")
 	private void readBinaryBlockMatrixBlocksFromHDFS( Path path, JobConf job, FileSystem fs, Collection<IndexedMatrixValue> dest, long rlen, long clen, int brlen, int bclen )
 		throws IOException
 	{
@@ -230,7 +229,8 @@ public class ReaderBinaryBlock extends MatrixReader
 		for( Path lpath : getSequenceFilePaths(fs, path) ) //1..N files 
 		{
 			//directly read from sequence files (individual partfiles)
-			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+//			SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+			SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 			
 			try
 			{

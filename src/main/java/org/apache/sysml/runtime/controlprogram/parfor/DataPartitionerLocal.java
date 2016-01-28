@@ -32,6 +32,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.InputSplit;
@@ -249,7 +250,6 @@ public class DataPartitionerLocal extends DataPartitioner
 	 * @param bclen
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void partitionBinaryCell( String fname, String fnameStaging, String fnameNew, long rlen, long clen, int brlen, int bclen ) 
 		throws DMLRuntimeException
 	{
@@ -271,7 +271,7 @@ public class DataPartitionerLocal extends DataPartitioner
 	
 			for( Path lpath : MatrixReader.getSequenceFilePaths(fs, path) )
 			{
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				try
 				{
 					while(reader.next(key, value))
@@ -348,7 +348,6 @@ public class DataPartitionerLocal extends DataPartitioner
 	 * @param bclen
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void partitionBinaryBlock( String fname, String fnameStaging, String fnameNew, long rlen, long clen, int brlen, int bclen ) 
 		throws DMLRuntimeException
 	{
@@ -369,7 +368,7 @@ public class DataPartitionerLocal extends DataPartitioner
 			
 			for(Path lpath : MatrixReader.getSequenceFilePaths(fs, path) )
 			{
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				try
 				{
 					while(reader.next(key, value)) //for each block
@@ -435,7 +434,6 @@ public class DataPartitionerLocal extends DataPartitioner
 	 * @param bclen
 	 * @throws DMLRuntimeException
 	 */
-	@SuppressWarnings("deprecation")
 	private void partitionBinaryBlock2BinaryCell( String fname, String fnameStaging, String fnameNew, long rlen, long clen, int brlen, int bclen ) 
 		throws DMLRuntimeException
 	{
@@ -455,7 +453,7 @@ public class DataPartitionerLocal extends DataPartitioner
 			
 			for(Path lpath : MatrixReader.getSequenceFilePaths(fs, path) )
 			{
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs,lpath,job);
+				SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(lpath.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
 				try
 				{
 					while(reader.next(key, value)) //for each block
@@ -665,15 +663,18 @@ public class DataPartitionerLocal extends DataPartitioner
 	// read/write in different formats //
 	/////////////////////////////////////
 	
-	@SuppressWarnings("deprecation")
 	public void writeBinaryBlockSequenceFileToHDFS( JobConf job, String dir, String lpdir, boolean threadsafe ) 
 		throws IOException
 	{
 		long key = getKeyFromFilePath(lpdir);
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 		Path path =  new Path(dir+"/"+key);
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class); //beware ca 50ms
-
+		
+		// SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class); //beware ca 50ms
+		// use SequenceFile.Writer.stream(fs.create(path)) or SequenceFile.Writer.file(path) ?
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+				SequenceFile.Writer.valueClass(MatrixBlock.class), SequenceFile.Writer.compression(CompressionType.NONE));
+		
 		try
 		{
 			String[] fnameBlocks = new File( lpdir ).list();
@@ -703,14 +704,15 @@ public class DataPartitionerLocal extends DataPartitioner
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void writeBinaryCellSequenceFileToHDFS( JobConf job, String dir, String lpdir ) 
 		throws IOException
 	{
 		long key = getKeyFromFilePath(lpdir);
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 		Path path =  new Path(dir+"/"+key);
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+		// SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path), SequenceFile.Writer.keyClass(MatrixIndexes.class),
+				SequenceFile.Writer.valueClass(MatrixCell.class), SequenceFile.Writer.compression(CompressionType.NONE));
 	
 		try
 		{

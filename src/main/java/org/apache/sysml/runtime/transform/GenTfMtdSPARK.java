@@ -28,20 +28,20 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysml.runtime.matrix.CSVReblockMR.OffsetCount;
+import org.apache.sysml.runtime.matrix.data.CSVFileFormatProperties;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.JSONObject;
 
 import scala.Tuple2;
-
-import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
-import org.apache.sysml.runtime.matrix.CSVReblockMR.OffsetCount;
-import org.apache.sysml.runtime.matrix.data.CSVFileFormatProperties;
 
 public class GenTfMtdSPARK {
 
@@ -203,8 +203,10 @@ public class GenTfMtdSPARK {
 					list.add(new OffsetCount(iterDV.next().getOffsetCount()));
 				Collections.sort(list);
 				
-				@SuppressWarnings("deprecation")
-				SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, new Path(_agents.getOffsetFile()+"/part-00000"), ByteWritable.class, OffsetCount.class);
+//				SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, new Path(_agents.getOffsetFile()+"/part-00000"), ByteWritable.class, OffsetCount.class);
+				SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(new Path(_agents.getOffsetFile()+"/part-00000")),
+						SequenceFile.Writer.keyClass(ByteWritable.class), SequenceFile.Writer.valueClass(OffsetCount.class),
+						SequenceFile.Writer.compression(CompressionType.NONE));
 				
 				long lineOffset=0;
 				for(OffsetCount oc: list)

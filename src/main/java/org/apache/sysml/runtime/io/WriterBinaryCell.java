@@ -22,9 +22,9 @@ package org.apache.sysml.runtime.io;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -54,16 +54,18 @@ public class WriterBinaryCell extends MatrixWriter
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void writeEmptyMatrixToHDFS(String fname, long rlen, long clen, int brlen, int bclen) 
 		throws IOException, DMLRuntimeException 
 	{
 		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
-		FileSystem fs = FileSystem.get(job);
+//		FileSystem fs = FileSystem.get(job);
 
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path,
-                MatrixIndexes.class, MatrixCell.class);
+//		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path,
+//                MatrixIndexes.class, MatrixCell.class);
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+				SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		
 		MatrixIndexes index = new MatrixIndexes(1, 1);
 		MatrixCell cell = new MatrixCell(0);
@@ -82,14 +84,16 @@ public class WriterBinaryCell extends MatrixWriter
 	 * @param bclen
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	protected void writeBinaryCellMatrixToHDFS( Path path, JobConf job, MatrixBlock src, long rlen, long clen, int brlen, int bclen )
 		throws IOException
 	{
 		boolean sparse = src.isInSparseFormat();
 		boolean entriesWritten = false;
-		FileSystem fs = FileSystem.get(job);
-		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class);
+//		FileSystem fs = FileSystem.get(job);
+//		SequenceFile.Writer writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class);
+		SequenceFile.Writer writer = SequenceFile.createWriter(job, SequenceFile.Writer.file(path),
+				SequenceFile.Writer.keyClass(MatrixIndexes.class), SequenceFile.Writer.valueClass(MatrixCell.class),
+				SequenceFile.Writer.compression(CompressionType.NONE));
 		
 		MatrixIndexes indexes = new MatrixIndexes();
 		MatrixCell cell = new MatrixCell();
