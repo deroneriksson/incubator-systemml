@@ -39,8 +39,6 @@ grammar Pydml;
  * specific language governing permissions and limitations
  * under the License.
  */
-    import org.apache.sysml.parser.common.ExpressionInfo;
-    import org.apache.sysml.parser.common.StatementInfo;
 }
 
 // This antlr grammar is based on Python 3.3 language reference: https://docs.python.org/3.3/reference/grammar.html

@@ -39,8 +39,6 @@ grammar Dml;
  * specific language governing permissions and limitations
  * under the License.
  */
-    import org.apache.sysml.parser.common.ExpressionInfo;
-    import org.apache.sysml.parser.common.StatementInfo;
 }
 
 // DML Program is a list of expression
