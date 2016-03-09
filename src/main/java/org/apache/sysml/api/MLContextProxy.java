@@ -21,6 +21,7 @@ package org.apache.sysml.api;
 
 import java.util.ArrayList;
 
+import org.apache.sysml.api.mlcontext.NewMLContext;
 import org.apache.sysml.api.monitoring.Location;
 import org.apache.sysml.parser.Expression;
 import org.apache.sysml.parser.LanguageException;
@@ -61,8 +62,8 @@ public class MLContextProxy
 	 */
 	public static ArrayList<Instruction> performCleanupAfterRecompilation(ArrayList<Instruction> tmp) 
 	{
-		if(MLContext.getActiveMLContext() != null) {
-			return MLContext.getActiveMLContext().performCleanupAfterRecompilation(tmp);
+		if(NewMLContext.getActiveMLContext() != null) {
+			return NewMLContext.getActiveMLContext().performCleanupAfterRecompilation(tmp);
 		}
 		return tmp;
 	}
@@ -76,26 +77,26 @@ public class MLContextProxy
 	public static void setAppropriateVarsForRead(Expression source, String targetname) 
 		throws LanguageException 
 	{
-		MLContext mlContext = MLContext.getActiveMLContext();
-		if(mlContext != null) {
+		NewMLContext mlContext = NewMLContext.getActiveMLContext();
+		if (mlContext != null) {
 			mlContext.setAppropriateVarsForRead(source, targetname);
 		}
 	}
 	
-	public static MLContext getActiveMLContext() {
-		return MLContext.getActiveMLContext();
+	public static NewMLContext getActiveMLContext() {
+		return NewMLContext.getActiveMLContext();
 	}
 	
 	public static void setInstructionForMonitoring(Instruction inst) {
 		Location loc = inst.getLocation();
-		MLContext mlContext = MLContext.getActiveMLContext();
+		NewMLContext mlContext = NewMLContext.getActiveMLContext();
 		if(loc != null && mlContext != null && mlContext.getMonitoringUtil() != null) {
 			mlContext.getMonitoringUtil().setInstructionLocation(loc, inst);
 		}
 	}
 	
 	public static void addRDDForInstructionForMonitoring(SPInstruction inst, Integer rddID) {
-		MLContext mlContext = MLContext.getActiveMLContext();
+		NewMLContext mlContext = NewMLContext.getActiveMLContext();
 		if(mlContext != null && mlContext.getMonitoringUtil() != null) {
 			mlContext.getMonitoringUtil().addRDDForInstruction(inst, rddID);
 		}

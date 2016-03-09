@@ -19,8 +19,8 @@
 
 package org.apache.sysml.runtime.instructions.spark;
 
-import org.apache.sysml.api.MLContext;
 import org.apache.sysml.api.MLContextProxy;
+import org.apache.sysml.api.mlcontext.NewMLContext;
 import org.apache.sysml.lops.runtime.RunMRJobs;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLUnsupportedOperationException;
@@ -100,7 +100,7 @@ public abstract class SPInstruction extends Instruction
 
 		//spark-explain-specific handling of current instructions 
 		//This only relevant for ComputationSPInstruction as in postprocess we call setDebugString which is valid only for ComputationSPInstruction
-		MLContext mlCtx = MLContextProxy.getActiveMLContext();
+		NewMLContext mlCtx = MLContextProxy.getActiveMLContext();
 		if(    tmp instanceof ComputationSPInstruction 
 			&& mlCtx != null && mlCtx.getMonitoringUtil() != null 
 			&& ec instanceof SparkExecutionContext ) 
@@ -121,7 +121,7 @@ public abstract class SPInstruction extends Instruction
 			throws DMLRuntimeException 
 	{
 		//spark-explain-specific handling of current instructions
-		MLContext mlCtx = MLContextProxy.getActiveMLContext();
+		NewMLContext mlCtx = MLContextProxy.getActiveMLContext();
 		if(    this instanceof ComputationSPInstruction 
 			&& mlCtx != null && mlCtx.getMonitoringUtil() != null
 			&& ec instanceof SparkExecutionContext ) 

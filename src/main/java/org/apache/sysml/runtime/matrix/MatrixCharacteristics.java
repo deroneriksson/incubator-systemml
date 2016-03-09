@@ -65,7 +65,11 @@ import org.apache.sysml.runtime.matrix.operators.AggregateBinaryOperator;
 import org.apache.sysml.runtime.matrix.operators.AggregateUnaryOperator;
 import org.apache.sysml.runtime.matrix.operators.ReorgOperator;
 
-
+/**
+ * Matrix characteristics, such as the number of rows, the number of columns, the number of rows
+ * per block, the number of columns per block, and the number of non-zero values in the matrix.
+ *
+ */
 public class MatrixCharacteristics implements Serializable
 {
 	private static final long serialVersionUID = 8300479822915546000L;
@@ -74,133 +78,281 @@ public class MatrixCharacteristics implements Serializable
 	private long numColumns = -1;
 	private int numRowsPerBlock = 1;
 	private int numColumnsPerBlock = 1;
-	private long nonZero = -1;
+	private long numNonZeros = -1;
 	
+	/**
+	 * Constructor.
+	 */
 	public MatrixCharacteristics() {
 	
 	}
 	
-	public MatrixCharacteristics(long nr, long nc, int bnr, int bnc)
+	/**
+	 * Constructor to create a MatrixCharacteristics object based on the number of rows, the number of
+	 * columns, the number of rows per block, and the number of columns per block in a matrix.
+	 * 
+	 * @param numRows             The number of rows in the matrix.
+	 * @param numColumns          The number of columns in the matrix.
+	 * @param numRowsPerBlock     The number of rows per block in the matrix.
+	 * @param numColumnsPerBlock  The number of columns per block in the matrix.
+	 */
+	public MatrixCharacteristics(long numRows, long numColumns, int numRowsPerBlock, int numColumnsPerBlock)
 	{
-		set(nr, nc, bnr, bnc);
+		set(numRows, numColumns, numRowsPerBlock, numColumnsPerBlock);
 	}
 
-	public MatrixCharacteristics(long nr, long nc, int bnr, int bnc, long nnz)
+	/**
+	 * Constructor to create a MatrixCharacteristics object based on the number of rows, the number of
+	 * columns, the number of rows per block, the number of columns per block, and the number of non-zero
+	 * values in a matrix.
+	 * 
+	 * @param numRows             The number of rows in the matrix.
+	 * @param numColumns          The number of columns in the matrix.
+	 * @param numRowsPerBlock     The number of rows per block in the matrix.
+	 * @param numColumnsPerBlock  The number of columns per block in the matrix.
+	 * @param numNonZeros         The number of non-zero values in the matrix.
+	 */
+	public MatrixCharacteristics(long numRows, long numColumns, int numRowsPerBlock, int numColumnsPerBlock, long numNonZeros)
 	{
-		set(nr, nc, bnr, bnc, nnz);
+		set(numRows, numColumns, numRowsPerBlock, numColumnsPerBlock, numNonZeros);
 	}
 	
-	public MatrixCharacteristics(MatrixCharacteristics that)
+	/**
+	 * Constructor to create a MatrixCharacteristics object based on an existing MatrixCharacteristics object.
+	 * 
+	 * @param matrixCharacteristics Existing MatrixCharacteristics object.
+	 */
+	public MatrixCharacteristics(MatrixCharacteristics matrixCharacteristics)
 	{
-		set(that.numRows, that.numColumns, that.numRowsPerBlock, that.numColumnsPerBlock, that.nonZero);
+		set(matrixCharacteristics.numRows, matrixCharacteristics.numColumns, matrixCharacteristics.numRowsPerBlock,
+				matrixCharacteristics.numColumnsPerBlock, matrixCharacteristics.numNonZeros);
 	}
 
-	public void set(long nr, long nc, int bnr, int bnc) {
-		numRows = nr;
-		numColumns = nc;
-		numRowsPerBlock = bnr;
-		numColumnsPerBlock = bnc;
+	/**
+	 * Set the number of rows, the number of columns, the number of rows per block, and the number of
+	 * columns per block in the matrix.
+	 * 
+	 * @param numRows             The number of rows in the matrix.
+	 * @param numColumns          The number of columns in the matrix.
+	 * @param numRowsPerBlock     The number of rows per block in the matrix.
+	 * @param numColumnsPerBlock  The number of columns per block in the matrix.
+	 */
+	public void set(long numRows, long numColumns, int numRowsPerBlock, int numColumnsPerBlock) {
+		this.numRows = numRows;
+		this.numColumns = numColumns;
+		this.numRowsPerBlock = numRowsPerBlock;
+		this.numColumnsPerBlock = numColumnsPerBlock;
 	}
 	
-	public void set(long nr, long nc, int bnr, int bnc, long nnz) {
-		numRows = nr;
-		numColumns = nc;
-		numRowsPerBlock = bnr;
-		numColumnsPerBlock = bnc;
-		nonZero = nnz;
+	/**
+	 * Set the number of rows, the number of columns, the number of rows per block, the number of
+	 * columns per block, and the number of non-zero values in the matrix.
+	 * 
+	 * @param numRows             The number of rows in the matrix.
+	 * @param numColumns          The number of columns in the matrix.
+	 * @param numRowsPerBlock     The number of rows per block in the matrix.
+	 * @param numColumnsPerBlock  The number of columns per block in the matrix.
+	 * @param numNonZeros         The number of non-zero values in the matrix.
+	 */
+	public void set(long numRows, long numColumns, int numRowsPerBlock, int numColumnsPerBlock, long numNonZeros) {
+		this.numRows = numRows;
+		this.numColumns = numColumns;
+		this.numRowsPerBlock = numRowsPerBlock;
+		this.numColumnsPerBlock = numColumnsPerBlock;
+		this.numNonZeros = numNonZeros;
 	}
 	
-	public void set(MatrixCharacteristics that) {
-		numRows = that.numRows;
-		numColumns = that.numColumns;
-		numRowsPerBlock = that.numRowsPerBlock;
-		numColumnsPerBlock = that.numColumnsPerBlock;
-		nonZero = that.nonZero;
+	/**
+	 * Set this MatrixCharacteristics object's values based on another existing MatrixCharacteristics object.
+	 * 
+	 * @param matrixCharacteristics Existing MatrixCharacteristics object.
+	 */
+	public void set(MatrixCharacteristics matrixCharacteristics) {
+		this.numRows = matrixCharacteristics.numRows;
+		this.numColumns = matrixCharacteristics.numColumns;
+		this.numRowsPerBlock = matrixCharacteristics.numRowsPerBlock;
+		this.numColumnsPerBlock = matrixCharacteristics.numColumnsPerBlock;
+		this.numNonZeros = matrixCharacteristics.numNonZeros;
 	}
 	
+	/**
+	 * Obtain the number of rows in the matrix.
+	 * 
+	 * @return The number of rows in the matrix.
+	 */
 	public long getRows(){
 		return numRows;
 	}
 
+	/**
+	 * Obtain the number of columns in the matrix.
+	 * 
+	 * @return The number of columns in the matrix.
+	 */
 	public long getCols(){
 		return numColumns;
 	}
 	
+	/**
+	 * Obtain the number of rows per block in the matrix.
+	 * 
+	 * @return The number of rows per block in the matrix.
+	 */
 	public int getRowsPerBlock() {
 		return numRowsPerBlock;
 	}
 	
-	public void setRowsPerBlock( int brlen){
-		numRowsPerBlock = brlen;
+	/**
+	 * Set the number of rows per block in the matrix.
+	 * 
+	 * @param numRowsPerBlock The number of rows per block in the matrix.
+	 */
+	public void setRowsPerBlock( int numRowsPerBlock){
+		this.numRowsPerBlock = numRowsPerBlock;
 	} 
 	
+	/**
+	 * Obtain the number of columns per block in the matrix.
+	 * 
+	 * @return The number of columns per block in the matrix.
+	 */
 	public int getColsPerBlock() {
 		return numColumnsPerBlock;
 	}
 	
-	public void setColsPerBlock( int bclen){
-		numColumnsPerBlock = bclen;
+	/**
+	 * Set the number of columns per block in the matrix.
+	 * 
+	 * @param numColumnsPerBlock The number of columns per block in the matrix.
+	 */
+	public void setColsPerBlock( int numColumnsPerBlock){
+		this.numColumnsPerBlock = numColumnsPerBlock;
 	} 
 	
+	/**
+	 * Obtain the number of row blocks in the matrix.
+	 * 
+	 * @return The number of row blocks (rows divided by rows per block, rounded up).
+	 */
 	public long getNumRowBlocks(){
 		return (long) Math.ceil((double)getRows() / getRowsPerBlock());
 	}
 	
+	/**
+	 * Obtain the number of column blocks in the matrix.
+	 * 
+	 * @return The number of column blocks (columns divided by columns per block, rounded up).
+	 */
 	public long getNumColBlocks(){
 		return (long) Math.ceil((double)getCols() / getColsPerBlock());
 	}
 	
 	public String toString()
 	{
-		return "["+numRows+" x "+numColumns+", nnz="+nonZero
+		return "["+numRows+" x "+numColumns+", nnz="+numNonZeros
 		+", blocks ("+numRowsPerBlock+" x "+numColumnsPerBlock+")]";
 	}
 	
-	public void setDimension(long nr, long nc)
+	/**
+	 * Set the number of rows and the number of columns in the matrix.
+	 * 
+	 * @param numRows    The number of rows in the matrix.
+	 * @param numColumns The number of columns in the matrix.
+	 */
+	public void setDimension(long numRows, long numColumns)
 	{
-		numRows = nr;
-		numColumns = nc;
+		this.numRows = numRows;
+		this.numColumns = numColumns;
 	}
 	
-	public void setBlockSize(int bnr, int bnc)
+	/**
+	 * Set the number of rows per block and the number of columns per block in the matrix.
+	 * 
+	 * @param numRowsPerBlock     The number of rows per block in the matrix.
+	 * @param numColumnsPerBlock  The number of columns per block in the matrix.
+	 */
+	public void setBlockSize(int numRowsPerBlock, int numColumnsPerBlock)
 	{
-		numRowsPerBlock = bnr;
-		numColumnsPerBlock = bnc;
+		this.numRowsPerBlock = numRowsPerBlock;
+		this.numColumnsPerBlock = numColumnsPerBlock;
 	}
 	
-	public void setNonZeros(long nnz) {
-		nonZero = nnz;
+	/**
+	 * Set the number of non-zero values in the matrix.
+	 * 
+	 * @param numNonZeros    The number of non-zero values in the matrix.
+	 */
+	public void setNonZeros(long numNonZeros) {
+		this.numNonZeros = numNonZeros;
 	}
 	
+	/**
+	 * Obtain the number of non-zero values in the matrix.
+	 * 
+	 * @return The number of non-zero values in the matrix.
+	 */
 	public long getNonZeros() {
-		return nonZero;
+		return numNonZeros;
 	}
 	
+	/**
+	 * Determine if the dimensions (the number of rows and the number of columns) of the matrix are known.
+	 * 
+	 * @return <code>true</code> if the number of rows and the number of columns are both greater than 0; <code>false</code> otherwise.
+	 */
 	public boolean dimsKnown() {
 		return ( numRows > 0 && numColumns > 0 );
 	}
 	
-	public boolean dimsKnown(boolean includeNnz) {
-		return ( numRows > 0 && numColumns > 0 && (!includeNnz || nonZero>=0));
+	/**
+	 * Determine if the dimensions of the matrix are known, also considering the number of non-zero values.
+	 * 
+	 * @param includeNumNonZeros Include the number of non-zeros.
+	 * @return <code>true</code> if the number of rows and the number of columns are both greater than 0 and either the number of
+	 * non-zero values is greater or equal to 0 or <code>includeNumNonZeros</code> is <code>false</code>; returns <code>false</code>
+	 * otherwise.
+	 */
+	public boolean dimsKnown(boolean includeNumNonZeros) {
+		return ( numRows > 0 && numColumns > 0 && (!includeNumNonZeros || numNonZeros>=0));
 	}
 	
+	/**
+	 * Determine if the number of rows in the matrix is known.
+	 * 
+	 * @return <code>true</code> if the number of rows is greater than 0; <code>false</code> otherwise.
+	 */
 	public boolean rowsKnown() {
 		return ( numRows > 0 );
 	}
 
+	/**
+	 * Determine if the number of columns in the matrix is known.
+	 * 
+	 * @return <code>true</code> if the number of columns is greater than 0; <code>false</code> otherwise.
+	 */
 	public boolean colsKnown() {
 		return ( numColumns > 0 );
 	}
 	
+	/**
+	 * Determine if the number of non-zero values is known.
+	 * 
+	 * @return <code>true</code> if the number of non-zero values is greater or equal to 0; <code>false</code> otherwise.
+	 */
 	public boolean nnzKnown() {
-		return ( nonZero >= 0 );
+		return ( numNonZeros >= 0 );
 	}
 	
+	/**
+	 * Determine if the matrix might have empty blocks.
+	 * 
+	 * @return <code>true</code> if the matrix might have empty blocks; <code>false</code> otherwise.
+	 */
 	public boolean mightHaveEmptyBlocks() 
 	{
 		long singleBlk =  Math.min(numRows, numRowsPerBlock) 
 				        * Math.min(numColumns, numColumnsPerBlock);
-		return !nnzKnown() || (nonZero < numRows*numColumns - singleBlk);
+		return !nnzKnown() || (numNonZeros < numRows*numColumns - singleBlk);
 	}
 	
 	public static void reorg(MatrixCharacteristics dim, ReorgOperator op, 
@@ -286,7 +438,7 @@ public class MatrixCharacteristics implements Serializable
 		{
 			ReblockInstruction realIns=(ReblockInstruction)ins;
 			MatrixCharacteristics in_dim=dims.get(realIns.input);
-			dimOut.set(in_dim.numRows, in_dim.numColumns, realIns.brlen, realIns.bclen, in_dim.nonZero);
+			dimOut.set(in_dim.numRows, in_dim.numColumns, realIns.brlen, realIns.bclen, in_dim.numNonZeros);
 		}
 		else if( ins instanceof MatrixReshapeMRInstruction )
 		{
@@ -414,7 +566,7 @@ public class MatrixCharacteristics implements Serializable
 					(numColumns == mc.numColumns) && 
 					(numRowsPerBlock == mc.numRowsPerBlock) && 
 					(numColumnsPerBlock == mc.numColumnsPerBlock) && 
-					(nonZero == mc.nonZero)) ;
+					(numNonZeros == mc.numNonZeros)) ;
 		}
 		else
 			return false;

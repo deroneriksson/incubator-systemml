@@ -33,15 +33,14 @@ import org.apache.spark.storage.RDDInfo;
 import org.apache.spark.ui.jobs.StagesTab;
 import org.apache.spark.ui.jobs.UIData.TaskUIData;
 import org.apache.spark.ui.scope.RDDOperationGraphListener;
+import org.apache.sysml.api.MLContextProxy;
+import org.apache.sysml.api.mlcontext.NewMLContext;
+import org.apache.sysml.runtime.instructions.spark.SPInstruction;
 
 import scala.Option;
 import scala.collection.Iterator;
 import scala.collection.Seq;
 import scala.xml.Node;
-
-import org.apache.sysml.api.MLContext;
-import org.apache.sysml.api.MLContextProxy;
-import org.apache.sysml.runtime.instructions.spark.SPInstruction;
 
 // Instead of extending org.apache.spark.JavaSparkListener
 /**
@@ -94,7 +93,7 @@ public class SparkListener extends RDDOperationGraphListener {
 		jobDAGs.put(jobID, jobNodes);
 		synchronized(currentInstructions) {
 			for(SPInstruction inst : currentInstructions) {
-				MLContext mlContext = MLContextProxy.getActiveMLContext();
+				NewMLContext mlContext = MLContextProxy.getActiveMLContext();
 				if(mlContext != null && mlContext.getMonitoringUtil() != null) {
 					mlContext.getMonitoringUtil().setJobId(inst, jobID);
 				}
@@ -140,7 +139,7 @@ public class SparkListener extends RDDOperationGraphListener {
 		
 		synchronized(currentInstructions) {
 			for(SPInstruction inst : currentInstructions) {
-				MLContext mlContext = MLContextProxy.getActiveMLContext();
+				NewMLContext mlContext = MLContextProxy.getActiveMLContext();
 				if(mlContext != null && mlContext.getMonitoringUtil() != null) {
 					mlContext.getMonitoringUtil().setStageId(inst, stageSubmitted.stageInfo().stageId());
 				}

@@ -33,12 +33,9 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.storage.RDDInfo;
 import org.apache.spark.storage.StorageLevel;
-
-import scala.Tuple2;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.MLContext;
 import org.apache.sysml.api.MLContextProxy;
+import org.apache.sysml.api.mlcontext.NewMLContext;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Checkpoint;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -70,6 +67,8 @@ import org.apache.sysml.runtime.matrix.data.SparseBlock;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.utils.Statistics;
+
+import scala.Tuple2;
 
 
 public class SparkExecutionContext extends ExecutionContext
@@ -175,7 +174,7 @@ public class SparkExecutionContext extends ExecutionContext
 		//create a default spark context (master, appname, etc refer to system properties
 		//as given in the spark configuration or during spark-submit)
 		
-		MLContext mlCtx = MLContextProxy.getActiveMLContext();
+		NewMLContext mlCtx = MLContextProxy.getActiveMLContext();
 		if(mlCtx != null) 
 		{
 			// This is when DML is called through spark shell
@@ -1265,7 +1264,7 @@ public class SparkExecutionContext extends ExecutionContext
 			}
 		}
 		
-		MLContext mlContext = MLContextProxy.getActiveMLContext();
+		NewMLContext mlContext = MLContextProxy.getActiveMLContext();
 		if(mlContext != null && mlContext.getMonitoringUtil() != null) {
 			mlContext.getMonitoringUtil().setLineageInfo(inst, outDebugString);
 		}
