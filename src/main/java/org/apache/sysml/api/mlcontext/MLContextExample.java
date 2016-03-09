@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.rdd.RDD;
 
 public class MLContextExample {
 
 	public static void main(String[] args) throws Exception {
 		SparkConf conf = new SparkConf().setAppName("MLContextExample").setMaster("local");
+		// conf.set("spark.driver.allowMultipleContexts", "true");
 		final JavaSparkContext sc = new JavaSparkContext(conf);
 		NewMLContext ml = new NewMLContext(sc);
 
@@ -79,36 +80,33 @@ public class MLContextExample {
 		};
 		ml.execute(script, scriptExecutor);
 
-		
 		System.out.println("EX8 --------------------------------------------");
 		Script scr = ScriptFactory.createDMLScriptFromFile("hello2.dml");
-		
+
 		List<String> list = new ArrayList<String>();
 		list.add("1,2,3");
 		list.add("4,5,6");
 		list.add("7,8,9");
 		JavaRDD<String> nums = sc.parallelize(list);
-		scr.setInputs("X", 9, "Y", 11, "A", nums);
+		RDD<String> rdd = nums.rdd();
+		scr.setInputs("X", 9, "Y", 11, "A", rdd);
 		ml.execute(scr);
 
-
-//		System.out.println("COLLECT:" + z.collect());
 		// Example 8
-		System.out.println("EX9 --------------------------------------------");
-		Script genDataScript = ScriptFactory
-				.createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
-//		System.out.println("GEN DATA SCRIPT:\n" + genDataScript.getScriptString());
-//		genDataScript.putInput("numSamples", 1000)
-//			.putInput("numFeatures", 50)
-//			.putInput("maxFeatureValue", 5)
-//			.putInput("maxWeight", 5)
-//			.putInput("addNoise", false)
-//			.putInput("b", 0).putInput("sparsity", 0.7)
-//			.putInput("format", "csv")
-//			.putInput("perc", 0.5);
-//		ml.execute(script);
-		
-		
+		// System.out.println("EX9 --------------------------------------------");
+		// Script genDataScript = ScriptFactory
+		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
+		// System.out.println("GEN DATA SCRIPT:\n" + genDataScript.getScriptString());
+		// genDataScript.putInput("numSamples", 1000)
+		// .putInput("numFeatures", 50)
+		// .putInput("maxFeatureValue", 5)
+		// .putInput("maxWeight", 5)
+		// .putInput("addNoise", false)
+		// .putInput("b", 0).putInput("sparsity", 0.7)
+		// .putInput("format", "csv")
+		// .putInput("perc", 0.5);
+		// ml.execute(script);
+
 	}
 
 }

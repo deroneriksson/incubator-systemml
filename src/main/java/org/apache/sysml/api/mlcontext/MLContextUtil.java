@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.rdd.RDD;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -42,6 +44,8 @@ import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 
+import scala.Tuple2;
+
 /**
  * Utility class containing useful methods for working with MLContext.
  *
@@ -51,7 +55,7 @@ public class MLContextUtil {
 	@SuppressWarnings("rawtypes")
 	public static final Class[] SUPPORTED_BASIC_TYPES = { Integer.class, Boolean.class, Double.class, String.class };
 	@SuppressWarnings("rawtypes")
-	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class };
+	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class, RDD.class };
 	@SuppressWarnings("rawtypes")
 	public static final Class[] ALL_SUPPORTED_TYPES = (Class[]) ArrayUtils.addAll(SUPPORTED_BASIC_TYPES,
 			SUPPORTED_COMPLEX_TYPES);
@@ -408,9 +412,11 @@ public class MLContextUtil {
 
 		Object o = parameterValue;
 		boolean supported = false;
-		for (@SuppressWarnings("rawtypes")
-		Class clazz : ALL_SUPPORTED_TYPES) {
+		for (Class<?> clazz : ALL_SUPPORTED_TYPES) {
 			if (o.getClass().equals(clazz)) {
+				supported = true;
+				break;
+			} else if (clazz.isAssignableFrom(o.getClass())) {
 				supported = true;
 				break;
 			}
@@ -487,8 +493,6 @@ public class MLContextUtil {
 	}
 
 	public static MatrixObject convertComplexInputTypeIfNeeded(String parameterKey, Object parameterValue) {
-		// String key = entry.getKey();
-		// Object value = entry.getValue();
 		String key = parameterKey;
 		Object value = parameterValue;
 		if (key == null) {
@@ -498,32 +502,27 @@ public class MLContextUtil {
 		} else if (value instanceof JavaRDD<?>) {
 			@SuppressWarnings("unchecked")
 			JavaRDD<String> javaRDD = (JavaRDD<String>) value;
-//			List<String> lines = javaRDD.collect();
-//			for (int i=0; i<lines.size(); i++) {
-//				System.out.println("LINE #" + i + ":" + lines.get(i));
-//			}
-//			System.out.println("LINES:" + lines);
-			JavaPairRDD<LongWritable, Text> javaPairRDD = javaRDD.mapToPair(new ConvertStringToLongTextPair());
-//			List<Tuple2<LongWritable, Text>> lines2 = javaPairRDD.collect();
-//			for (int i=0; i<lines2.size(); i++) {
-//				Tuple2<LongWritable, Text> tuple2 = lines2.get(0);
-//				LongWritable longWritable = tuple2._1;
-//				Text text = tuple2._2;
-//				System.out.println("JavaPairRDD item #" + i + ":" + text);
-//			}
-			MatrixCharacteristics matrixCharacteristics = new MatrixCharacteristics(-1, -1, DMLTranslator.DMLBlockSize,
-					DMLTranslator.DMLBlockSize, -1);
-			// Matrix matrix = new Matrix(matrixCharacteristics, IOFormat.CSV);
-			// matrix.setJavaPairRDD(javaPairRDD);
-			MatrixObject matrixObject = new MatrixObject(ValueType.DOUBLE, null, new MatrixFormatMetaData(
-					matrixCharacteristics, OutputInfo.CSVOutputInfo, InputInfo.CSVInputInfo));
-			JavaPairRDD<LongWritable, Text> javaPairRDD2 = javaPairRDD.mapToPair(new CopyTextInputFunction());
-			matrixObject.setRDDHandle(new RDDObject(javaPairRDD2, key));
+			MatrixObject matrixObject = javaRDDToMatrixObject(key, javaRDD);
 			return matrixObject;
-			// _variables.put(varName, mo);
-			// _inVarnames.add(varName);
+		} else if (value instanceof RDD<?>) {
+			@SuppressWarnings("unchecked")
+			RDD<String> rdd = (RDD<String>) value;
+			JavaRDD<String> javaRDD = rdd.toJavaRDD();
+			MatrixObject matrixObject = javaRDDToMatrixObject(key, javaRDD);
+			return matrixObject;
 		}
 		return null;
+	}
+
+	public static MatrixObject javaRDDToMatrixObject(String parameterKey, JavaRDD<String> javaRDD) {
+		JavaPairRDD<LongWritable, Text> javaPairRDD = javaRDD.mapToPair(new ConvertStringToLongTextPair());
+		MatrixCharacteristics matrixCharacteristics = new MatrixCharacteristics(-1, -1, DMLTranslator.DMLBlockSize,
+				DMLTranslator.DMLBlockSize, -1);
+		MatrixObject matrixObject = new MatrixObject(ValueType.DOUBLE, null, new MatrixFormatMetaData(
+				matrixCharacteristics, OutputInfo.CSVOutputInfo, InputInfo.CSVInputInfo));
+		JavaPairRDD<LongWritable, Text> javaPairRDD2 = javaPairRDD.mapToPair(new CopyTextInputFunction());
+		matrixObject.setRDDHandle(new RDDObject(javaPairRDD2, parameterKey));
+		return matrixObject;
 	}
 
 	public static Map<String, MatrixObject> obtainComplexInputParameterMap(Map<String, Object> inputParameterMap) {
@@ -537,12 +536,22 @@ public class MLContextUtil {
 			if (entry.getValue() == null) {
 				throw new MLContextException("Input parameter value is null for: " + entry.getKey());
 			}
-			for (@SuppressWarnings("rawtypes")
-			Class clazz : SUPPORTED_COMPLEX_TYPES) {
+			for (Class<?> clazz : SUPPORTED_COMPLEX_TYPES) {
 				if (entry.getValue().getClass().equals(clazz)) {
 					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(entry.getKey(), entry.getValue());
 					if (matrixObject != null) {
 						complexInputParameterMap.put(entry.getKey(), matrixObject);
+					} else {
+						throw new MLContextException("Input parameter type for key \"" + entry.getKey()
+								+ "\" not recognized:" + entry.getValue().getClass());
+					}
+				} else if (clazz.isAssignableFrom(entry.getValue().getClass())) {
+					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(entry.getKey(), entry.getValue());
+					if (matrixObject != null) {
+						complexInputParameterMap.put(entry.getKey(), matrixObject);
+					} else {
+						throw new MLContextException("Input parameter type for key \"" + entry.getKey()
+								+ "\" not recognized:" + entry.getValue().getClass());
 					}
 				}
 			}
