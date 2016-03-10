@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -22,12 +21,17 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.spark.Accumulator;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Row;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.MLContextProxy;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.parser.DMLTranslator;
@@ -37,14 +41,19 @@ import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysml.runtime.instructions.spark.data.RDDObject;
 import org.apache.sysml.runtime.instructions.spark.functions.ConvertStringToLongTextPair;
+import org.apache.sysml.runtime.instructions.spark.functions.CopyBlockPairFunction;
 import org.apache.sysml.runtime.instructions.spark.functions.CopyTextInputFunction;
+import org.apache.sysml.runtime.instructions.spark.utils.RDDAggregateUtils;
+import org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtilsExt.DataFrameAnalysisFunction;
+import org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtilsExt.DataFrameToBinaryBlockFunction;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
 import org.apache.sysml.runtime.matrix.data.InputInfo;
+import org.apache.sysml.runtime.matrix.data.MatrixBlock;
+import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.LocalFileUtils;
-
-import scala.Tuple2;
+import org.apache.sysml.runtime.util.UtilFunctions;
 
 /**
  * Utility class containing useful methods for working with MLContext.
@@ -55,7 +64,7 @@ public class MLContextUtil {
 	@SuppressWarnings("rawtypes")
 	public static final Class[] SUPPORTED_BASIC_TYPES = { Integer.class, Boolean.class, Double.class, String.class };
 	@SuppressWarnings("rawtypes")
-	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class, RDD.class };
+	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class, RDD.class, DataFrame.class };
 	@SuppressWarnings("rawtypes")
 	public static final Class[] ALL_SUPPORTED_TYPES = (Class[]) ArrayUtils.addAll(SUPPORTED_BASIC_TYPES,
 			SUPPORTED_COMPLEX_TYPES);
@@ -80,20 +89,29 @@ public class MLContextUtil {
 			throw new MLContextException("Second version argument to compareVersion() is null");
 		}
 
-		Scanner scanner1 = new Scanner(versionStr1).useDelimiter("\\.");
-		Scanner scanner2 = new Scanner(versionStr2).useDelimiter("\\.");
+		Scanner scanner1 = null;
+		Scanner scanner2 = null;
+		try {
+			scanner1 = new Scanner(versionStr1);
+			scanner2 = new Scanner(versionStr2);
+			scanner1.useDelimiter("\\.");
+			scanner2.useDelimiter("\\.");
 
-		while (scanner1.hasNextInt() && scanner2.hasNextInt()) {
-			int version1 = scanner1.nextInt();
-			int version2 = scanner2.nextInt();
-			if (version1 < version2) {
-				return -1;
-			} else if (version1 > version2) {
-				return 1;
+			while (scanner1.hasNextInt() && scanner2.hasNextInt()) {
+				int version1 = scanner1.nextInt();
+				int version2 = scanner2.nextInt();
+				if (version1 < version2) {
+					return -1;
+				} else if (version1 > version2) {
+					return 1;
+				}
 			}
-		}
 
-		return scanner1.hasNextInt() ? 1 : 0;
+			return scanner1.hasNextInt() ? 1 : 0;
+		} finally {
+			scanner1.close();
+			scanner2.close();
+		}
 	}
 
 	/**
@@ -510,8 +528,57 @@ public class MLContextUtil {
 			JavaRDD<String> javaRDD = rdd.toJavaRDD();
 			MatrixObject matrixObject = javaRDDToMatrixObject(key, javaRDD);
 			return matrixObject;
+		} else if (value instanceof DataFrame) {
+			MatrixCharacteristics matrixCharacteristics = new MatrixCharacteristics();
+			DataFrame dataFrame = (DataFrame) value;
+			JavaPairRDD<MatrixIndexes, MatrixBlock> binaryBlock = dataFrameToBinaryBlock(dataFrame,
+					matrixCharacteristics);
+			MatrixObject matrixObject = binaryBlockToMatrixObject(key, binaryBlock, matrixCharacteristics);
+			return matrixObject;
 		}
 		return null;
+	}
+
+	public static MatrixObject binaryBlockToMatrixObject(String parameterKey,
+			JavaPairRDD<MatrixIndexes, MatrixBlock> binaryBlock, MatrixCharacteristics matrixCharacteristics) {
+		// Bug in Spark is messing up blocks and indexes due to too eager reuse of data structures
+		JavaPairRDD<MatrixIndexes, MatrixBlock> javaPairRdd = binaryBlock.mapToPair(new CopyBlockPairFunction());
+
+		MatrixObject matrixObject = new MatrixObject(ValueType.DOUBLE, "temp", new MatrixFormatMetaData(
+				matrixCharacteristics, OutputInfo.BinaryBlockOutputInfo, InputInfo.BinaryBlockInputInfo));
+		matrixObject.setRDDHandle(new RDDObject(javaPairRdd, parameterKey));
+		return matrixObject;
+	}
+
+	public static JavaPairRDD<MatrixIndexes, MatrixBlock> dataFrameToBinaryBlock(DataFrame dataFrame,
+			MatrixCharacteristics matrixCharacteristics) {
+
+		determineDataFrameDimensionsIfNeeded(dataFrame, matrixCharacteristics);
+
+		JavaRDD<Row> javaRDD = dataFrame.javaRDD();
+		JavaPairRDD<Row, Long> prepinput = javaRDD.zipWithIndex();
+		JavaPairRDD<MatrixIndexes, MatrixBlock> out = prepinput.mapPartitionsToPair(new DataFrameToBinaryBlockFunction(
+				matrixCharacteristics, false));
+		out = RDDAggregateUtils.mergeByKey(out);
+		return out;
+	}
+
+	public static void determineDataFrameDimensionsIfNeeded(DataFrame dataFrame,
+			MatrixCharacteristics matrixCharacteristics) {
+		if (!matrixCharacteristics.dimsKnown(true)) {
+			NewMLContext activeMLContext = MLContextProxy.getActiveMLContext();
+			SparkContext sparkContext = activeMLContext.getSparkContext();
+			@SuppressWarnings("resource")
+			JavaSparkContext javaSparkContext = new JavaSparkContext(sparkContext);
+
+			Accumulator<Double> aNnz = javaSparkContext.accumulator(0L);
+			JavaRDD<Row> javaRDD = dataFrame.javaRDD().map(new DataFrameAnalysisFunction(aNnz, false));
+			long numRows = javaRDD.count();
+			long numColumns = dataFrame.columns().length;
+			long numNonZeros = UtilFunctions.toLong(aNnz.value());
+			matrixCharacteristics.set(numRows, numColumns, matrixCharacteristics.getRowsPerBlock(),
+					matrixCharacteristics.getColsPerBlock(), numNonZeros);
+		}
 	}
 
 	public static MatrixObject javaRDDToMatrixObject(String parameterKey, JavaRDD<String> javaRDD) {

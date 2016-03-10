@@ -115,6 +115,8 @@ public class NewMLContext {
 			monitoringUtil = new SparkMonitoringUtil(sparkListener);
 			sc.addSparkListener(sparkListener);
 		}
+
+		NewMLContext.activeMLContext = this;
 	}
 
 	/**
@@ -179,10 +181,10 @@ public class NewMLContext {
 	public void execute(Script script, ScriptExecutor scriptExecutor) {
 		try {
 			this.executingScript = script;
-			NewMLContext.activeMLContext = this;
+			// NewMLContext.activeMLContext = this;
 			scriptExecutor.execute(script);
 		} finally { // statics.... fun....
-			NewMLContext.activeMLContext = null;
+		// NewMLContext.activeMLContext = null;
 		}
 	}
 
@@ -310,5 +312,4 @@ public class NewMLContext {
 		return sc;
 	}
 
-	
 }
