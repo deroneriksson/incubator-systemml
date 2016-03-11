@@ -102,6 +102,11 @@ public class MLContextExample {
 		ex9Script.putInput("ex", "inputting a DataFrame").putInput("m", dataFrame);
 		ml.execute(ex9Script);
 
+		System.out.println("------------- Example #10");
+		Script ex10Script = ScriptFactory.createDMLScriptFromFile("hello2.dml");
+		ex10Script.setInputs("X", 9, "Y", 11, "Ain", "m.csv");
+		ml.execute(ex10Script);
+		
 		// Example 10
 		// Script genDataScript = ScriptFactory
 		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
