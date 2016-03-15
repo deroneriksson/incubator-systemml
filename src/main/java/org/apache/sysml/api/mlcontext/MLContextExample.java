@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -102,12 +103,25 @@ public class MLContextExample {
 		ex9Script.putInput("ex", "inputting a DataFrame").putInput("m", dataFrame);
 		ml.execute(ex9Script);
 
-		System.out.println("------------- Example #10");
+		// Example 10
+		// x = $X;
+		// y = $Y;
+		// A = read($Ain);
+		// print("x + y = " + (x + y));
+		// print("SUM:" + sum(A));
+		System.out.println("------------- Example #10 - regular input matrix location ($Ain)");
 		Script ex10Script = ScriptFactory.createDMLScriptFromFile("hello2.dml");
 		ex10Script.setInputs("X", 9, "Y", 11, "Ain", "m.csv");
 		ml.execute(ex10Script);
-		
-		// Example 10
+
+		// Example 11
+		System.out.println("------------- Example #11 - input a double[][]");
+		Script ex11Script = ScriptFactory.createDMLScriptFromFile("hello2.dml");
+		double[][] dMatrix = generateRandomMatrix(3, 3, -1, 1, 0.9, -1);
+		ex11Script.setInputs("X", 9, "Y", 11, "A", dMatrix);
+		ml.execute(ex11Script);
+
+		// Example 12
 		// Script genDataScript = ScriptFactory
 		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
 		// System.out.println("GEN DATA SCRIPT:\n" + genDataScript.getScriptString());
@@ -158,5 +172,19 @@ public class MLContextExample {
 		StructType schema = DataTypes.createStructType(fields);
 		DataFrame dataFrame = sqlContext.createDataFrame(rowJavaRdd, schema);
 		return dataFrame;
+	}
+
+	public static double[][] generateRandomMatrix(int rows, int cols, double min, double max, double sparsity, long seed) {
+		double[][] matrix = new double[rows][cols];
+		Random random = (seed == -1) ? new Random(System.currentTimeMillis()) : new Random(seed);
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				if (random.nextDouble() > sparsity) {
+					continue;
+				}
+				matrix[i][j] = (random.nextDouble() * (max - min) + min);
+			}
+		}
+		return matrix;
 	}
 }

@@ -52,6 +52,7 @@ import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
+import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.UtilFunctions;
 
@@ -64,7 +65,8 @@ public class MLContextUtil {
 	@SuppressWarnings("rawtypes")
 	public static final Class[] SUPPORTED_BASIC_TYPES = { Integer.class, Boolean.class, Double.class, String.class };
 	@SuppressWarnings("rawtypes")
-	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class, RDD.class, DataFrame.class };
+	public static final Class[] SUPPORTED_COMPLEX_TYPES = { JavaRDD.class, RDD.class, DataFrame.class,
+			(new double[][] {}).getClass() };
 	@SuppressWarnings("rawtypes")
 	public static final Class[] ALL_SUPPORTED_TYPES = (Class[]) ArrayUtils.addAll(SUPPORTED_BASIC_TYPES,
 			SUPPORTED_COMPLEX_TYPES);
@@ -535,8 +537,33 @@ public class MLContextUtil {
 					matrixCharacteristics);
 			MatrixObject matrixObject = binaryBlockToMatrixObject(key, binaryBlock, matrixCharacteristics);
 			return matrixObject;
+		} else if (value instanceof double[][]) {
+			double[][] doubleMatrix = (double[][]) value;
+			MatrixObject matrixObject = doubleMatrixToMatrixObject(key, doubleMatrix);
+			return matrixObject;
 		}
 		return null;
+	}
+
+	public static MatrixObject doubleMatrixToMatrixObject(String parameterKey, double[][] doubleMatrix) {
+		try {
+			MatrixBlock matrixBlock = DataConverter.convertToMatrixBlock(doubleMatrix);
+
+			DMLConfig conf = ConfigurationManager.getConfig();
+			String scratch_space = conf.getTextValue(DMLConfig.SCRATCH_SPACE);
+			int blocksize = conf.getIntValue(DMLConfig.DEFAULT_BLOCK_SIZE);
+
+			MatrixCharacteristics mc = new MatrixCharacteristics(matrixBlock.getNumRows(), matrixBlock.getNumColumns(),
+					blocksize, blocksize);
+			MatrixFormatMetaData meta = new MatrixFormatMetaData(mc, OutputInfo.BinaryBlockOutputInfo,
+					InputInfo.BinaryBlockInputInfo);
+			MatrixObject matrixObject = new MatrixObject(ValueType.DOUBLE, scratch_space + "/" + parameterKey, meta);
+			matrixObject.acquireModify(matrixBlock);
+			matrixObject.release();
+			return matrixObject;
+		} catch (DMLRuntimeException e) {
+			throw new MLContextException("Exception converting double[][] array to MatrixBlock");
+		}
 	}
 
 	public static MatrixObject binaryBlockToMatrixObject(String parameterKey,
@@ -600,25 +627,27 @@ public class MLContextUtil {
 		}
 
 		for (Entry<String, Object> entry : inputParameterMap.entrySet()) {
-			if (entry.getValue() == null) {
-				throw new MLContextException("Input parameter value is null for: " + entry.getKey());
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if (value == null) {
+				throw new MLContextException("Input parameter value is null for: " + key);
 			}
 			for (Class<?> clazz : SUPPORTED_COMPLEX_TYPES) {
-				if (entry.getValue().getClass().equals(clazz)) {
-					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(entry.getKey(), entry.getValue());
+				if (value.getClass().equals(clazz)) {
+					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(key, value);
 					if (matrixObject != null) {
-						complexInputParameterMap.put(entry.getKey(), matrixObject);
+						complexInputParameterMap.put(key, matrixObject);
 					} else {
-						throw new MLContextException("Input parameter type for key \"" + entry.getKey()
-								+ "\" not recognized:" + entry.getValue().getClass());
+						throw new MLContextException("Input parameter type for key \"" + key + "\" not recognized:"
+								+ value.getClass());
 					}
-				} else if (clazz.isAssignableFrom(entry.getValue().getClass())) {
-					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(entry.getKey(), entry.getValue());
+				} else if (clazz.isAssignableFrom(value.getClass())) {
+					MatrixObject matrixObject = convertComplexInputTypeIfNeeded(key, value);
 					if (matrixObject != null) {
-						complexInputParameterMap.put(entry.getKey(), matrixObject);
+						complexInputParameterMap.put(key, matrixObject);
 					} else {
-						throw new MLContextException("Input parameter type for key \"" + entry.getKey()
-								+ "\" not recognized:" + entry.getValue().getClass());
+						throw new MLContextException("Input parameter type for key \"" + key + "\" not recognized:"
+								+ value.getClass());
 					}
 				}
 			}
