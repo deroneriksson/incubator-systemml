@@ -1,11 +1,13 @@
 package org.apache.sysml.api.mlcontext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.sysml.api.MLOutput;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 
@@ -15,11 +17,13 @@ public class Script {
 	private String scriptString;
 
 	private Map<String, Object> inputs = new LinkedHashMap<String, Object>();
-	private Map<String, Object> outputs = new LinkedHashMap<String, Object>();
+	// private Map<String, Object> outputs = new LinkedHashMap<String, Object>();
 
 	private List<String> inputVariableNames = new ArrayList<String>(); // "X", "Y", etc for registered inputs
 	private List<String> outputVariableNames = new ArrayList<String>();
 	private LocalVariableMap temporarySymbolTable = new LocalVariableMap(); // map of <"M", matrixObject> entries
+
+	private MLOutput mlOutput;
 
 	public Script() {
 		scriptType = ScriptType.DML;
@@ -107,7 +111,7 @@ public class Script {
 		return inputs;
 	}
 
-	public void setInputs(Map<String, Object> inputs) {
+	public Script setInputs(Map<String, Object> inputs) {
 		MLContextUtil.checkInputParameterValueTypes(inputs);
 		this.inputs = inputs;
 		Map<String, MatrixObject> matrixObjectMap = MLContextUtil.obtainComplexInputParameterMap(inputs);
@@ -117,11 +121,13 @@ public class Script {
 			temporarySymbolTable.put(entry.getKey(), entry.getValue());
 			inputVariableNames.add(entry.getKey());
 		}
+		return this;
 	}
 
-	public void setInputs(Object... objs) {
+	public Script setInputs(Object... objs) {
 		Map<String, Object> inputs = MLContextUtil.generateInputs(objs);
 		setInputs(inputs);
+		return this;
 	}
 
 	public Map<String, Object> getBasicInputParameters() {
@@ -144,11 +150,30 @@ public class Script {
 		return this;
 	}
 
+	public Script putOutput(String outputName) {
+		outputVariableNames.add(outputName);
+		return this;
+	}
+
+	public Script setOutputs(String... outputNames) {
+		outputVariableNames = Arrays.asList(outputNames);
+		return this;
+	}
+
 	public void clear() {
 		inputs.clear();
-		outputs.clear();
+		// outputs.clear();
 		inputVariableNames.clear();
 		outputVariableNames.clear();
 		temporarySymbolTable = new LocalVariableMap();
 	}
+
+	public MLOutput getMlOutput() {
+		return mlOutput;
+	}
+
+	public void setMlOutput(MLOutput mlOutput) {
+		this.mlOutput = mlOutput;
+	}
+
 }

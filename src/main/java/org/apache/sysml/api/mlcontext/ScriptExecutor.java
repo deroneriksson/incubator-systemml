@@ -2,10 +2,14 @@ package org.apache.sysml.api.mlcontext;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.MLOutput;
+import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.api.monitoring.SparkMonitoringUtil;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.HopsException;
@@ -27,6 +31,10 @@ import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
+import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
+import org.apache.sysml.runtime.matrix.data.MatrixBlock;
+import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.utils.Explain;
 import org.apache.sysml.utils.Explain.ExplainCounts;
 import org.apache.sysml.utils.Statistics;
@@ -77,7 +85,7 @@ public class ScriptExecutor {
 			throw new MLContextException("Exception occurred while rewriting HOPS (high-order operations)", e);
 		}
 		try { // TODO: change this to output to a log4j logger
-//			System.out.println(Explain.explain(dmlProgram));
+				// System.out.println(Explain.explain(dmlProgram));
 			Explain.explain(dmlProgram);
 		} catch (HopsException e) {
 			throw new MLContextException("Exception occurred while explaining dml program", e);
@@ -129,6 +137,9 @@ public class ScriptExecutor {
 	}
 
 	public void execute(Script script) {
+		if (script == null) {
+			throw new MLContextException("Can't execute null Script");
+		}
 		this.script = script;
 		try {
 			AParserWrapper.IGNORE_UNSPECIFIED_ARGS = true;
@@ -146,14 +157,75 @@ public class ScriptExecutor {
 			optionalGlobalDataFlowOptimization();
 			countCompiledMRJobsAndSPInstructions();
 			initializeCachingAndScratchSpace();
+			cleanupRuntimeProgram();
 			createAndPopulateExecutionContext();
 			executeRuntimeProgram();
 
 			setExplainRuntimeProgramInSparkMonitor();
+
+			collectOutput();
 		} finally {
 			AParserWrapper.IGNORE_UNSPECIFIED_ARGS = false;
 			DataExpression.REJECT_READ_WRITE_UNKNOWNS = true;
 		}
+
+	}
+
+	protected void cleanupRuntimeProgram() {
+		JMLCUtils.cleanupRuntimeProgram(runtimeProgram, script.getOutputVariableNamesArray());		
+	}
+	
+	protected void collectOutput() {
+		List<String> outputVariableNames = script.getOutputVariableNames();
+		if ((outputVariableNames == null) || (outputVariableNames.size() == 0)) {
+			return;
+		}
+
+		LocalVariableMap temporarySymbolTable = script.getTemporarySymbolTable();
+		if (temporarySymbolTable == null) {
+			throw new MLContextException("The symbol table returned after executing the script is empty");
+		}
+
+		// TODO: JavaPairRDD<MatrixIndexes,MatrixBlock> and MatrixCharacteristics should be encapsulated into
+		// BinaryBlockMatrix class
+		// TODO: MLOutput class should take Maps rather than HashMaps
+		HashMap<String, JavaPairRDD<MatrixIndexes, MatrixBlock>> binaryBlockOutputs = new HashMap<String, JavaPairRDD<MatrixIndexes, MatrixBlock>>();
+		HashMap<String, MatrixCharacteristics> binaryBlockOutputsMetadata = new HashMap<String, MatrixCharacteristics>();
+		// If support JMLC, then need to do something about SparkExecutionContext.
+		SparkExecutionContext sparkExecutionContext = (SparkExecutionContext) executionContext;
+
+		for (String outputVariableName : outputVariableNames) {
+			if (temporarySymbolTable.keySet().contains(outputVariableName)) {
+				JavaPairRDD<MatrixIndexes, MatrixBlock> binaryBlockMatrix = null;
+				MatrixCharacteristics binaryBlockMatrixCharacteristics = null;
+
+				try {
+					binaryBlockMatrix = sparkExecutionContext.getBinaryBlockRDDHandleForVariable(outputVariableName);
+					binaryBlockOutputs.put(outputVariableName, binaryBlockMatrix);
+				} catch (DMLRuntimeException e) {
+					throw new MLContextException("Exception obtaining binary block handle for output variable: "
+							+ outputVariableName);
+				} catch (DMLUnsupportedOperationException e) {
+					throw new MLContextException("Exception obtaining binary block handle for output variable: "
+							+ outputVariableName);
+				}
+				try {
+					binaryBlockMatrixCharacteristics = sparkExecutionContext
+							.getMatrixCharacteristics(outputVariableName);
+					binaryBlockOutputsMetadata.put(outputVariableName, binaryBlockMatrixCharacteristics);
+				} catch (DMLRuntimeException e) {
+					throw new MLContextException("Exception obtaining matrix characteristics for output variable: "
+							+ outputVariableName);
+				}
+
+			} else {
+				throw new MLContextException("The variable " + outputVariableName
+						+ " is not available as output after executing the script");
+			}
+		}
+
+		MLOutput mlOutput = new MLOutput(binaryBlockOutputs, binaryBlockOutputsMetadata);
+		script.setMlOutput(mlOutput);
 
 	}
 
@@ -212,7 +284,7 @@ public class ScriptExecutor {
 					basicInputParameters, script.getScriptType());
 			// HashMap<String, String> argVals = new HashMap<String, String>();
 			// TODO: update parser.parse method to take a map rather than a hashmap
-//			System.out.println("INPUTS:" + basicInputParametersStrings);
+			// System.out.println("INPUTS:" + basicInputParametersStrings);
 			dmlProgram = parser.parse(null, script.getScriptString(), basicInputParametersStrings);
 		} catch (ParseException e) {
 			throw new MLContextException("Exception occurred while parsing script", e);

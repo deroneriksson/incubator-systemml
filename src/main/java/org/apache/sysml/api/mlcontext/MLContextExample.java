@@ -18,6 +18,7 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.sysml.api.MLOutput;
 
 public class MLContextExample {
 
@@ -122,6 +123,28 @@ public class MLContextExample {
 		ml.execute(ex11Script);
 
 		// Example 12
+		System.out.println("------------- Example #12 - input a double[][] via puts");
+		Script ex12Script = ScriptFactory.createDMLScriptFromFile("hello2.dml");
+		double[][] dMatrix2 = generateRandomMatrix(3, 3, -1, 1, 0.9, -1);
+		ex12Script.putInput("X", 9).putInput("Y", 11).putInput("A", dMatrix2);
+		ml.execute(ex12Script);
+
+		// Example 13
+		// M = matrix("1 2 3 4 5 6 7 8 9", rows=3, cols=3);
+		// N = M + 1;
+		// write(N, "n1.csv", format="csv");
+		System.out.println("------------- Example #13 - output a matrix as JavaRDD<String>");
+		Script ex13Script = ScriptFactory.createDMLScriptFromFile("hello3.dml");
+		ex13Script.putOutput("N");
+		ml.execute(ex13Script);
+		MLOutput mlOutput = ex13Script.getMlOutput();
+		JavaRDD<String> stringRDD = mlOutput.getStringRDD("N", "text");
+		List<String> rddLines = stringRDD.collect();
+		for (String rddLine : rddLines) {
+			System.out.println("RDD LINE:" + rddLine);
+		}
+
+		// Example 14
 		// Script genDataScript = ScriptFactory
 		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
 		// System.out.println("GEN DATA SCRIPT:\n" + genDataScript.getScriptString());
