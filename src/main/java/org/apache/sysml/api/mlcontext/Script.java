@@ -168,12 +168,22 @@ public class Script {
 		temporarySymbolTable = new LocalVariableMap();
 	}
 
-	public MLOutput getMlOutput() {
+	public MLOutput getOutput() {
 		return mlOutput;
 	}
 
-	public void setMlOutput(MLOutput mlOutput) {
-		this.mlOutput = mlOutput;
+	public void setOutput(MLOutput output) {
+		this.mlOutput = output;
+	}
+
+	public Script in(String parameterName, Object parameterValue) {
+		putInput(parameterName, parameterValue);
+		return this;
+	}
+
+	public Script out(String outputName) {
+		putOutput(outputName);
+		return this;
 	}
 
 }

@@ -137,7 +137,7 @@ public class MLContextExample {
 		Script ex13Script = ScriptFactory.createDMLScriptFromFile("hello3.dml");
 		ex13Script.putOutput("N");
 		ml.execute(ex13Script);
-		MLOutput mlOutput = ex13Script.getMlOutput();
+		MLOutput mlOutput = ex13Script.getOutput();
 		JavaRDD<String> stringRDD = mlOutput.getStringRDD("N", "text");
 		List<String> rddLines = stringRDD.collect();
 		for (String rddLine : rddLines) {
@@ -145,6 +145,14 @@ public class MLContextExample {
 		}
 
 		// Example 14
+		System.out.println("------------- Example #14 - input and output");
+		String ex14str = "x=$X; A=read($Ain); B=A+x; write(B, 'temp');";
+		Script ex14 = ScriptFactory.createDMLScriptFromString(ex14str);
+		ex14.in("X", 10).in("A", sc.textFile("m.csv")).out("B");
+		ml.execute(ex14);
+		JavaRDD<String> B = ex14.getOutput().getStringRDD("B", "text");
+		B.collect().forEach(line -> System.out.println("LINE:" + line));
+
 		// Script genDataScript = ScriptFactory
 		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
 		// System.out.println("GEN DATA SCRIPT:\n" + genDataScript.getScriptString());

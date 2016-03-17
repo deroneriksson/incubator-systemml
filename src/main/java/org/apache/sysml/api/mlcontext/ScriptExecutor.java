@@ -225,7 +225,7 @@ public class ScriptExecutor {
 		}
 
 		MLOutput mlOutput = new MLOutput(binaryBlockOutputs, binaryBlockOutputsMetadata);
-		script.setMlOutput(mlOutput);
+		script.setOutput(mlOutput);
 
 	}
 
