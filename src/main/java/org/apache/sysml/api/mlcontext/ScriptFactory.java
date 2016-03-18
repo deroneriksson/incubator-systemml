@@ -30,6 +30,14 @@ public class ScriptFactory {
 		return createScriptFromInputStream(inputStream, ScriptType.DML);
 	}
 
+	public static Script dml(String scriptString) {
+		return createDMLScriptFromString(scriptString);
+	}
+	
+	public static Script pydml(String scriptString) {
+		return createPYDMLScriptFromString(scriptString);
+	}
+	
 	public static Script createDMLScriptFromString(String scriptString) {
 		return createScriptFromString(scriptString, ScriptType.DML);
 	}

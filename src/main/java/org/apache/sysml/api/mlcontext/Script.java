@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.sysml.api.MLOutput;
+import org.apache.sysml.api.mlcontext.matrix.BinaryBlockMatrix;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
+import org.apache.sysml.runtime.instructions.cp.Data;
 
 public class Script {
 
@@ -17,13 +19,13 @@ public class Script {
 	private String scriptString;
 
 	private Map<String, Object> inputs = new LinkedHashMap<String, Object>();
-	// private Map<String, Object> outputs = new LinkedHashMap<String, Object>();
 
 	private List<String> inputVariableNames = new ArrayList<String>(); // "X", "Y", etc for registered inputs
 	private List<String> outputVariableNames = new ArrayList<String>();
 	private LocalVariableMap temporarySymbolTable = new LocalVariableMap(); // map of <"M", matrixObject> entries
 
 	private MLOutput mlOutput;
+	private ScriptExecutor scriptExecutor;
 
 	public Script() {
 		scriptType = ScriptType.DML;
@@ -181,9 +183,35 @@ public class Script {
 		return this;
 	}
 
-	public Script out(String outputName) {
+	public Script regOut(String outputName) {
 		putOutput(outputName);
 		return this;
 	}
 
+	public BinaryBlockMatrix out(String outputName) {
+		if ((outputVariableNames == null) || (outputVariableNames.size() == 0)) {
+			throw new MLContextException("No output variables found");
+		}
+
+		if (temporarySymbolTable == null) {
+			throw new MLContextException("The symbol table returned after executing the script is empty");
+		}
+
+		Data data = temporarySymbolTable.get(outputName);
+		MatrixObject matrixObject = (MatrixObject) data;
+		if (scriptExecutor == null) {
+			throw new MLContextException("ScriptExecutor is null");
+		}
+		BinaryBlockMatrix matrix = new BinaryBlockMatrix(matrixObject, scriptExecutor.getExecutionContext());
+		return matrix;
+	}
+
+	public ScriptExecutor getScriptExecutor() {
+		return scriptExecutor;
+	}
+
+	public void setScriptExecutor(ScriptExecutor scriptExecutor) {
+		this.scriptExecutor = scriptExecutor;
+	}
+	
 }

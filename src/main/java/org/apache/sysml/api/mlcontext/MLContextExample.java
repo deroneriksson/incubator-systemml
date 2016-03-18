@@ -19,6 +19,9 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.apache.sysml.api.MLOutput;
+import org.apache.sysml.api.mlcontext.matrix.BinaryBlockMatrix;
+import org.apache.sysml.api.mlcontext.matrix.IOFormat;
+import org.apache.sysml.api.mlcontext.matrix.JavaRDDMatrix;
 
 public class MLContextExample {
 
@@ -28,7 +31,7 @@ public class MLContextExample {
 		final JavaSparkContext sc = new JavaSparkContext(conf);
 		NewMLContext ml = new NewMLContext(sc);
 
-		// Example 1
+		// // Example 1
 		System.out.println("------------- Example #1 - create script based on string ");
 		Script ex1Script = ScriptFactory.createDMLScriptFromString("print('example 1');");
 		ml.execute(ex1Script);
@@ -46,7 +49,7 @@ public class MLContextExample {
 		ml.execute(ex2Script);
 
 		// Example 3
-		System.out.println("------------- Example #3 - create a PYDML script based on a string");
+		System.out.println("------------- Example #3 - create a PYDML script using Script constructor");
 		Script ex3Script = new Script("print(\"example 3\")\n", ScriptType.PYDML);
 		ml.execute(ex3Script);
 
@@ -148,10 +151,54 @@ public class MLContextExample {
 		System.out.println("------------- Example #14 - input and output");
 		String ex14str = "x=$X; A=read($Ain); B=A+x; write(B, 'temp');";
 		Script ex14 = ScriptFactory.createDMLScriptFromString(ex14str);
-		ex14.in("X", 10).in("A", sc.textFile("m.csv")).out("B");
+		ex14.in("X", 10).in("A", sc.textFile("m.csv")).regOut("B");
 		ml.execute(ex14);
-		JavaRDD<String> B = ex14.getOutput().getStringRDD("B", "text");
+		JavaRDD<String> ex14StringRDD = ex14.getOutput().getStringRDD("B", "text");
+		ex14StringRDD.collect().forEach(line -> System.out.println("LINE:" + line));
+
+		// Example 15
+		System.out.println("------------- Example #15 - inputs and outputs, out method on Script");
+		String ex15str = "x=$X; A=read($Ain); B=A+x; write(B, 'temp');";
+		Script ex15 = ScriptFactory.dml(ex15str);
+		ex15.in("X", 10).in("A", sc.textFile("m.csv")).regOut("B");
+		ml.execute(ex15);
+
+		BinaryBlockMatrix bbm = ex15.out("B");
+		System.out.println("Matrix characteristics:" + bbm.getMatrixCharacteristics());
+		JavaRDD<String> B = bbm.stringRDD();
 		B.collect().forEach(line -> System.out.println("LINE:" + line));
+
+		JavaRDDMatrix<String> javaRDDMatrix = ex15.out("B").javaRDDMatrix();
+		System.out.println("Matrix characteristics:" + javaRDDMatrix.getMatrixCharacteristics());
+		javaRDDMatrix.getJavaRDD().collect().forEach(line -> System.out.println("LINE:" + line));
+
+		// Example 16
+		System.out.println("------------- Example #16 - Everything in one statement!");
+		ml.execute(
+				ScriptFactory.dml("x=$X; A=read($Ain); B=A+x; write(B, 'temp');").in("X", 100)
+						.in("A", sc.textFile("m.csv")).regOut("B")).out("B").stringRDD(IOFormat.IJV).collect()
+				.forEach(line -> System.out.println("LINE:" + line));
+
+		// generate2DDoubleMatrix(4, 4, new double[]{1, 2, 3, 4, 5, 6, 7, 8});
+
+		// BinaryBlockMatrix matrix = ex15.getOut("B");
+		// System.out.println("MATRIX:" + matrix);
+		// JavaRDD<String> B = matrix.asStringRDD(IOFormat.IJV);
+		// // JavaRDD<String> B = ex14.getOutput().getStringRDD("B", "text");
+		// B.collect().forEach(line -> System.out.println("LINE:" + line));
+
+		// // Example 15
+		// System.out.println("------------- Example #15 - output scalar");
+		// String ex15str = "B=5; write(B, 'temp/B.txt');";
+		// Script ex15 = ScriptFactory.createDMLScriptFromString(ex15str);
+		// ex15.out("B");
+		// ml.execute(ex15);
+		// MLOutput out = ex15.getOutput();
+		// JavaRDD<String> bOut = out.getStringRDD("B", "text");
+		// List<String> bLines = bOut.collect();
+		// for (String bLine : bLines) {
+		// System.out.println("RDD LINE:" + bLine);
+		// }
 
 		// Script genDataScript = ScriptFactory
 		// .createDMLScriptFromUrl("https://raw.githubusercontent.com/apache/incubator-systemml/master/scripts/datagen/genLinearRegressionData.dml");
@@ -216,6 +263,27 @@ public class MLContextExample {
 				matrix[i][j] = (random.nextDouble() * (max - min) + min);
 			}
 		}
+		return matrix;
+	}
+
+	public static double[][] generate2DDoubleMatrix(int rows, int cols, double[] vals) {
+		double[][] matrix = new double[rows][cols];
+		if ((vals == null) || (vals.length == 0)) {
+			return matrix;
+		}
+		int len = vals.length;
+		for (int i = 0; i < len; i++) {
+			int r = i / cols;
+			int c = i % cols;
+			matrix[r][c] = vals[i];
+		}
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				System.out.println("[" + i + "][" + j + "]:" + matrix[i][j]);
+			}
+		}
+
 		return matrix;
 	}
 }

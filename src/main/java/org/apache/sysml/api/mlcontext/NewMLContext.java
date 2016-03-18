@@ -165,10 +165,11 @@ public class NewMLContext {
 	 * @param script
 	 *            The Script object to execute.
 	 */
-	public void execute(Script script) {
+	public Script execute(Script script) {
 		DMLConfig config = ConfigurationManager.getConfig();
 		ScriptExecutor scriptExecutor = new ScriptExecutor(config, monitoringUtil);
 		execute(script, scriptExecutor);
+		return script;
 	}
 
 	/**
@@ -178,7 +179,7 @@ public class NewMLContext {
 	 * @param script
 	 * @param scriptExecutor
 	 */
-	public void execute(Script script, ScriptExecutor scriptExecutor) {
+	public Script execute(Script script, ScriptExecutor scriptExecutor) {
 		try {
 			this.executingScript = script;
 			// NewMLContext.activeMLContext = this;
@@ -186,6 +187,7 @@ public class NewMLContext {
 		} finally { // statics.... fun....
 		// NewMLContext.activeMLContext = null;
 		}
+		return script;
 	}
 
 	// /**
