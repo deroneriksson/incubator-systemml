@@ -28,11 +28,11 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 
 import scala.collection.Seq;
+import scala.collection.mutable.Buffer;
 
 public class MLBlock implements Row {
 
@@ -174,14 +174,14 @@ public class MLBlock implements Row {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T> Seq<T> getSeq(int arg0) {
 		ArrayList<Object> retVal = new ArrayList<Object>();
 		retVal.add(indexes);
 		retVal.add(block);
 		// retVal.add(new Tuple2<MatrixIndexes, MatrixBlock>(indexes, block));
-		return (Seq<T>) scala.collection.JavaConversions.asScalaBuffer(retVal).toSeq();
+		return (Seq<T>) ((Buffer) scala.collection.JavaConversions.asScalaBuffer(retVal)).toSeq();
 	}
 
 	@Override
@@ -241,13 +241,14 @@ public class MLBlock implements Row {
 		return 2;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Seq<Object> toSeq() {
 		ArrayList<Object> retVal = new ArrayList<Object>();
 		retVal.add(indexes);
 		retVal.add(block);
 		// retVal.add(new Tuple2<MatrixIndexes, MatrixBlock>(indexes, block));
-		return scala.collection.JavaConversions.asScalaBuffer(retVal).toSeq();
+		return ((Buffer) scala.collection.JavaConversions.asScalaBuffer(retVal)).toSeq();
 	}
 	
 	public static StructType getDefaultSchemaForBinaryBlock() {
