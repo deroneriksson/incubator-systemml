@@ -33,8 +33,6 @@ public class DMLParseException extends ParseException
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private String _filename;
-	
 	private ArrayList<DMLParseException> _exceptionList;
 	
 	public ArrayList<DMLParseException> getExceptionList(){
@@ -43,47 +41,20 @@ public class DMLParseException extends ParseException
 	
 	public DMLParseException(String fname){
 		super();
-		_filename = fname;
 		_exceptionList = new ArrayList<DMLParseException>();
 	}
 	
 	public DMLParseException(String fname, String msg){
 		super(msg);
-		_filename = fname;
 		_exceptionList = new ArrayList<DMLParseException>();
 		_exceptionList.add(this);
-	}
-	
-	public DMLParseException(String fname, Exception e){
-		super();
-		_filename = fname;
-		_exceptionList = new ArrayList<DMLParseException>();
-		String newMsg = e.getMessage();
-		if (e instanceof ParseException && !(e instanceof DMLParseException)){
-			ParseException parseEx = (ParseException)e;
-			int beginLine = -1, beginColumn = -1;
-			String errorToken = null;
-			if (parseEx.currentToken != null){
-				beginLine    = parseEx.currentToken.beginLine;
-				beginColumn  = parseEx.currentToken.beginColumn;
-				errorToken   = parseEx.currentToken.image;
-				newMsg =  "ERROR: " + _filename + " -- line " + beginLine + ", column " + beginColumn + " -- " + "Parsing error around token \"" + errorToken + "\"";
-			} else {
-				newMsg =  "ERROR: " + _filename + " -- line " + beginLine + ", column " + beginColumn + " -- " + "Parsing error with unspecified token";
-			}
-		}
-		
-		_exceptionList.add(new DMLParseException(_filename, newMsg));
 	}
 	
 	public int size(){
 		return _exceptionList.size();
 	}
 	
-	public void add(Exception e){
-		if (e instanceof DMLParseException)
-			_exceptionList.addAll(((DMLParseException)e).getExceptionList());
-		else
-			_exceptionList.add(new DMLParseException(this._filename, e));
+	public void add(DMLParseException e){
+		_exceptionList.addAll(e.getExceptionList());
 	}
 }

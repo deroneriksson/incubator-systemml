@@ -80,27 +80,6 @@ public class ParseException extends Exception {
 	}
 
 	/**
-	 * This is the last token that has been consumed successfully. If this
-	 * object has been created due to a parse issue, the token following this
-	 * token will (therefore) be the first error token.
-	 */
-	public Token currentToken;
-
-	/**
-	 * Each entry in this array is an array of integers. Each array of integers
-	 * represents a sequence of tokens (by their ordinal values) that is
-	 * expected at this point of the parse.
-	 */
-	public int[][] expectedTokenSequences;
-
-	/**
-	 * This is a reference to the "tokenImage" array of the generated parser
-	 * within which the parse issue occurred. This array is defined in the
-	 * generated ...Constants interface.
-	 */
-	public String[] tokenImage;
-
-	/**
 	 * List of issues that happened during parsing. Typically set by the error
 	 * listener.
 	 */
