@@ -23,7 +23,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,17 +37,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.wink.json4j.JSONArray;
-import org.apache.wink.json4j.JSONException;
-import org.apache.wink.json4j.JSONObject;
-
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
-
 import org.apache.sysml.runtime.matrix.data.FrameBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.transform.encode.Encoder;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.wink.json4j.JSONArray;
+import org.apache.wink.json4j.JSONException;
+import org.apache.wink.json4j.JSONObject;
 
 public class DummycodeAgent extends Encoder 
 {		
@@ -228,8 +227,8 @@ public class DummycodeAgent extends Encoder
 				if ( map != null  ) 
 				{
 					// order map entries by their recodeID
-					Ordering<String> valueComparator = Ordering.natural().onResultOf(Functions.forMap(map));
-					newNames = valueComparator.sortedCopy(map.keySet());
+					newNames = new ArrayList<String>(map.keySet());
+					Collections.sort(newNames);
 					
 					// construct concatenated string of map entries
 					sb.setLength(0);
@@ -253,14 +252,15 @@ public class DummycodeAgent extends Encoder
 				if ( map != null ) 
 				{
 					// order map entries by their recodeID (represented as Strings .. "1", "2", etc.)
-					Ordering<String> orderByID = new Ordering<String>() 
-					{
-			    		public int compare(String s1, String s2) {
-			        		return (Integer.parseInt(s1) - Integer.parseInt(s2));
-			    		}
+					Comparator<String> comp = new Comparator<String>(){
+						@Override
+						public int compare(String s1, String s2) {
+							return (Integer.parseInt(s1) - Integer.parseInt(s2));
+						}
 					};
+					newNames = new ArrayList<String>(map.keySet());
+					Collections.sort(newNames, comp);
 					
-					newNames = orderByID.onResultOf(Functions.forMap(map)).sortedCopy(map.keySet());
 					// construct concatenated string of map entries
 					sb.setLength(0);
 					for(int idx=0; idx < newNames.size(); idx++) 
@@ -403,31 +403,24 @@ public class DummycodeAgent extends Encoder
 
 	@Override
 	public double[] encode(String[] in, double[] out) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public MatrixBlock encode(FrameBlock in, MatrixBlock out) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void build(String[] in) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void build(FrameBlock in) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public FrameBlock getMetaData(FrameBlock out) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
