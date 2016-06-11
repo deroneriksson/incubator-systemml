@@ -50,8 +50,8 @@ import org.apache.sysml.parser.FunctionCallIdentifier;
 import org.apache.sysml.parser.FunctionStatement;
 import org.apache.sysml.parser.IfStatement;
 import org.apache.sysml.parser.ImportStatement;
-import org.apache.sysml.parser.IntIdentifier;
 import org.apache.sysml.parser.IndexedIdentifier;
+import org.apache.sysml.parser.IntIdentifier;
 import org.apache.sysml.parser.IterablePredicate;
 import org.apache.sysml.parser.LanguageException;
 import org.apache.sysml.parser.ParForStatement;
@@ -84,6 +84,7 @@ import org.apache.sysml.parser.pydml.PydmlParser.ConstStringIdExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ConstTrueExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.DataIdExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.DataIdentifierContext;
+import org.apache.sysml.parser.pydml.PydmlParser.ElifBranchContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ExternalFunctionDefExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ForStatementContext;
@@ -91,9 +92,7 @@ import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallAssignmentStatement
 import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallMultiAssignmentStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.FunctionStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfStatementContext;
-import org.apache.sysml.parser.pydml.PydmlParser.ElifBranchContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfdefAssignmentStatementContext;
-import org.apache.sysml.parser.pydml.PydmlParser.IgnoreNewLineContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ImportStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IndexedExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.InternalFunctionDefExpressionContext;
@@ -1598,19 +1597,6 @@ public class PydmlSyntacticValidator extends CommonSyntacticValidator implements
 	// -----------------------------------------------------------------
 
 	@Override
-	public void exitIgnoreNewLine(IgnoreNewLineContext ctx) {
-		// Introduce empty StatementInfo
-		// This is later ignored by PyDMLParserWrapper
-		try {
-			ctx.info.stmt = new AssignmentStatement(null, null, 0, 0, 0, 0);
-			ctx.info.stmt.setEmptyNewLineStatement(true);
-		} catch (LanguageException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	@Override
 	public void exitValueDataTypeCheck(ValueDataTypeCheckContext ctx) {
 		if(		ctx.ID().getText().equals("int")
 				|| ctx.ID().getText().equals("str")
@@ -1687,8 +1673,6 @@ public class PydmlSyntacticValidator extends CommonSyntacticValidator implements
 	@Override public void enterIfStatement(IfStatementContext ctx) {}
 
 	@Override public void enterElifBranch(ElifBranchContext ctx) {}
-
-	@Override public void enterIgnoreNewLine(IgnoreNewLineContext ctx) {}
 
 	@Override public void enterConstDoubleIdExpression(ConstDoubleIdExpressionContext ctx) {}
 

@@ -49,7 +49,6 @@ import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallAssignmentStatement
 import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallMultiAssignmentStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfdefAssignmentStatementContext;
-import org.apache.sysml.parser.pydml.PydmlParser.IgnoreNewLineContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ImportStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IndexedExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.InternalFunctionDefExpressionContext;
@@ -144,12 +143,6 @@ public class PydmlPreprocessor implements PydmlListener {
 
 	@Override
 	public void exitFunctionCallMultiAssignmentStatement(FunctionCallMultiAssignmentStatementContext ctx) {}
-
-	@Override
-	public void enterIgnoreNewLine(IgnoreNewLineContext ctx) {}
-
-	@Override
-	public void exitIgnoreNewLine(IgnoreNewLineContext ctx) {}
 
 	@Override
 	public void enterMatrixDataTypeCheck(MatrixDataTypeCheckContext ctx) {}

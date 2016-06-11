@@ -146,10 +146,9 @@ tokens { INDENT, DEDENT }
 // - http://cs.joensuu.fi/~pviktor/python/slides/cheatsheet.pdf
 // - http://www.interfaceware.com/manual/chameleon/scripts/quickreference.pdf
 
-// DML Program is a list of expression
+// DML Program is a list of expressions
 // For now, we only allow global function definitions (not nested or inside a while block)
-programroot: (blocks+=statement | functionBlocks+=functionStatement)*  NEWLINE* EOF;
-
+programroot: (NEWLINE)* (blocks+=statement | functionBlocks+=functionStatement) ((NEWLINE)+ (blocks+=statement | functionBlocks+=functionStatement))* (NEWLINE)* EOF;
 
 
 statement returns [ org.apache.sysml.parser.common.StatementInfo info ]
@@ -159,23 +158,23 @@ statement returns [ org.apache.sysml.parser.common.StatementInfo info ]
 } :
     // ------------------------------------------
     // ImportStatement
-    'source' OPEN_PAREN filePath = STRING CLOSE_PAREN  'as' namespace=ID  NEWLINE      # ImportStatement
-    | 'setwd'  OPEN_PAREN pathValue = STRING CLOSE_PAREN NEWLINE                     # PathStatement
+    'source' OPEN_PAREN filePath = STRING CLOSE_PAREN  'as' namespace=ID        # ImportStatement
+    | 'setwd'  OPEN_PAREN pathValue = STRING CLOSE_PAREN                      # PathStatement
     // ------------------------------------------
     // AssignmentStatement
-    | targetList=dataIdentifier '=' 'ifdef' OPEN_PAREN commandLineParam=dataIdentifier ','  source=expression CLOSE_PAREN NEWLINE   # IfdefAssignmentStatement
+    | targetList=dataIdentifier '=' 'ifdef' OPEN_PAREN commandLineParam=dataIdentifier ','  source=expression CLOSE_PAREN    # IfdefAssignmentStatement
     // ------------------------------------------
     // Treat function call as AssignmentStatement or MultiAssignmentStatement
     // For backward compatibility and also since the behavior of foo() * A + foo() ... where foo returns A
     // Convert FunctionCallIdentifier(paramExprs, ..) -> source
-    | // TODO: Throw an informative error if user doesnot provide the optional assignment
-    ( targetList=dataIdentifier '=' )? name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN NEWLINE  # FunctionCallAssignmentStatement
-    | OPEN_BRACK targetList+=dataIdentifier (',' targetList+=dataIdentifier)* CLOSE_BRACK '=' name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN  NEWLINE  # FunctionCallMultiAssignmentStatement
+    | // TODO: Throw an informative error if user does not provide the optional assignment
+    ( targetList=dataIdentifier '=' )? name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN   # FunctionCallAssignmentStatement
+    | OPEN_BRACK targetList+=dataIdentifier (',' targetList+=dataIdentifier)* CLOSE_BRACK '=' name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN    # FunctionCallMultiAssignmentStatement
     // {notifyErrorListeners("Too many parentheses");}
     // We don't support block statement
     // | '{' body+=expression ';'* ( body+=expression ';'* )*  '}' # BlockStatement
     // ------------------------------------------
-    | targetList=dataIdentifier '=' source=expression NEWLINE   # AssignmentStatement
+    | targetList=dataIdentifier '=' source=expression    # AssignmentStatement
     // IfStatement
     // | 'if' OPEN_PAREN predicate=expression CLOSE_PAREN (ifBody+=statement ';'* |  NEWLINE INDENT (ifBody+=statement)+  DEDENT )  ('else' (elseBody+=statement ';'* | '{' (elseBody+=statement ';'*)*  '}'))?  # IfStatement
     | 'if' (OPEN_PAREN predicate=expression CLOSE_PAREN | predicate=expression) ':'  NEWLINE INDENT (ifBody+=statement)+  DEDENT (elifBranches += elifBranch)* ('else'  ':'  NEWLINE INDENT (elseBody+=statement)+  DEDENT )?  # IfStatement
@@ -186,7 +185,6 @@ statement returns [ org.apache.sysml.parser.common.StatementInfo info ]
     | 'parfor' (OPEN_PAREN iterVar=ID 'in' iterPred=iterablePredicate (',' parForParams+=strictParameterizedExpression)* CLOSE_PAREN | iterVar=ID 'in' iterPred=iterablePredicate (',' parForParams+=strictParameterizedExpression)* ) ':' NEWLINE INDENT (body+=statement)+  DEDENT  # ParForStatement
     | 'while' ( OPEN_PAREN predicate=expression CLOSE_PAREN | predicate=expression ) ':' NEWLINE INDENT (body+=statement)+  DEDENT  # WhileStatement
     // ------------------------------------------
-    | NEWLINE #IgnoreNewLine
 ;
 
 elifBranch returns [ org.apache.sysml.parser.common.StatementInfo info ]
