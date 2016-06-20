@@ -159,18 +159,18 @@ statement returns [ org.apache.sysml.parser.common.StatementInfo info ]
 } :
     // ------------------------------------------
     // ImportStatement
-    'source' OPEN_PAREN filePath = STRING CLOSE_PAREN  'as' namespace=ID  NEWLINE      # ImportStatement
-    | 'setwd'  OPEN_PAREN pathValue = STRING CLOSE_PAREN NEWLINE                     # PathStatement
+    'source' OPEN_PAREN filePath = STRING CLOSE_PAREN  'as' namespace=ID  (NEWLINE|EOF)      # ImportStatement
+    | 'setwd'  OPEN_PAREN pathValue = STRING CLOSE_PAREN (NEWLINE|EOF)                     # PathStatement
     // ------------------------------------------
     // AssignmentStatement
-    | targetList=dataIdentifier '=' 'ifdef' OPEN_PAREN commandLineParam=dataIdentifier ','  source=expression CLOSE_PAREN NEWLINE   # IfdefAssignmentStatement
+    | targetList=dataIdentifier '=' 'ifdef' OPEN_PAREN commandLineParam=dataIdentifier ','  source=expression CLOSE_PAREN (NEWLINE|EOF)   # IfdefAssignmentStatement
     // ------------------------------------------
     // Treat function call as AssignmentStatement or MultiAssignmentStatement
     // For backward compatibility and also since the behavior of foo() * A + foo() ... where foo returns A
     // Convert FunctionCallIdentifier(paramExprs, ..) -> source
     | // TODO: Throw an informative error if user doesnot provide the optional assignment
-    ( targetList=dataIdentifier '=' )? name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN NEWLINE  # FunctionCallAssignmentStatement
-    | OPEN_BRACK targetList+=dataIdentifier (',' targetList+=dataIdentifier)* CLOSE_BRACK '=' name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN  NEWLINE  # FunctionCallMultiAssignmentStatement
+    ( targetList=dataIdentifier '=' )? name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN (NEWLINE|EOF)  # FunctionCallAssignmentStatement
+    | OPEN_BRACK targetList+=dataIdentifier (',' targetList+=dataIdentifier)* CLOSE_BRACK '=' name=ID OPEN_PAREN (paramExprs+=parameterizedExpression (',' paramExprs+=parameterizedExpression)* )? CLOSE_PAREN  (NEWLINE|EOF)  # FunctionCallMultiAssignmentStatement
     // {notifyErrorListeners("Too many parentheses");}
     // We don't support block statement
     // | '{' body+=expression ';'* ( body+=expression ';'* )*  '}' # BlockStatement
