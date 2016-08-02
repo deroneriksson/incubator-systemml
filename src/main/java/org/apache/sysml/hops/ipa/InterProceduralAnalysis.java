@@ -110,9 +110,9 @@ import org.apache.sysml.udf.lib.OrderWrapper;
  *   * Output size inference happens for DML-bodied functions that are invoked exactly once
  *     and for external functions that are known in advance (see UDFs in org.apache.sysml.udf).
  *   * Size propagation across DAGs requires control flow awareness:
- *     - Generic statement blocks: updated variables -> old stats in; new stats out
- *     - While/for statement blocks: updated variables -> old stats in/out if loop insensitive; otherwise unknown
- *     - If statement blocks: updated variables -> old stats in; new stats out if branch-insensitive            
+ *     - Generic statement blocks: updated variables -&gt; old stats in; new stats out
+ *     - While/for statement blocks: updated variables -&gt; old stats in/out if loop insensitive; otherwise unknown
+ *     - If statement blocks: updated variables -&gt; old stats in; new stats out if branch-insensitive            
  *     
  *         
  */
@@ -148,11 +148,10 @@ public class InterProceduralAnalysis
 	/**
 	 * Public interface of IPA - everything else is meant for internal use only.
 	 * 
-	 * @param dmlt
-	 * @param dmlp
-	 * @throws HopsException
-	 * @throws ParseException
-	 * @throws LanguageException
+	 * @param dmlp the DML program
+	 * @throws HopsException if HopsException occurs
+	 * @throws ParseException if ParseException occurs
+	 * @throws LanguageException if LanguageException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public void analyzeProgram( DMLProgram dmlp ) 
@@ -215,13 +214,6 @@ public class InterProceduralAnalysis
 		//(consistent call stats after first IPA pass and hence additional potential)
 	}
 	
-	/**
-	 * 
-	 * @param sb
-	 * @return
-	 * @throws ParseException 
-	 * @throws HopsException 
-	 */
 	public Set<String> analyzeSubProgram( StatementBlock sb ) 
 		throws HopsException, ParseException
 	{
@@ -253,13 +245,6 @@ public class InterProceduralAnalysis
 	// GET FUNCTION CANDIDATES
 	//////
 	
-	/**
-	 * 
-	 * @param sb
-	 * @param fcand
-	 * @throws HopsException
-	 * @throws ParseException
-	 */
 	private void getFunctionCandidatesForStatisticPropagation( StatementBlock sb, Map<String, Integer> fcandCounts, Map<String, FunctionOp> fcandHops ) 
 		throws HopsException, ParseException
 	{
@@ -302,14 +287,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param prog
-	 * @param hop
-	 * @param fcand
-	 * @throws HopsException
-	 * @throws ParseException
-	 */
 	private void getFunctionCandidatesForStatisticPropagation(DMLProgram prog, Hop hop, Map<String, Integer> fcandCounts, Map<String, FunctionOp> fcandHops ) 
 		throws HopsException, ParseException
 	{
@@ -372,10 +349,6 @@ public class InterProceduralAnalysis
 		hop.setVisited(VisitStatus.DONE);
 	}
 	
-	/**
-	 * 
-	 * @param fcand
-	 */
 	private void pruneFunctionCandidatesForStatisticPropagation(Map<String, Integer> fcandCounts, Map<String, FunctionOp> fcandHops)
 	{
 		//debug input
@@ -406,13 +379,6 @@ public class InterProceduralAnalysis
 			}
 	}
 	
-	/**
-	 * 
-	 * @param fsb
-	 * @return
-	 * @throws HopsException
-	 * @throws ParseException
-	 */
 	private boolean isUnarySizePreservingFunction(FunctionStatementBlock fsb) 
 		throws HopsException, ParseException 
 	{
@@ -461,8 +427,8 @@ public class InterProceduralAnalysis
 	 * Populates fcandSafeNNZ with all <functionKey,hopID> pairs where it is safe to
 	 * propagate nnz into the function.
 	 *  
-	 * @param fcandHops
-	 * @param fcandSafeNNZ
+	 * @param fcandHops map of strings to function ops
+	 * @param fcandSafeNNZ map of strings to sets of longs
 	 */
 	private void determineFunctionCandidatesNNZPropagation(Map<String, FunctionOp> fcandHops, Map<String, Set<Long>> fcandSafeNNZ)
 	{
@@ -490,14 +456,6 @@ public class InterProceduralAnalysis
 	// INTRA-PROCEDURE ANALYSIS
 	//////	
 	
-	/**
-	 * 
-	 * @param sb
-	 * @param fcand
-	 * @throws HopsException
-	 * @throws ParseException
-	 * @throws CloneNotSupportedException 
-	 */
 	private void propagateStatisticsAcrossBlock( StatementBlock sb, Map<String, Integer> fcand, LocalVariableMap callVars, Map<String, Set<Long>> fcandSafeNNZ, Set<String> unaryFcands, Set<String> fnStack ) 
 		throws HopsException, ParseException
 	{
@@ -581,13 +539,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-
-	/**
-	 * 
-	 * @param root
-	 * @param vars
-	 * @throws HopsException
-	 */
 	private void propagateStatisticsAcrossPredicateDAG( Hop root, LocalVariableMap vars ) 
 		throws HopsException
 	{
@@ -610,13 +561,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	
-	/**
-	 * 
-	 * @param roots
-	 * @param vars
-	 * @throws HopsException
-	 */
 	private void propagateStatisticsAcrossDAG( ArrayList<Hop> roots, LocalVariableMap vars ) 
 		throws HopsException
 	{
@@ -643,16 +587,6 @@ public class InterProceduralAnalysis
 	// INTER-PROCEDURE ANALYIS
 	//////
 	
-	
-	/**
-	 * 
-	 * @param prog
-	 * @param hop
-	 * @param fcand
-	 * @param callVars
-	 * @throws HopsException
-	 * @throws ParseException
-	 */
 	private void propagateStatisticsIntoFunctions(DMLProgram prog, ArrayList<Hop> roots, Map<String, Integer> fcand, LocalVariableMap callVars, Map<String, Set<Long>> fcandSafeNNZ, Set<String> unaryFcands, Set<String> fnStack ) 
 			throws HopsException, ParseException
 	{
@@ -660,15 +594,6 @@ public class InterProceduralAnalysis
 			propagateStatisticsIntoFunctions(prog, root, fcand, callVars, fcandSafeNNZ, unaryFcands, fnStack);
 	}
 	
-	
-	/**
-	 * 
-	 * @param prog
-	 * @param hop
-	 * @param fcand
-	 * @throws HopsException
-	 * @throws ParseException
-	 */
 	private void propagateStatisticsIntoFunctions(DMLProgram prog, Hop hop, Map<String, Integer> fcand, LocalVariableMap callVars, Map<String, Set<Long>> fcandSafeNNZ, Set<String> unaryFcands, Set<String> fnStack ) 
 		throws HopsException, ParseException
 	{
@@ -732,17 +657,6 @@ public class InterProceduralAnalysis
 		hop.setVisited(VisitStatus.DONE);
 	}
 	
-	
-	/**
-	 * 
-	 * @param fstmt
-	 * @param fop
-	 * @param callvars
-	 * @param vars
-	 * @param inputSafeNNZ
-	 * @param singleton
-	 * @throws HopsException
-	 */
 	private void populateLocalVariableMapForFunctionCall( FunctionStatement fstmt, FunctionOp fop, LocalVariableMap callvars, LocalVariableMap vars, Set<Long> inputSafeNNZ, Integer numCalls ) 
 		throws HopsException
 	{
@@ -798,15 +712,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param fstmt
-	 * @param fop
-	 * @param tmpVars
-	 * @param callVars
-	 * @param overwrite
-	 * @throws HopsException
-	 */
 	private void extractFunctionCallReturnStatistics( FunctionStatement fstmt, FunctionOp fop, LocalVariableMap tmpVars, LocalVariableMap callVars, boolean overwrite ) 
 		throws HopsException
 	{
@@ -857,13 +762,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param fstmt
-	 * @param fop
-	 * @param callVars
-	 * @throws HopsException
-	 */
 	private void extractFunctionCallUnknownReturnStatistics( FunctionStatement fstmt, FunctionOp fop, LocalVariableMap callVars ) 
 		throws HopsException
 	{
@@ -891,13 +789,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param fstmt
-	 * @param fop
-	 * @param callVars
-	 * @throws HopsException
-	 */
 	private void extractFunctionCallEquivalentReturnStatistics( FunctionStatement fstmt, FunctionOp fop, LocalVariableMap callVars ) 
 		throws HopsException
 	{
@@ -912,13 +803,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param fstmt
-	 * @param fop
-	 * @param callVars
-	 * @throws HopsException
-	 */
 	private void extractExternalFunctionCallReturnStatistics( ExternalFunctionStatement fstmt, FunctionOp fop, LocalVariableMap callVars ) 
 		throws HopsException
 	{
@@ -961,13 +845,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param dim1
-	 * @param dim2
-	 * @param nnz
-	 * @return
-	 */
 	private MatrixObject createOutputMatrix( long dim1, long dim2, long nnz ) {
 		MatrixObject moOut = new MatrixObject(ValueType.DOUBLE, null);
 		MatrixCharacteristics mc = new MatrixCharacteristics( dim1, dim2,
@@ -982,12 +859,6 @@ public class InterProceduralAnalysis
 	// REMOVE UNUSED FUNCTIONS
 	//////
 
-	/**
-	 * 
-	 * @param dmlp
-	 * @param fcandKeys
-	 * @throws LanguageException 
-	 */
 	public void removeUnusedFunctions( DMLProgram dmlp, Set<String> fcandKeys )
 		throws LanguageException
 	{
@@ -1013,11 +884,8 @@ public class InterProceduralAnalysis
 	// FLAG FUNCTIONS FOR RECOMPILE_ONCE
 	//////
 	
-	/**
-	 * TODO call it after construct lops
-	 * 
-	 * @param dmlp
-	 * @throws LanguageException 
+	/*
+	 * TODO call it after construct lops 
 	 */
 	public void flagFunctionsForRecompileOnce( DMLProgram dmlp ) 
 		throws LanguageException
@@ -1038,9 +906,9 @@ public class InterProceduralAnalysis
 	 * Returns true if this statementblock requires recompilation inside a 
 	 * loop statement block.
 	 * 
-	 * 
-	 * 
-	 * @param sb
+	 * @param sb the statement block
+	 * @param inLoop true if in loop, false otherwise
+	 * @return true if statement block requires recompilation inside a loop statement block, false otherwise
 	 */
 	public boolean rFlagFunctionForRecompileOnce( StatementBlock sb, boolean inLoop )
 	{
@@ -1100,11 +968,6 @@ public class InterProceduralAnalysis
 	// REMOVE UNNECESSARY CHECKPOINTS
 	//////
 
-	/**
-	 * 
-	 * @param dmlp
-	 * @throws HopsException 
-	 */
 	private void removeUnnecessaryCheckpoints(DMLProgram dmlp) 
 		throws HopsException
 	{
@@ -1174,11 +1037,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param roots
-	 * @return
-	 */
 	private ArrayList<Hop> collectCheckpoints(ArrayList<Hop> roots)
 	{
 		ArrayList<Hop> ret = new ArrayList<Hop>();	
@@ -1191,11 +1049,6 @@ public class InterProceduralAnalysis
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param hop
-	 * @param checkpoints
-	 */
 	private void rCollectCheckpoints(Hop hop, ArrayList<Hop> checkpoints)
 	{
 		if( hop.getVisited()==VisitStatus.DONE )
@@ -1221,11 +1074,6 @@ public class InterProceduralAnalysis
 	// REMOVE CONSTANT BINARY OPS
 	//////
 
-	/**
-	 * 
-	 * @param dmlp
-	 * @throws HopsException 
-	 */
 	private void removeConstantBinaryOps(DMLProgram dmlp) 
 		throws HopsException
 	{
@@ -1253,11 +1101,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param roots
-	 * @param mOnes
-	 */
 	private void collectMatrixOfOnes(ArrayList<Hop> roots, HashMap<String,Hop> mOnes)
 	{
 		if( roots == null )
@@ -1273,12 +1116,6 @@ public class InterProceduralAnalysis
 			}
 	}
 	
-	/**
-	 * 
-	 * @param sb
-	 * @param mOnes
-	 * @throws HopsException 
-	 */
 	private void rRemoveConstantBinaryOp(StatementBlock sb, HashMap<String,Hop> mOnes) 
 		throws HopsException
 	{
@@ -1316,11 +1153,6 @@ public class InterProceduralAnalysis
 		}
 	}
 	
-	/**
-	 * 
-	 * @param hop
-	 * @param mOnes
-	 */
 	private void rRemoveConstantBinaryOp(Hop hop, HashMap<String,Hop> mOnes)
 	{
 		if( hop.getVisited()==VisitStatus.DONE )

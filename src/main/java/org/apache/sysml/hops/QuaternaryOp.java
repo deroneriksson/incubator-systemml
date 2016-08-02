@@ -91,15 +91,15 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 	/**
 	 * Constructor for wsloss.
 	 * 
-	 * @param l
-	 * @param dt
-	 * @param vt
-	 * @param o
-	 * @param inX
-	 * @param inU
-	 * @param inV
-	 * @param inW
-	 * @param post
+	 * @param l name
+	 * @param dt data type
+	 * @param vt value type
+	 * @param o OpOp4
+	 * @param inX HOP X
+	 * @param inU HOP U
+	 * @param inV HOP V
+	 * @param inW HOP W
+	 * @param post post weights
 	 */
 	public QuaternaryOp(String l, DataType dt, ValueType vt, Hop.OpOp4 o,
 			Hop inX, Hop inU, Hop inV, Hop inW, boolean post) 
@@ -114,15 +114,15 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 	/**
 	 * Constructor for wsigmoid.
 	 * 
-	 * @param l
-	 * @param dt
-	 * @param vt
-	 * @param o
-	 * @param inX
-	 * @param inU
-	 * @param inV
-	 * @param logout
-	 * @param minusin
+	 * @param l name
+	 * @param dt data type
+	 * @param vt value type
+	 * @param o OpOp4
+	 * @param inX HOP X
+	 * @param inU HOP U
+	 * @param inV HOP V
+	 * @param flag1 logout flag
+	 * @param flag2 minusin flag
 	 */
 	public QuaternaryOp(String l, DataType dt, ValueType vt, Hop.OpOp4 o,
 			Hop inX, Hop inU, Hop inV, boolean flag1, boolean flag2) 
@@ -133,19 +133,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		_minusin = flag2;
 	}
 	
-	/**
-	 * 
-	 * @param l
-	 * @param dt
-	 * @param vt
-	 * @param o
-	 * @param inW
-	 * @param inU
-	 * @param inV
-	 * @param baseType
-	 * @param flag1
-	 * @param flag2
-	 */
 	public QuaternaryOp(String l, DataType dt, ValueType vt, Hop.OpOp4 o,
 			Hop inX, Hop inU, Hop inV, Hop inW, int baseType, boolean flag1, boolean flag2) 
 	{
@@ -170,16 +157,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		_sop = sop;
 	}
 	
-	/**
-	 * 
-	 * @param l
-	 * @param dt
-	 * @param vt
-	 * @param o
-	 * @param inX
-	 * @param inU
-	 * @param inV
-	 */
 	public QuaternaryOp(String l, DataType dt, ValueType vt, Hop.OpOp4 o, Hop inX, Hop inU, Hop inV) 
 	{
 		super(l, dt, vt);
@@ -328,12 +305,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param wtype 
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructCPLopsWeightedSquaredLoss(WeightsType wtype) 
 		throws HopsException, LopsException
 	{
@@ -353,12 +324,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops( wsloss );
 	}
 	
-	/**
-	 * 
-	 * @param wtype 
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructMRLopsWeightedSquaredLoss(WeightsType wtype) 
 		throws HopsException, LopsException
 	{
@@ -511,12 +476,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructSparkLopsWeightedSquaredLoss(WeightsType wtype) 
 		throws HopsException, LopsException
 	{
@@ -567,12 +526,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 
-	/**
-	 * 
-	 * @param wtype 
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructCPLopsWeightedSigmoid(WSigmoidType wtype) 
 		throws HopsException, LopsException
 	{
@@ -591,12 +544,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops( wsig );
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructMRLopsWeightedSigmoid( WSigmoidType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -719,12 +666,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructSparkLopsWeightedSigmoid( WSigmoidType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -774,12 +715,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructCPLopsWeightedDivMM(WDivMMType wtype) 
 		throws HopsException, LopsException
 	{
@@ -799,12 +734,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops( wdiv );
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructMRLopsWeightedDivMM( WDivMMType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -944,12 +873,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops(agg1);
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructSparkLopsWeightedDivMM( WDivMMType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -1000,12 +923,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructCPLopsWeightedCeMM(WCeMMType wtype) 
 		throws HopsException, LopsException
 	{
@@ -1025,12 +942,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops( wcemm );
 	}
 	
-	/**
-	 * 
-	 * @param wtype 
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructMRLopsWeightedCeMM(WCeMMType wtype) 
 		throws HopsException, LopsException
 	{
@@ -1176,12 +1087,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructSparkLopsWeightedCeMM(WCeMMType wtype) 
 		throws HopsException, LopsException
 	{
@@ -1232,12 +1137,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 
-	/**
-	 * 
-	 * @param wtype 
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructCPLopsWeightedUMM(WUMMType wtype) 
 		throws HopsException, LopsException
 	{
@@ -1260,12 +1159,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		setLops( wumm );
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructMRLopsWeightedUMM( WUMMType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -1392,12 +1285,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @param wtype
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	private void constructSparkLopsWeightedUMM( WUMMType wtype ) 
 		throws HopsException, LopsException
 	{
@@ -1451,10 +1338,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		}
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private WeightsType checkWeightsType()
 	{
 		WeightsType ret = WeightsType.NONE;
@@ -1471,10 +1354,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private WSigmoidType checkWSigmoidType()
 	{
 		
@@ -1488,10 +1367,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 			return WSigmoidType.BASIC;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private WDivMMType checkWDivMMType()
 	{
 		switch( _baseType )
@@ -1521,10 +1396,6 @@ public class QuaternaryOp extends Hop implements MultiThreadedHop
 		return null;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private WCeMMType checkWCeMMType()
 	{
 		return _baseType == 1 ? WCeMMType.BASIC_EPS : WCeMMType.BASIC;

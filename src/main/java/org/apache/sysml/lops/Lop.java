@@ -134,9 +134,10 @@ public abstract class Lop
 	/**
 	 * Constructor to be invoked by base class.
 	 * 
-	 * @param t
+	 * @param t type
+	 * @param dt data type
+	 * @param vt value type
 	 */
-
 	public Lop(Type t, DataType dt, ValueType vt) {
 		type = t;
 		_dataType = dt; // data type of the output produced from this LOP
@@ -150,7 +151,7 @@ public abstract class Lop
 	/**
 	 * get visit status of node
 	 * 
-	 * @return
+	 * @return visit status of node
 	 */
 
 	public VisitStatus getVisited() {
@@ -160,7 +161,7 @@ public abstract class Lop
 	/**
 	 * set visit status of node
 	 * 
-	 * @param visited
+	 * @param visited visit status of node
 	 */
 	public void setVisited(VisitStatus visited) {
 		_visited = visited;
@@ -179,7 +180,7 @@ public abstract class Lop
 	/**
 	 * get data type of the output that is produced by this lop
 	 * 
-	 * @return
+	 * @return the data type
 	 */
 
 	public DataType getDataType() {
@@ -189,7 +190,7 @@ public abstract class Lop
 	/**
 	 * set data type of the output that is produced by this lop
 	 * 
-	 * @param dt
+	 * @param dt the data type
 	 */
 	public void setDataType(DataType dt) {
 		_dataType = dt;
@@ -198,7 +199,7 @@ public abstract class Lop
 	/**
 	 * get value type of the output that is produced by this lop
 	 * 
-	 * @return
+	 * @return the value type
 	 */
 
 	public ValueType getValueType() {
@@ -208,7 +209,7 @@ public abstract class Lop
 	/**
 	 * set value type of the output that is produced by this lop
 	 * 
-	 * @param vt
+	 * @param vt the value type
 	 */
 	public void setValueType(ValueType vt) {
 		_valueType = vt;
@@ -218,7 +219,7 @@ public abstract class Lop
 	/**
 	 * Method to get Lop type.
 	 * 
-	 * @return
+	 * @return lop type
 	 */
 
 	public Lop.Type getType() {
@@ -228,7 +229,7 @@ public abstract class Lop
 	/**
 	 * Method to get input of Lops
 	 * 
-	 * @return
+	 * @return list of input lops
 	 */
 	public ArrayList<Lop> getInputs() {
 		return inputs;
@@ -237,7 +238,7 @@ public abstract class Lop
 	/**
 	 * Method to get output of Lops
 	 * 
-	 * @return
+	 * @return list of output lops
 	 */
 
 	public ArrayList<Lop> getOutputs() {
@@ -247,7 +248,7 @@ public abstract class Lop
 	/**
 	 * Method to add input to Lop
 	 * 
-	 * @param op
+	 * @param op the input lop
 	 */
 
 	public void addInput(Lop op) {
@@ -257,7 +258,7 @@ public abstract class Lop
 	/**
 	 * Method to add output to Lop
 	 * 
-	 * @param op
+	 * @param op the output lop
 	 */
 
 	public void addOutput(Lop op) {
@@ -333,6 +334,8 @@ public abstract class Lop
 
 	/**
 	 * Method to return the ID of LOP
+	 * 
+	 * @return the ID of the LOP
 	 */
 	public long getID() {
 		return lps.getID();
@@ -349,7 +352,7 @@ public abstract class Lop
 	/**
 	 * Method to get the location property of LOP
 	 * 
-	 * @return
+	 * @return the execution location
 	 */
  	public ExecLocation getExecLocation() {
 		return lps.getExecLocation();
@@ -358,7 +361,7 @@ public abstract class Lop
 	/**
 	 * Method to get the execution type (CP or MR) of LOP
 	 * 
-	 * @return
+	 * @return the execution type
 	 */
  	public ExecType getExecType() {
 		return lps.getExecType();
@@ -366,7 +369,8 @@ public abstract class Lop
  
 	/**
 	 * Method to get the compatible job type for the LOP
-	 * @return
+	 * 
+	 * @return the compatible job type
 	 */
 	
 	public int getCompatibleJobs() {
@@ -375,6 +379,8 @@ public abstract class Lop
 	
 	/**
 	 * Method to find if the lop breaks alignment
+	 * 
+	 * @return trye if lop breaks alignment, false otherwise
 	 */
 	public boolean getBreaksAlignment() {
 		return lps.getBreaksAlignment();
@@ -397,7 +403,7 @@ public abstract class Lop
 	/**
 	 * Method to recursively add LOPS to a DAG
 	 * 
-	 * @param dag
+	 * @param dag the LOP DAG
 	 */
 	public final void addToDag(Dag<Lop> dag) 
 	{
@@ -409,29 +415,29 @@ public abstract class Lop
 	/**
 	 * Method to get output parameters
 	 * 
-	 * @return
+	 * @return output parameters
 	 */
 
 	public OutputParameters getOutputParameters() {
 		return outParams;
 	}
 	
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String input2, String input3, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 	
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String input2, String input3, String input4, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String input2, String input3, String input4, String input5, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String input2, String input3, String input4, String input5, String input6, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
@@ -444,52 +450,52 @@ public abstract class Lop
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass. Lop Type: " + this.getType());
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(int input_index1, int input_index2, int output_index) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(int input_index1, int input_index2, int input_index3, int output_index) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 	
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(int input_index1, int input_index2, int input_index3, int input_index4, int output_index) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(int input_index1, int input_index2, int input_index3, int input_index4, int input_index5, int output_index) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String input2, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String input1, String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String output) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions(String[] inputs, String[] outputs) throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 	
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public String getInstructions() throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
 
-	/** Method should be overridden if needed **/
+	/* Method should be overridden if needed */
 	public SimpleInstType getSimpleInstructionType() throws LopsException {
 		throw new LopsException(this.printErrorLocation() + "Should never be invoked in Baseclass");
 	}
@@ -559,7 +565,7 @@ public abstract class Lop
 	/**
 	 * Function that determines if the output of a LOP is defined by a variable or not.
 	 * 
-	 * @return
+	 * @return true if output of LOP is defined by variable, false otherwise
 	 */
 	public boolean isVariable() {
 		return ( (getExecLocation() == ExecLocation.Data && !((Data)this).isLiteral()) 
@@ -571,10 +577,10 @@ public abstract class Lop
 	/**
 	 * Method to prepare instruction operand with given parameters.
 	 * 
-	 * @param label
-	 * @param dt
-	 * @param vt
-	 * @return
+	 * @param label the label
+	 * @param dt data type
+	 * @param vt value type
+	 * @return instruction operand as a string
 	 */
 	public String prepOperand(String label, DataType dt, ValueType vt) {
 		StringBuilder sb = new StringBuilder();
@@ -589,10 +595,11 @@ public abstract class Lop
 	/**
 	 * Method to prepare instruction operand with given parameters.
 	 * 
-	 * @param label
-	 * @param dt
-	 * @param vt
-	 * @return
+	 * @param label the label
+	 * @param dt data type
+	 * @param vt value type
+	 * @param literal literal value
+	 * @return instruction operand as a string
 	 */
 	public String prepOperand(String label, DataType dt, ValueType vt, boolean literal) {
 		StringBuilder sb = new StringBuilder();
@@ -610,8 +617,8 @@ public abstract class Lop
 	 * Method to prepare instruction operand with given label. Data type
 	 * and Value type are derived from Lop's properties.
 	 * 
-	 * @param label
-	 * @return
+	 * @param label the label
+	 * @return instruction operand as a string
 	 */
 	private String prepOperand(String label) {
 		StringBuilder sb = new StringBuilder("");
@@ -638,7 +645,7 @@ public abstract class Lop
 	 * Function to prepare label for scalar inputs while generating instructions.
 	 * It attaches placeholder suffix and prefixes if the Lop denotes a variable.
 	 * 
-	 * @return
+	 * @return label for scalar inputs
 	 */
 	public String prepScalarLabel() {
 		String ret = getOutputParameters().getLabel();
@@ -662,8 +669,9 @@ public abstract class Lop
 	 *     to symbol table and the instruction encodes sufficient information
 	 *     to determine if an operand is a literal or not.
 	 * 
-	 * @param et
-	 * @return
+	 * @param et execution type
+	 * @param label the label
+	 * @return scalar operand
 	 */
 	public String prepScalarOperand(ExecType et, String label) {
 		boolean isData = (getExecLocation() == ExecLocation.Data);
@@ -727,6 +735,8 @@ public abstract class Lop
 	 * Method to check if a LOP expects an input from the Distributed Cache.
 	 * The method in parent class always returns <code>false</code> (default).
 	 * It must be overridden by individual LOPs that use the cache.
+	 * 
+	 * @return true if LOP expects an input from the distributed cache, false otherwise
 	 */
 	public boolean usesDistributedCache() {
 		return false;

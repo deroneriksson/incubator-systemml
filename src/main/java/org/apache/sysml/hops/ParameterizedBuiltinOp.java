@@ -83,7 +83,13 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 	}
 
 	/**
-	 * Creates a new HOP for a function call
+	 * Creates a new HOP for a function call.
+	 * 
+	 * @param l name
+	 * @param dt data type
+	 * @param vt value type
+	 * @param op param builtin op
+	 * @param inputParameters input parameters
 	 */
 	public ParameterizedBuiltinOp(String l, DataType dt, ValueType vt,
 			ParamBuiltinOp op, HashMap<String, Hop> inputParameters) {
@@ -113,8 +119,8 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 	
 	/**
 	 * Returns a parameters by its name. Returns null if not present  
-	 * @param val
-	 * @return
+	 * @param val parameter name
+	 * @return the HOP
 	 */
 	public Hop getInputParameter(String val){
 		Integer index = getParamIndexMap().get(val);
@@ -1285,10 +1291,6 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	@Override
 	public boolean isTransposeSafe()
 	{
@@ -1311,10 +1313,6 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 		return ret;	
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isCountFunction()
 	{
 		boolean ret = false;
@@ -1338,7 +1336,7 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 	
 	/**
 	 * Only applies to REPLACE.
-	 * @return
+	 * @return true if non-zero replace arguments, false otherwise
 	 */
 	private boolean isNonZeroReplaceArguments()
 	{
@@ -1361,10 +1359,6 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isTargetDiagInput()
 	{
 		Hop targetHop = getTargetHop();
@@ -1376,8 +1370,9 @@ public class ParameterizedBuiltinOp extends Hop implements MultiThreadedHop
 	}
 
 	/**
-	 * This will check if there is sufficient memory locally (twice the size of second matrix, for original and sort data), and remotely (size of second matrix (sorted data)).  
-	 * @return
+	 * This will check if there is sufficient memory locally (twice the size of second matrix, for original and sort data), and remotely (size of second matrix (sorted data)).
+	 * 
+	 * @return true if remove empty BcSP, false otherwise
 	 */
 	private boolean isRemoveEmptyBcSP()	// TODO find if 2 x size needed. 
 	{

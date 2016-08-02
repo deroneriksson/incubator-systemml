@@ -38,10 +38,6 @@ import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.Statement;
 import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
 
-/**
- * 
- * 
- */
 public class DataGenOp extends Hop implements MultiThreadedHop
 {
 	
@@ -83,6 +79,7 @@ public class DataGenOp extends Hop implements MultiThreadedHop
 	/**
 	 * <p>Creates a new Rand HOP.</p>
 	 * 
+	 * @param mthd the data gen method
 	 * @param id the target identifier
 	 * @param inputParameters HashMap of the input parameters for Rand Hop
 	 */
@@ -371,10 +368,6 @@ public class DataGenOp extends Hop implements MultiThreadedHop
 		return _paramIndexMap.get(key);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean hasConstantValue() 
 	{
 		//robustness for other operations, not specifying min/max/sparsity
@@ -405,11 +398,6 @@ public class DataGenOp extends Hop implements MultiThreadedHop
 		return false;
 	}
 	
-	/**
-	 * 
-	 * @param val
-	 * @return
-	 */
 	public boolean hasConstantValue(double val) 
 	{
 		//string initialization does not exhibit constant values

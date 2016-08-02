@@ -50,16 +50,9 @@ public class Checkpoint extends Lop
 	private StorageLevel _storageLevel;
 	
 
-	/**
+	/*
 	 * TODO change string parameter storage.level to StorageLevel as soon as we can assume
 	 * that Spark libraries are always available.
-	 * 
-	 * @param input
-	 * @param dt
-	 * @param vt
-	 * @param level
-	 * @param et
-	 * @throws LopsException
 	 */
 	public Checkpoint(Lop input, DataType dt, ValueType vt, String level) 
 		throws LopsException
@@ -121,8 +114,8 @@ public class Checkpoint extends Lop
 	 * This is a utility method because Sparks StorageLevel.toString() is incompatible with its own
 	 * fromString() method.
 	 * 
-	 * @param level
-	 * @return
+	 * @param level storage level
+	 * @return storage level string
 	 */
 	public static String getStorageLevelString( StorageLevel level)
 	{
@@ -152,18 +145,10 @@ public class Checkpoint extends Lop
 		return "INVALID";
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public static String getDefaultStorageLevelString() {
 		return getStorageLevelString( DEFAULT_STORAGE_LEVEL );
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public static String getSerializeStorageLevelString() {
 		return getStorageLevelString( SER_STORAGE_LEVEL );
 	}

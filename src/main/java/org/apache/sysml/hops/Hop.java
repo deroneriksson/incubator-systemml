@@ -153,28 +153,16 @@ public abstract class Hop
 		_etype = null;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public ExecType getForcedExecType()
 	{
 		return _etypeForced;
 	}
 	
-	/**
-	 * 
-	 * @param etype
-	 */
 	public void setForcedExecType(ExecType etype)
 	{
 		_etypeForced = etype;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public abstract boolean allowsAllExecTypes();
 	
 	/**
@@ -186,7 +174,7 @@ public abstract class Hop
 	 * would be (currently) always represented dense.
 	 * 
 	 * 
-	 * @return
+	 * @return currently always returns false
 	 */
 	public boolean isTransposeSafe()
 	{
@@ -194,9 +182,6 @@ public abstract class Hop
 		return false;
 	}
 	
-	/**
-	 * 
-	 */
 	public void checkAndSetForcedPlatform()
 	{
 		if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
@@ -207,9 +192,6 @@ public abstract class Hop
 			_etypeForced = ExecType.SPARK;
 	}
 	
-	/**
-	 * 
-	 */
 	public void checkAndSetInvalidCPDimsAndSize()
 	{		
 		if( _etype == ExecType.CP )
@@ -286,11 +268,6 @@ public abstract class Hop
 		return _requiresCheckpoint;
 	}
 	
-	
-	/**
-	 * 
-	 * @throws HopsException
-	 */
 	public void constructAndSetLopsDataFlowProperties() 
 		throws HopsException
 	{
@@ -304,10 +281,6 @@ public abstract class Hop
 		constructAndSetCheckpointLopIfRequired();
 	}
 	
-	/**
-	 * 
-	 * @throws HopsException
-	 */
 	private void constructAndSetReblockLopIfRequired() 
 		throws HopsException
 	{
@@ -352,10 +325,6 @@ public abstract class Hop
 		}
 	}
 	
-	/**
-	 * 
-	 * @throws HopsException
-	 */
 	@SuppressWarnings("unused") //see CHECKPOINT_SPARSE_CSR
 	private void constructAndSetCheckpointLopIfRequired() 
 		throws HopsException
@@ -415,10 +384,6 @@ public abstract class Hop
 		}	
 	}
 	
-	/**
-	 * 
-	 * @throws HopsException
-	 */
 	private void constructAndSetCompressionLopIfRequired() 
 		throws HopsException
 	{
@@ -457,14 +422,6 @@ public abstract class Hop
 		}
 	}
 	
-	
-	/**
-	 * 
-	 * @param inputPos
-	 * @return
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	public static Lop createOffsetLop( Hop hop, boolean repCols ) 
 		throws HopsException, LopsException
 	{
@@ -506,17 +463,13 @@ public abstract class Hop
 	 * only use getMemEstimate(), which gives memory required to store 
 	 * all inputs and the output.
 	 * 
-	 * @return
+	 * @return the output size estimate
 	 */
 	protected double getOutputSize() 
 	{
 		return _outputMemEstimate;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	protected double getInputSize() 
 	{
 		double sum = 0;		
@@ -547,10 +500,6 @@ public abstract class Hop
 		return sum;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	protected double getInputOutputSize() 
 	{
 		double sum = 0;
@@ -561,11 +510,6 @@ public abstract class Hop
 		return sum;
 	}
 	
-	/**
-	 * 
-	 * @param pos
-	 * @return
-	 */
 	protected double getInputSize( int pos ){
 		double ret = 0;
 		if( _input.size()>pos )
@@ -585,8 +529,7 @@ public abstract class Hop
 	 * * Invocation: Intended to be called for ALL root nodes of one Hops DAG with the same
 	 *   (initially empty) memo table.
 	 * 
-	 * @param memo	
-	 * @return
+	 * @return the memory estimate
 	 */
 	public double getMemEstimate()
 	{
@@ -603,9 +546,9 @@ public abstract class Hop
 	}
 	
 	/**
-	 * Returns memory estimate in bytes
+	 * Sets memory estimate in bytes
 	 * 
-	 * @param mem
+	 * @param mem the memory estimate
 	 */
 	public void setMemEstimate( double mem )
 	{
@@ -654,7 +597,7 @@ public abstract class Hop
 	 * TODO remove memo table and, on constructor refresh, inference in refresh, single compute mem,
 	 * maybe general computeMemEstimate, flags to indicate if estimate or not. 
 	 * 
-	 * @return computed estimate
+	 * @param memo the memo table
 	 */
 	public void computeMemEstimate( MemoTable memo )
 	{
@@ -762,10 +705,10 @@ public abstract class Hop
 	 * Computes the hop-specific output memory estimate in bytes. Should be 0 if not
 	 * applicable. 
 	 * 
-	 * @param dim1
-	 * @param dim2
-	 * @param nnz
-	 * @return
+	 * @param dim1 dimension 1
+	 * @param dim2 dimension 2
+	 * @param nnz number of non-zeros
+	 * @return the memory estimate
 	 */
 	protected abstract double computeOutputMemEstimate( long dim1, long dim2, long nnz );
 
@@ -773,10 +716,10 @@ public abstract class Hop
 	 * Computes the hop-specific intermediate memory estimate in bytes. Should be 0 if not
 	 * applicable.
 	 * 
-	 * @param dim1
-	 * @param dim2
-	 * @param nnz
-	 * @return
+	 * @param dim1 dimension 1
+	 * @param dim2 dimension 2
+	 * @param nnz number of non-zeros
+	 * @return the memory estimate
 	 */
 	protected abstract double computeIntermediateMemEstimate( long dim1, long dim2, long nnz );
 
@@ -784,8 +727,8 @@ public abstract class Hop
 	 * Computes the output matrix characteristics (rows, cols, nnz) based on worst-case output
 	 * and/or input estimates. Should return null if dimensions are unknown.
 	 * 
-	 * @param memo
-	 * @return
+	 * @param memo the memo table
+	 * @return the output characteristics as a long array
 	 */
 	protected abstract long[] inferOutputCharacteristics( MemoTable memo );
 
@@ -796,7 +739,7 @@ public abstract class Hop
 	 * Returns true if estimates for all the hops in the DAG rooted at the current 
 	 * hop are computed. Returns false if any of the hops have INVALID estimate.
 	 * 
-	 * @return
+	 * @return the status
 	 */
 	public boolean checkEstimates() {
 		boolean childStatus = true;
@@ -809,6 +752,7 @@ public abstract class Hop
 	 * Recursively computes memory estimates for all the Hops in the DAG rooted at the 
 	 * current hop pointed by <code>this</code>.
 	 * 
+	 * @param memo the memo table
 	 */
 	public void refreshMemEstimates( MemoTable memo ) {
 		if (getVisited() == VisitStatus.DONE)
@@ -829,7 +773,7 @@ public abstract class Hop
 	 * fit in memory -- note that this decision MAY NOT be optimal in terms of 
 	 * execution time.
 	 * 
-	 * @return
+	 * @return the exec type
 	 */
 	protected ExecType findExecTypeByMemEstimate() {
 		ExecType et = null;
@@ -866,7 +810,7 @@ public abstract class Hop
 	/**
 	 * Create bidirectional links
 	 * 
-	 * @param h
+	 * @param h the HOP
 	 */
 	public void addInput( Hop h )
 	{
@@ -991,8 +935,7 @@ public abstract class Hop
 	/**
 	 * Test and debugging only.
 	 * 
-	 * @param h
-	 * @throws HopsException 
+	 * @throws HopsException if HopsException occurs
 	 */
 	public void checkParentChildPointers( ) 
 		throws HopsException
@@ -1554,11 +1497,6 @@ public abstract class Hop
 		op == OpOp2.OR;
 	}
 	
-	/**
-	 * 
-	 * @param op
-	 * @return
-	 */
 	public static OpOp2 getOpOp2ForOuterVectorOperation(String op) 
 	{
 		if( "+".equals(op) ) return OpOp2.PLUS;
@@ -1599,6 +1537,8 @@ public abstract class Hop
 
 	/**
 	 * Indicates if dynamic recompilation is required for this hop. 
+	 * 
+	 * @return true if requires recompile, false otherwise
 	 */
 	public boolean requiresRecompile() 
 	{
@@ -1622,6 +1562,8 @@ public abstract class Hop
 	
 	/**
 	 * Util function for refreshing scalar rows input parameter.
+	 * 
+	 * @param input the HOP input
 	 */
 	protected void refreshRowsParameterInformation( Hop input )
 	{
@@ -1635,6 +1577,8 @@ public abstract class Hop
 	
 	/**
 	 * Util function for refreshing scalar cols input parameter.
+	 * 
+	 * @param input the HOP input
 	 */
 	protected void refreshColsParameterInformation( Hop input )
 	{
@@ -1645,11 +1589,6 @@ public abstract class Hop
 		setDim2( size );
 	}
 	
-	/**
-	 * 
-	 * @param input
-	 * @return
-	 */
 	public long computeSizeInformation( Hop input )
 	{
 		long ret = -1;
@@ -1669,11 +1608,6 @@ public abstract class Hop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param input
-	 * @param vars
-	 */
 	public void refreshRowsParameterInformation( Hop input, LocalVariableMap vars )
 	{
 		long size = computeSizeInformation(input, vars);
@@ -1683,11 +1617,6 @@ public abstract class Hop
 		setDim1( size );
 	}
 	
-	/**
-	 * 
-	 * @param input
-	 * @param vars
-	 */
 	public void refreshColsParameterInformation( Hop input, LocalVariableMap vars )
 	{
 		long size = computeSizeInformation(input, vars);
@@ -1697,12 +1626,6 @@ public abstract class Hop
 		setDim2( size );
 	}
 	
-	/**
-	 * 
-	 * @param input
-	 * @param vars
-	 * @return
-	 */
 	public long computeSizeInformation( Hop input, LocalVariableMap vars )
 	{
 		long ret = -1;
@@ -1722,11 +1645,6 @@ public abstract class Hop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param input
-	 * @return
-	 */
 	public double computeBoundsInformation( Hop input ) 
 	{
 		double ret = Double.MAX_VALUE;
@@ -1748,9 +1666,9 @@ public abstract class Hop
 	 * Computes bound information for sequence if possible, otherwise returns
 	 * Double.MAX_VALUE
 	 * 
-	 * @param input
-	 * @param vars
-	 * @return
+	 * @param input the HOP input
+	 * @param vars the local variable map
+	 * @return the bounds information
 	 */
 	public double computeBoundsInformation( Hop input, LocalVariableMap vars ) 
 	{
@@ -1776,8 +1694,9 @@ public abstract class Hop
 	 * statistics of inputs. Limited set of supported operations in comparison
 	 * to refresh rows/cols.
 	 * 
-	 * @param input
-	 * @param memo
+	 * @param input the HOP input
+	 * @param memo the memo table
+	 * @return the dim parameter information
 	 */
 	protected long computeDimParameterInformation( Hop input, MemoTable memo )
 	{
@@ -1812,12 +1731,6 @@ public abstract class Hop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param root
-	 * @param valMemo
-	 * @return
-	 */
 	protected long rEvalSimpleBinaryLongExpression( Hop root, HashMap<Long, Long> valMemo, MemoTable memo )
 	{
 		//memoization (prevent redundant computation of common subexpr)
@@ -1880,11 +1793,6 @@ public abstract class Hop
 		return ret;
 	}
 
-
-	/**
-	 * 
-	 * @return
-	 */
 	public String constructBaseDir()
 	{
 		StringBuilder sb = new StringBuilder();
@@ -1903,8 +1811,9 @@ public abstract class Hop
 	/**
 	 * Clones the attributes of that and copies it over to this.
 	 * 
-	 * @param that
-	 * @throws HopsException 
+	 * @param that the HOP
+	 * @param withRefs true if with refs
+	 * @throws CloneNotSupportedException if CloneNotSupportedException occurs
 	 */
 	protected void clone( Hop that, boolean withRefs ) 
 		throws CloneNotSupportedException 
@@ -1985,7 +1894,7 @@ public abstract class Hop
 	/**
 	 * Sets the linenumbers of this hop to a given lop.
 	 * 
-	 * @param lop
+	 * @param lop the LOP
 	 */
 	protected void setLineNumbers(Lop lop)
 	{

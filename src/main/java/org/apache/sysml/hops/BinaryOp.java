@@ -1014,12 +1014,15 @@ public class BinaryOp extends Hop
 	/**
 	 * General case binary append.
 	 * 
-	 * @param left
-	 * @param right
-	 * @param cbind 
-	 * @return
-	 * @throws HopsException 
-	 * @throws LopsException 
+	 * @param left the left HOP
+	 * @param right the right HOP
+	 * @param dt the data type
+	 * @param vt the value type
+	 * @param cbind the cbind value
+	 * @param current the current HOP
+	 * @return the LOP
+	 * @throws HopsException if HopsException occurs
+	 * @throws LopsException if LopsException occurs
 	 */
 	public static Lop constructMRAppendLop( Hop left, Hop right, DataType dt, ValueType vt, boolean cbind, Hop current ) 
 		throws HopsException, LopsException
@@ -1107,17 +1110,6 @@ public class BinaryOp extends Hop
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param left
-	 * @param right
-	 * @param dt
-	 * @param vt
-	 * @param current
-	 * @return
-	 * @throws HopsException
-	 * @throws LopsException
-	 */
 	public static Lop constructSPAppendLop( Hop left, Hop right, DataType dt, ValueType vt, boolean cbind, Hop current ) 
 		throws HopsException, LopsException
 	{
@@ -1167,14 +1159,16 @@ public class BinaryOp extends Hop
 	/**
 	 * Special case tertiary append. Here, we also compile a MR_RAPPEND or MR_GAPPEND
 	 * 
-	 * @param left
-	 * @param right
-	 * @param dt
-	 * @param vt
-	 * @param current
-	 * @return
-	 * @throws HopsException
-	 * @throws LopsException
+	 * @param left the left HOP
+	 * @param right1 the right HOP 1
+	 * @param right2 the right HOP 2
+	 * @param dt the data type
+	 * @param vt the value type
+	 * @param cbind the cbind value
+	 * @param current the current HOP
+	 * @return the LOP
+	 * @throws HopsException if HopsException occurs
+	 * @throws LopsException if LopsException occurs
 	 */
 	public static Lop constructAppendLopChain( Hop left, Hop right1, Hop right2, DataType dt, ValueType vt, boolean cbind, Hop current ) 
 		throws HopsException, LopsException
@@ -1227,7 +1221,15 @@ public class BinaryOp extends Hop
 	/**
 	 * Estimates the memory footprint of MapMult operation depending on which input is put into distributed cache.
 	 * This function is called by <code>optFindAppendMethod()</code> to decide the execution strategy, as well as by 
-	 * piggybacking to decide the number of Map-side instructions to put into a single GMR job. 
+	 * piggybacking to decide the number of Map-side instructions to put into a single GMR job.
+	 * 
+	 * @param m1_dim1 m1 dimension 1
+	 * @param m1_dim2 m1 dimension 2
+	 * @param m2_dim1 m2 dimension 1
+	 * @param m2_dim2 m2 dimension 2
+	 * @param m1_rpb m1 rows per block
+	 * @param m1_cpb m1 columns per block
+	 * @return the footprint in mapper
 	 */
 	public static double footprintInMapper( long m1_dim1, long m1_dim2, long m2_dim1, long m2_dim2, long m1_rpb, long m1_cpb ) {
 		double footprint = 0;
@@ -1244,14 +1246,6 @@ public class BinaryOp extends Hop
 		return footprint;
 	}
 	
-	/**
-	 * 
-	 * @param m1_dim1
-	 * @param m1_dim2
-	 * @param m2_dim1
-	 * @param m2_dim2
-	 * @return
-	 */
 	private static AppendMethod optFindAppendMethod( long m1_dim1, long m1_dim2, long m2_dim1, long m2_dim2, long m1_rpb, long m1_cpb, boolean cbind )
 	{
 		if(FORCED_APPEND_METHOD != null) {
@@ -1318,23 +1312,12 @@ public class BinaryOp extends Hop
 		return AppendMethod.MR_GAPPEND; 	
 	}
 
-	/**
-	 * 
-	 * @param rightInput
-	 * @return
-	 */
 	private static boolean requiresPartitioning( Hop rightInput )
 	{
 		return (   rightInput.dimsKnown() //known input size 
                 && rightInput.getDim1()*rightInput.getDim2() > DistributedCacheInput.PARTITION_SIZE);
 	}
 	
-	/**
-	 * 
-	 * @param left
-	 * @param right
-	 * @return
-	 */
 	public static boolean requiresReplication( Hop left, Hop right )
 	{
 		return (!(left.getDim2()>=1 && right.getDim2()>=1) //cols of any input unknown 
@@ -1373,12 +1356,6 @@ public class BinaryOp extends Hop
 		return MMBinaryMethod.MR_BINARY_R;
 	}
 	
-	/**
-	 * 
-	 * @param left
-	 * @param right
-	 * @return
-	 */
 	private MMBinaryMethod optFindMMBinaryMethod(Hop left, Hop right)
 	{
 		long m1_dim1 = left.getDim1();
@@ -1414,8 +1391,6 @@ public class BinaryOp extends Hop
 		//MR_BINARY_R as robust fallback strategy
 		return MMBinaryMethod.MR_BINARY_R;
 	}
-	
-	
 	
 	@Override
 	public void refreshSizeInformation()
@@ -1547,11 +1522,6 @@ public class BinaryOp extends Hop
 				&& getInput().get(1) == that2.getInput().get(1));
 	}
 	
-	/**
-	 * 
-	 * @param op
-	 * @return
-	 */
 	public boolean supportsMatrixScalarOperations()
 	{
 		return (   op==OpOp2.PLUS    ||op==OpOp2.MINUS 
@@ -1565,10 +1535,6 @@ public class BinaryOp extends Hop
 		         ||op==OpOp2.LOG     ||op==OpOp2.POW );
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isPPredOperation()
 	{
 		return (   op==OpOp2.LESS    ||op==OpOp2.LESSEQUAL

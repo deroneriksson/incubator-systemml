@@ -102,7 +102,7 @@ public class DMLBreakpointManager {
 	
 	/**
 	 * Returns breakpoint identifier with given line number 
-	 * @param Line number Location of breakpoint in DML script
+	 * @param lineNum Line number Location of breakpoint in DML script
 	 * @return bpID Breakpoint id within all breakpoints (-1 if not found)
 	 */
 	public static int getBreakpointID(int lineNum) {
@@ -118,6 +118,7 @@ public class DMLBreakpointManager {
 	
 	/**
 	 * Insert a breakpoint instruction into list of existing breakpoints  
+	 * @param breakpoint the breakpoint instruction
 	 * @param lineNumber Location for inserting breakpoint
 	 */
 	public static void insertBreakpoint (BreakPointInstruction breakpoint, int lineNumber) {	
@@ -145,7 +146,7 @@ public class DMLBreakpointManager {
 	
 	/**
 	 * Updates breakpoint status for a given breakpoint id 
-	 * @param location Breakpoint identifier
+	 * @param lineNumber location Breakpoint identifier
 	 * @param status Current breakpoint status  
 	 */
 	public static void updateBreakpoint(int lineNumber, BPINSTRUCTION_STATUS status) {

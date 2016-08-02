@@ -51,6 +51,9 @@ public class DMLDebugger
 	
 	/**
 	 * Constructor for DML debugger CLI
+	 * 
+	 * @param p DML debugger program info
+	 * @param dmlScript the script
 	 */
 	public DMLDebugger(DMLDebuggerProgramInfo p, String dmlScript) 
 	{

@@ -81,10 +81,10 @@ public class MLOutput {
 	/**
 	 * Note, the output DataFrame has an additional column ID.
 	 * An easy way to get DataFrame without ID is by df.sort("ID").drop("ID")
-	 * @param sqlContext
-	 * @param varName
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param sqlContext the SQLContext
+	 * @param varName the variable name
+	 * @return the DataFrame
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public DataFrame getDF(SQLContext sqlContext, String varName) throws DMLRuntimeException {
 		if(sqlContext == null) {
@@ -100,11 +100,11 @@ public class MLOutput {
 	
 	/**
 	 * 
-	 * @param sqlContext
-	 * @param varName
+	 * @param sqlContext the SQLContext
+	 * @param varName the variable name
 	 * @param outputVector if true, returns DataFrame with two column: ID and org.apache.spark.mllib.linalg.Vector
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @return the DataFrame
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public DataFrame getDF(SQLContext sqlContext, String varName, boolean outputVector) throws DMLRuntimeException {
 		if(sqlContext == null) {
@@ -126,11 +126,11 @@ public class MLOutput {
 	
 	/**
 	 * This methods improves the performance of MLPipeline wrappers.
-	 * @param sqlContext
-	 * @param varName
+	 * @param sqlContext the SQLContext
+	 * @param varName the variable name
 	 * @param range range is inclusive
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @return the DataFrame
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public DataFrame getDF(SQLContext sqlContext, String varName, Map<String, Tuple2<Long, Long>> range) throws DMLRuntimeException {
 		if(sqlContext == null) {

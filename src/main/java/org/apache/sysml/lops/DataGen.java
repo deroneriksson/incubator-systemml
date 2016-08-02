@@ -54,13 +54,15 @@ public class DataGen extends Lop
 	/**
 	 * <p>Creates a new Rand-LOP. The target identifier has to hold the dimensions of the new random object.</p>
 	 * 
+	 * @param mthd data gen method
 	 * @param id target identifier
-	 * @param inputParameterLops Lops of input parameters
+	 * @param inputParametersLops Lops of input parameters
 	 * @param baseDir base dir for runtime
-	 * @param dt Data type
-	 * @param vt Value type
-	 * @param ExecType Execution type
-	 */	
+	 * @param dt data type
+	 * @param vt value type
+	 * @param et execution type
+	 * @throws LopsException if LopsException occurs
+	 */
 	public DataGen(DataGenMethod mthd, DataIdentifier id, HashMap<String, Lop> 
 				inputParametersLops, String baseDir, DataType dt, ValueType vt, ExecType et) throws LopsException 
 	{
@@ -151,9 +153,10 @@ public class DataGen extends Lop
 	
 	/**
 	 * Private method that generates CP Instruction for Rand.
-	 * @param output
-	 * @return
-	 * @throws LopsException
+	 * 
+	 * @param output the output
+	 * @return cp instruction for rand
+	 * @throws LopsException if LopsException occurs
 	 */
 	private String getCPInstruction_Rand(String output) 
 		throws LopsException 
@@ -236,12 +239,6 @@ public class DataGen extends Lop
 		return sb.toString(); 
 	}
 
-	/**
-	 * 
-	 * @param output
-	 * @return
-	 * @throws LopsException
-	 */
 	private String getCPInstruction_SInit(String output) 
 		throws LopsException 
 	{
@@ -290,12 +287,6 @@ public class DataGen extends Lop
 		return sb.toString();
 	}
 	
-	/**
-	 * 
-	 * @param output
-	 * @return
-	 * @throws LopsException
-	 */
 	private String getCPInstruction_Sample(String output) 
 		throws LopsException
 	{
@@ -342,9 +333,10 @@ public class DataGen extends Lop
 	
 	/**
 	 * Private method that generates CP Instruction for Seq.
-	 * @param output
-	 * @return
-	 * @throws LopsException
+	 * 
+	 * @param output the output
+	 * @return cp instruction for seq
+	 * @throws LopsException if LopsException occurs
 	 */
 	private String getCPInstruction_Seq(String output) throws LopsException {
 		if ( method != DataGenMethod.SEQ )
@@ -399,10 +391,10 @@ public class DataGen extends Lop
 	/**
 	 * Private method to generate MR instruction for Rand.
 	 * 
-	 * @param input_index
-	 * @param output_index
-	 * @return
-	 * @throws LopsException
+	 * @param input_index the input index
+	 * @param output_index the output index
+	 * @return ml instruction for rand
+	 * @throws LopsException if LopsException occurs
 	 */
 	private String getMRInstruction_Rand(int inputIndex, int outputIndex) 
 		throws LopsException 
@@ -478,10 +470,10 @@ public class DataGen extends Lop
 	/**
 	 * Private method to generate MR instruction for Seq.
 	 * 
-	 * @param input_index
-	 * @param output_index
-	 * @return
-	 * @throws LopsException
+	 * @param input_index the input index
+	 * @param output_index the output index
+	 * @return mr instruction for seq
+	 * @throws LopsException if LopsException occurs
 	 */
 	private String getMRInstruction_Seq(int inputIndex, int outputIndex) throws LopsException {
 		StringBuilder sb = new StringBuilder();

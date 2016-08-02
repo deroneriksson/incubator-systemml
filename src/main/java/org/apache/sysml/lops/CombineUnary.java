@@ -34,13 +34,12 @@ import org.apache.sysml.parser.Expression.*;
 public class CombineUnary extends Lop
 {
 
-	
-
 	/**
-	 * @param input - input lop
-	 * @param op - operation type
+	 * 
+	 * @param input1 input LOP
+	 * @param dt the data type
+	 * @param vt the value type
 	 */
-	
 	public CombineUnary(Lop input1, DataType dt, ValueType vt) 
 	{
 		super(Lop.Type.CombineUnary, dt, vt);	

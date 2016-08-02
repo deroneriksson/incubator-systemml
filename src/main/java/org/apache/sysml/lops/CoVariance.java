@@ -35,11 +35,13 @@ public class CoVariance extends Lop
 	
 	/**
 	 * Constructor to perform covariance.
-	 * input1 <- data 
 	 * (prior to this lop, input vectors need to attached together using CombineBinary or CombineTertiary) 
-	 * @throws LopsException 
+	 * 
+	 * @param input1 input LOP
+	 * @param dt data type
+	 * @param vt value type
+	 * @throws LopsException if LopsException occurs
 	 */
-
 	public CoVariance(Lop input1, DataType dt, ValueType vt) throws LopsException {
 		this(input1, dt, vt, ExecType.MR);
 	}
@@ -107,8 +109,10 @@ public class CoVariance extends Lop
 	
 	/**
 	 * Function two generate CP instruction to compute unweighted covariance.
-	 * input1 -> input column 1
-	 * input2 -> input column 2
+	 * 
+	 * @param input1 input column 1
+	 * @param input2 input column 2
+	 * @param output the output
 	 */
 	@Override
 	public String getInstructions(String input1, String input2, String output) {
@@ -131,9 +135,11 @@ public class CoVariance extends Lop
 
 	/**
 	 * Function two generate CP instruction to compute weighted covariance.
-	 * input1 -> input column 1
-	 * input2 -> input column 2
-	 * input3 -> weights
+	 * 
+	 * @param input1 input column 1
+	 * @param input2 input column 2
+	 * @param input3 weights
+	 * @param output the output
 	 */
 	@Override
 	public String getInstructions(String input1, String input2, String input3, String output) {
@@ -159,8 +165,11 @@ public class CoVariance extends Lop
 
 	/**
 	 * Function to generate MR version of covariance instruction.
-	 * input_index -> denote the "combined" input columns and weights, 
+	 * input_index -&gt; denote the "combined" input columns and weights, 
 	 * when applicable.
+	 * 
+	 * @param input_index the input index
+	 * @param output_index the output index
 	 */
 	@Override
 	public String getInstructions(int input_index, int output_index) {

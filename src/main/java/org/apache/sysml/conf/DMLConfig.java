@@ -109,25 +109,12 @@ public class DMLConfig
 		
 	}
 	
-	/**
-	 * 
-	 * @param fileName
-	 * @throws ParseException
-	 * @throws FileNotFoundException 
-	 */
 	public DMLConfig(String fileName) 
 		throws ParseException, FileNotFoundException
 	{
 		this( fileName, false );
 	}
 	
-	/**
-	 * 
-	 * @param fileName
-	 * @param silent
-	 * @throws ParseException
-	 * @throws FileNotFoundException 
-	 */
 	public DMLConfig(String fileName, boolean silent) 
 		throws ParseException, FileNotFoundException
 	{
@@ -188,9 +175,9 @@ public class DMLConfig
 	
 	/**
 	 * Method to parse configuration
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
+	 * @throws ParserConfigurationException if ParserConfigurationException occurs
+	 * @throws SAXException if SAXException occurs
+	 * @throws IOException if IOException occurs
 	 */
 	private void parseConfig () throws ParserConfigurationException, SAXException, IOException 
 	{
@@ -252,9 +239,9 @@ public class DMLConfig
 	
 	/**
 	 * Method to get the string value of an element identified by tag
-	 * @param ele
-	 * @param tagName
-	 * @return
+	 * @param element the element
+	 * @param tagName the tag name
+	 * @return the element as a string
 	 */
 	private static String getTextValue(Element element, String tagName) {
 		String textVal = null;
@@ -269,9 +256,9 @@ public class DMLConfig
 	
 	/**
 	 * Method to update the string value of an element identified by tagname 
-	 * @param ele
-	 * @param tagName
-	 * @param newTextValue
+	 * @param element the element
+	 * @param tagName the tag name
+	 * @param newTextValue the new text value
 	 */
 	private static void setTextValue(Element element, String tagName, String newTextValue) {
 		
@@ -284,8 +271,9 @@ public class DMLConfig
 	
 	/**
 	 * Method to update the key value
-	 * @param paramName
-	 * @param paramValue
+	 * @param paramName the parameter name
+	 * @param paramValue the parameter value
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public void setTextValue(String paramName, String paramValue) throws DMLRuntimeException {
 		if(_xmlRoot != null)
@@ -307,9 +295,9 @@ public class DMLConfig
 
 	/**
 	 * Get a map of key/value pairs of all configurations w/ the prefix 'mapred'
-	 * or 'mapreduce'. 
+	 * or 'mapreduce'.
 	 * 
-	 * @return
+	 * @return custom MR config as a map
 	 */
 	public Map<String, String> getCustomMRConfig()
 	{
@@ -335,11 +323,6 @@ public class DMLConfig
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public synchronized String serializeDMLConfig() 
 		throws DMLRuntimeException
 	{
@@ -362,12 +345,6 @@ public class DMLConfig
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @param content
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public static DMLConfig parseDMLConfig( String content ) 
 		throws DMLRuntimeException
 	{
@@ -397,8 +374,8 @@ public class DMLConfig
 	 *
 	 * @param configPath User-defined path of the configuration file.
 	 * @return DMLConfig object containing configuration settings.
-	 * @throws ParseException 
-	 * @throws FileNotFoundException 
+	 * @throws ParseException if ParseException occurs
+	 * @throws FileNotFoundException if FileNotFoundException occurs
 	 */
 	public static DMLConfig readConfigurationFile(String configPath)
 		throws ParseException, FileNotFoundException
@@ -432,10 +409,6 @@ public class DMLConfig
 		return config;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public String getConfigInfo() 
 	{
 		String[] tmpConfig = new String[] { 
@@ -458,11 +431,6 @@ public class DMLConfig
 		return sb.toString();
 	}
 	
-	/**
-	 * 
-	 * @param amMem
-	 * @param mrMem
-	 */
 	public void updateYarnMemorySettings(String amMem, String mrMem)
 	{
 		//app master memory
@@ -480,10 +448,6 @@ public class DMLConfig
 		}
 	}
 	
-	/**
-	 * 
-	 * @throws IOException
-	 */
 	@SuppressWarnings("deprecation")
 	public void makeQualifiedScratchSpacePath() 
 		throws IOException
@@ -500,18 +464,10 @@ public class DMLConfig
 		}
 	}
 	
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
 	public static String getDefaultTextValue( String key ) {
 		return _defaultVals.get( key );
 	}
 	
-	/**
-	 * 
-	 */
 	public DMLConfig clone() {
 		DMLConfig conf = new DMLConfig();
 		conf._fileName = _fileName;

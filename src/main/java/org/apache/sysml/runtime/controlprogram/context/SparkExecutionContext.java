@@ -126,7 +126,7 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Returns the used singleton spark context. In case of lazy spark context
 	 * creation, this methods blocks until the spark context is created.
 	 *  
-	 * @return
+	 * @return the JavaSparkContext
 	 */
 	public JavaSparkContext getSparkContext()
 	{
@@ -140,19 +140,12 @@ public class SparkExecutionContext extends ExecutionContext
 		return _spctx;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public static JavaSparkContext getSparkContextStatic()
 	{
 		initSparkContext();
 		return _spctx;
 	}
 	
-	/**
-	 * 
-	 */
 	public void close() 
 	{
 		synchronized( SparkExecutionContext.class ) {
@@ -172,9 +165,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return LAZY_SPARKCTX_CREATION;
 	}
 	
-	/**
-	 * 
-	 */
 	private synchronized static void initSparkContext()
 	{
 		//check for redundant spark context init
@@ -243,9 +233,9 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Spark instructions should call this for all matrix inputs except broadcast
 	 * variables.
 	 * 
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param varname the variable name
+	 * @return binary block RDD handle
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public JavaPairRDD<MatrixIndexes,MatrixBlock> getBinaryBlockRDDHandleForVariable( String varname ) 
@@ -258,9 +248,9 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Spark instructions should call this for all frame inputs except broadcast
 	 * variables.
 	 * 
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param varname the variable name
+	 * @return frame binary block RDD handle
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public JavaPairRDD<Long,FrameBlock> getFrameBinaryBlockRDDHandleForVariable( String varname ) 
@@ -270,13 +260,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return out;
 	}
 	
-	/**
-	 * 
-	 * @param varname
-	 * @param inputInfo
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public JavaPairRDD<?,?> getRDDHandleForVariable( String varname, InputInfo inputInfo ) 
 		throws DMLRuntimeException
 	{
@@ -298,10 +281,10 @@ public class SparkExecutionContext extends ExecutionContext
 	 * This call returns an RDD handle for a given matrix object. This includes 
 	 * the creation of RDDs for in-memory or binary-block HDFS data. 
 	 * 
-	 * 
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException  
+	 * @param mo the matrix object
+	 * @param inputInfo the input information
+	 * @return RDD handle
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public JavaPairRDD<?,?> getRDDHandleForMatrixObject( MatrixObject mo, InputInfo inputInfo ) 
@@ -383,10 +366,10 @@ public class SparkExecutionContext extends ExecutionContext
 	 * FIXME: currently this implementation assumes matrix representations but frame signature
 	 * in order to support the old transform implementation.
 	 * 
-	 * @param mo
-	 * @param inputInfo
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param fo the frame object
+	 * @param inputInfo the input information
+	 * @return RDD handle
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public JavaPairRDD<?,?> getRDDHandleForFrameObject( FrameObject fo, InputInfo inputInfo ) 
@@ -472,9 +455,9 @@ public class SparkExecutionContext extends ExecutionContext
 	 * However, in order to handle this, we need to keep track when broadcast 
 	 * variables are no longer required.
 	 * 
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param varname the variable name
+	 * @return partitioned broadcast
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public PartitionedBroadcast<MatrixBlock> getBroadcastForVariable( String varname ) 
@@ -536,14 +519,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return bret;
 	}
 	
-
-	/**
-	 *
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
-	
 	@SuppressWarnings("unchecked")
 	public PartitionedBroadcast<FrameBlock> getBroadcastForFrameVariable( String varname) 
 		throws DMLRuntimeException
@@ -604,14 +579,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return bret;
 	}
 	
-
-	
-	/**
-	 * 
-	 * @param varname
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public BlockPartitioner getPartitionerForRDDVariable(String varname) 
 		throws DMLRuntimeException
 	{
@@ -627,9 +594,9 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Keep the output rdd of spark rdd operations as meta data of matrix/frame 
 	 * objects in the symbol table.
 	 * 
-	 * @param varname
-	 * @param rdd
-	 * @throws DMLRuntimeException 
+	 * @param varname the variable name
+	 * @param rdd the JavaPairRDD
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public void setRDDHandleForVariable(String varname, JavaPairRDD<?,?> rdd) 
 		throws DMLRuntimeException
@@ -642,10 +609,12 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Utility method for creating an RDD out of an in-memory matrix block.
 	 * 
-	 * @param sc
-	 * @param block
-	 * @return
-	 * @throws DMLRuntimeException 
+	 * @param sc the JavaSparkContext
+	 * @param src the matrix block
+	 * @param brlen rows per block
+	 * @param bclen columns per block
+	 * @return JavaPairRDD
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public static JavaPairRDD<MatrixIndexes,MatrixBlock> toMatrixJavaPairRDD(JavaSparkContext sc, MatrixBlock src, int brlen, int bclen) 
 		throws DMLRuntimeException
@@ -693,13 +662,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return result;
 	}
 	
-	/**
-	 * 
-	 * @param sc
-	 * @param src
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public static JavaPairRDD<Long,FrameBlock> toFrameJavaPairRDD(JavaSparkContext sc, FrameBlock src) 
 		throws DMLRuntimeException
 	{	
@@ -737,11 +699,14 @@ public class SparkExecutionContext extends ExecutionContext
 	 * This method is a generic abstraction for calls from the buffer pool.
 	 * See toMatrixBlock(JavaPairRDD<MatrixIndexes,MatrixBlock> rdd, int numRows, int numCols);
 	 * 
-	 * @param rdd
-	 * @param numRows
-	 * @param numCols
-	 * @return
-	 * @throws DMLRuntimeException 
+	 * @param rdd the RDDObject
+	 * @param rlen number of rows
+	 * @param clen number of columns
+	 * @param brlen rows per block
+	 * @param bclen columns per block
+	 * @param nnz number of non-zeros
+	 * @return MatrixBlock
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	@SuppressWarnings("unchecked")
 	public static MatrixBlock toMatrixBlock(RDDObject rdd, int rlen, int clen, int brlen, int bclen, long nnz) 
@@ -759,11 +724,14 @@ public class SparkExecutionContext extends ExecutionContext
 	 * NOTE: This is an unguarded utility function, which requires memory for both the output matrix
 	 * and its collected, blocked representation.
 	 * 
-	 * @param rdd
-	 * @param numRows
-	 * @param numCols
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param rdd the JavaPairRDD
+	 * @param rlen number of rows
+	 * @param clen number of columns
+	 * @param brlen rows per block
+	 * @param bclen columns per block
+	 * @param nnz number of non-zeros
+	 * @return MatrixBlock
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public static MatrixBlock toMatrixBlock(JavaPairRDD<MatrixIndexes,MatrixBlock> rdd, int rlen, int clen, int brlen, int bclen, long nnz) 
 		throws DMLRuntimeException
@@ -848,12 +816,12 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Utility method for creating a single matrix block out of a binary cell RDD. 
 	 * Note that this collect call might trigger execution of any pending transformations. 
 	 * 
-	 * @param rdd
-	 * @param rlen
-	 * @param clen
-	 * @param nnz
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @param rdd the JavaPairRDD
+	 * @param rlen number of rows
+	 * @param clen number of columns
+	 * @param nnz number of non-zeros
+	 * @return MatrixBlock
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public static MatrixBlock toMatrixBlock(JavaPairRDD<MatrixIndexes, MatrixCell> rdd, int rlen, int clen, long nnz) 
 		throws DMLRuntimeException
@@ -897,17 +865,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return out;
 	}
 		
-	/**
-	 * 
-	 * @param rdd
-	 * @param rlen
-	 * @param clen
-	 * @param brlen
-	 * @param bclen
-	 * @param nnz
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public static PartitionedBlock<MatrixBlock> toPartitionedMatrixBlock(JavaPairRDD<MatrixIndexes,MatrixBlock> rdd, int rlen, int clen, int brlen, int bclen, long nnz) 
 		throws DMLRuntimeException
 	{
@@ -934,15 +891,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return out;
 	}
 
-	/**
-	 * 
-	 * @param rdd
-	 * @param schema
-	 * @param rlen
-	 * @param clen
-	 * @return
-	 * @throws DMLRuntimeException 
-	 */
 	@SuppressWarnings("unchecked")
 	public static FrameBlock toFrameBlock(RDDObject rdd, List<ValueType> schema, int rlen, int clen) 
 		throws DMLRuntimeException 
@@ -951,15 +899,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return toFrameBlock(lrdd, schema, rlen, clen);
 	}
 	
-	/**
-	 * 
-	 * @param rdd
-	 * @param schema
-	 * @param rlen
-	 * @param clen
-	 * @return
-	 * @throws DMLRuntimeException
-	 */
 	public static FrameBlock toFrameBlock(JavaPairRDD<Long,FrameBlock> rdd, List<ValueType> schema, int rlen, int clen) 
 		throws DMLRuntimeException
 	{
@@ -997,11 +936,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return out;
 	}
 	
-	/**
-	 * 
-	 * @param rdd
-	 * @param oinfo
-	 */
 	@SuppressWarnings("unchecked")
 	public static long writeRDDtoHDFS( RDDObject rdd, String path, OutputInfo oinfo )
 	{
@@ -1020,11 +954,6 @@ public class SparkExecutionContext extends ExecutionContext
 		return nnz;
 	}
 	
-	/**
-	 * 
-	 * @param rdd
-	 * @param oinfo
-	 */
 	@SuppressWarnings("unchecked")
 	public static void writeFrameRDDtoHDFS( RDDObject rdd, String path, OutputInfo oinfo )
 	{
@@ -1051,9 +980,9 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Adds a child rdd object to the lineage of a parent rdd.
 	 * 
-	 * @param varParent
-	 * @param varChild
-	 * @throws DMLRuntimeException
+	 * @param varParent parent var
+	 * @param varChild child var
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public void addLineageRDD(String varParent, String varChild) 
 		throws DMLRuntimeException 
@@ -1067,9 +996,9 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Adds a child broadcast object to the lineage of a parent rdd.
 	 * 
-	 * @param varParent
-	 * @param varChild
-	 * @throws DMLRuntimeException
+	 * @param varParent parent var
+	 * @param varChild child var
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public void addLineageBroadcast(String varParent, String varChild) 
 		throws DMLRuntimeException 
@@ -1080,13 +1009,6 @@ public class SparkExecutionContext extends ExecutionContext
 		parent.addLineageChild( child );
 	}
 	
-	/**
-	 * 
-	 * @param varParent
-	 * @param varChild
-	 * @param broadcast
-	 * @throws DMLRuntimeException
-	 */
 	public void addLineage(String varParent, String varChild, boolean broadcast) 
 		throws DMLRuntimeException
 	{
@@ -1142,11 +1064,6 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 	}
 	
-	/**
-	 * 
-	 * @param lob
-	 * @throws IOException
-	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void rCleanupLineageObject(LineageObject lob) 
 		throws IOException
@@ -1188,8 +1105,7 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Hence, it is intended to be used on rmvar only. Depending on the
 	 * ASYNCHRONOUS_VAR_DESTROY configuration, this is asynchronous or not.
 	 * 
-	 * 
-	 * @param inV
+	 * @param bvar broadcast variable
 	 */
 	public void cleanupBroadcastVariable(Broadcast<?> bvar) 
 	{
@@ -1205,7 +1121,7 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Hence, it is intended to be used on rmvar only. Depending on the
 	 * ASYNCHRONOUS_VAR_DESTROY configuration, this is asynchronous or not.
 	 * 
-	 * @param rvar
+	 * @param rvar RDD variable
 	 */
 	public void cleanupRDDVariable(JavaPairRDD<?,?> rvar) 
 	{
@@ -1214,11 +1130,6 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 	}
 	
-	/**
-	 * 
-	 * @param var
-	 * @throws DMLRuntimeException 
-	 */
 	@SuppressWarnings("unchecked")
 	public void repartitionAndCacheMatrixObject( String var ) 
 		throws DMLRuntimeException
@@ -1261,11 +1172,6 @@ public class SparkExecutionContext extends ExecutionContext
 		mo.setRDDHandle(outro);				       
 	}
 	
-	/**
-	 * 
-	 * @param var
-	 * @throws DMLRuntimeException
-	 */
 	@SuppressWarnings("unchecked")
 	public void cacheMatrixObject( String var ) 
 		throws DMLRuntimeException
@@ -1279,10 +1185,6 @@ public class SparkExecutionContext extends ExecutionContext
 		in.count(); //trigger caching to prevent contention			       
 	}
 	
-	/**
-	 * 
-	 * @param poolName
-	 */
 	public void setThreadLocalSchedulerPool(String poolName) {
 		if( FAIR_SCHEDULER_MODE ) {
 			getSparkContext().sc().setLocalProperty(
@@ -1290,9 +1192,6 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	public void cleanupThreadLocalSchedulerPool() {
 		if( FAIR_SCHEDULER_MODE ) {
 			getSparkContext().sc().setLocalProperty(
@@ -1300,21 +1199,11 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 	}
 	
-	/**
-	 * 
-	 * @param rddID
-	 * @return
-	 */
 	private boolean isRDDMarkedForCaching( int rddID ) {
 		JavaSparkContext jsc = getSparkContext();
 		return jsc.sc().getPersistentRDDs().contains(rddID);
 	}
 	
-	/**
-	 * 
-	 * @param rddID
-	 * @return
-	 */
 	private boolean isRDDCached( int rddID ) {
 		//check that rdd is marked for caching
 		JavaSparkContext jsc = getSparkContext();
@@ -1335,12 +1224,6 @@ public class SparkExecutionContext extends ExecutionContext
 	// Debug String Handling (see explain); TODO to be removed
 	///////
 
-	/**
-	 * 
-	 * @param inst
-	 * @param outputVarName
-	 * @throws DMLRuntimeException
-	 */
 	public void setDebugString(SPInstruction inst, String outputVarName) 
 		throws DMLRuntimeException 
 	{
@@ -1461,7 +1344,7 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Obtains the lazily analyzed spark cluster configuration. 
 	 * 
-	 * @return
+	 * @return spark cluster configuration
 	 */
 	public static SparkClusterConfig getSparkClusterConfig() {
 		//lazy creation of spark cluster config		
@@ -1473,7 +1356,7 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Obtains the available memory budget for broadcast variables in bytes.
 	 * 
-	 * @return
+	 * @return broadcast memory budget
 	 */
 	public static double getBroadcastMemoryBudget() {
 		return getSparkClusterConfig()
@@ -1485,7 +1368,7 @@ public class SparkExecutionContext extends ExecutionContext
 	 * 
 	 * @param min      flag for minimum data budget 
 	 * @param refresh  flag for refresh with spark context
-	 * @return
+	 * @return data memory budget
 	 */
 	public static double getDataMemoryBudget(boolean min, boolean refresh) {
 		return getSparkClusterConfig()
@@ -1495,7 +1378,7 @@ public class SparkExecutionContext extends ExecutionContext
 	/**
 	 * Obtain the number of executors in the cluster (excluding the driver).
 	 * 
-	 * @return
+	 * @return number of executors in the cluster
 	 */
 	public static int getNumExecutors() {
 		return getSparkClusterConfig()
@@ -1506,16 +1389,13 @@ public class SparkExecutionContext extends ExecutionContext
 	 * Obtain the default degree of parallelism (cores in the cluster). 
 	 * 
 	 * @param refresh  flag for refresh with spark context 
-	 * @return
+	 * @return the default degree of parallelism
 	 */
 	public static int getDefaultParallelism(boolean refresh) {
 		return getSparkClusterConfig()
 			.getDefaultParallelism(refresh);
 	}
 	
-	/**
-	 * 
-	 */
 	public void checkAndRaiseValidationWarningJDKVersion()
 	{
 		//check for jdk version less than jdk8
@@ -1591,20 +1471,10 @@ public class SparkExecutionContext extends ExecutionContext
 				LOG.debug( this.toString() );
 		}
 		
-		/**
-		 * 
-		 * @return
-		 */
 		public long getBroadcastMemoryBudget() {
 			return (long) (_memExecutor * _memBroadcastFrac);
 		}
 		
-		/**
-		 * 
-		 * @param min
-		 * @param refresh
-		 * @return
-		 */
 		public long getDataMemoryBudget(boolean min, boolean refresh) {
 			//always get the current num executors on refresh because this might 
 			//change if not all executors are initially allocated and it is plan-relevant
@@ -1619,21 +1489,12 @@ public class SparkExecutionContext extends ExecutionContext
 				(min ? _memDataMinFrac : _memDataMaxFrac) );	
 		}
 
-		/**
-		 * 
-		 * @return
-		 */
 		public int getNumExecutors() {
 			if( _numExecutors < 0 )
 				analyzeSparkParallelismConfiguation(null);			
 			return _numExecutors;
 		}
 		
-		/**
-		 * 
-		 * @param refresh
-		 * @return
-		 */
 		public int getDefaultParallelism(boolean refresh) {
 			if( _defaultPar < 0 && !refresh )
 				analyzeSparkParallelismConfiguation(null);
@@ -1644,10 +1505,6 @@ public class SparkExecutionContext extends ExecutionContext
 				getSparkContextStatic().defaultParallelism() : _defaultPar;
 		}
 
-		/**
-		 * 
-		 * @param conf
-		 */
 		public void analyzeSparkConfiguationLegacy(SparkConf conf)  {
 			//ensure allocated spark conf
 			SparkConf sconf = (conf == null) ? new SparkConf() : conf;
@@ -1666,10 +1523,6 @@ public class SparkExecutionContext extends ExecutionContext
 			analyzeSparkParallelismConfiguation(sconf);	
 		}
 		
-		/**
-		 * 
-		 * @param conf
-		 */
 		public void analyzeSparkConfiguation(SparkConf conf) {
 			//ensure allocated spark conf
 			SparkConf sconf = (conf == null) ? new SparkConf() : conf;
@@ -1688,10 +1541,6 @@ public class SparkExecutionContext extends ExecutionContext
 			analyzeSparkParallelismConfiguation(sconf);
 		}
 		
-		/**
-		 * 
-		 * @param sconf
-		 */
 		private void analyzeSparkParallelismConfiguation(SparkConf sconf) {
 			int numExecutors = sconf.getInt("spark.executor.instances", -1);
 			int numCoresPerExec = sconf.getInt("spark.executor.cores", -1);

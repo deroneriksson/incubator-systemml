@@ -76,10 +76,6 @@ public class RewriteConfig
 		return _rewriteFormat;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public InterestingProperties deriveInterestingProperties()
 	{
 		int bs = _rewriteSetBlockSize; 
@@ -87,7 +83,6 @@ public class RewriteConfig
 		
 		return new InterestingProperties(bs, null, loc, null, -1, true);
 	}
-
 	
 	@Override
 	public String toString() 

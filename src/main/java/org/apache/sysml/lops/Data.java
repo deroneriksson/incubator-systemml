@@ -52,10 +52,10 @@ public class Data extends Lop
 	/**
 	 * Method to create literal LOPs.
 	 * 
-	 * @param vt
-	 * @param literalValue
-	 * @return
-	 * @throws LopsException
+	 * @param vt value type
+	 * @param literalValue the literal value
+	 * @return data object
+	 * @throws LopsException if LopsException occurs
 	 */
 	public static Data createLiteralLop(ValueType vt, String literalValue) throws LopsException {
 		// All literals have default format type of TEXT
@@ -67,15 +67,16 @@ public class Data extends Lop
 	 * In case of write: <code>input</code> must be provided. This will always be added as the first element in <code>input</code> array.
 	 * For literals: this function is invoked through the static method <code>createLiteralLop</code>.
 	 * 
-	 * @param op
-	 * @param input
-	 * @param inputParametersLops
-	 * @param name
-	 * @param literal
-	 * @param dt
-	 * @param vt
-	 * @param isTransient
-	 * @throws LopsException
+	 * @param op data operation type
+	 * @param input the input LOP
+	 * @param inputParametersLops input parameter LOPs
+	 * @param name the name
+	 * @param literal the literal
+	 * @param dt data type
+	 * @param vt value type
+	 * @param isTransient true if transient, false otherwise
+	 * @param fmt file format type
+	 * @throws LopsException if LopsException occurs
 	 */
 	public Data(Data.OperationTypes op, Lop input, HashMap<String, Lop> 
 	inputParametersLops, String name, String literal, DataType dt, ValueType vt, boolean isTransient, FileFormatTypes fmt) throws LopsException 
@@ -178,7 +179,7 @@ public class Data extends Lop
 	 * Data-Lop-specific method to set the execution type for persistent write.
 	 * TODO: split lops into MR/CP lop. 
 	 * 
-	 * @param et
+	 * @param et execution type
 	 */
 	public void setExecType( ExecType et )
 	{
@@ -186,9 +187,10 @@ public class Data extends Lop
 	}
 	
 	/**
-	 * Method to set format types for input, output files. 
-	 * @param type
-	 * @throws LopsException 
+	 * Method to set format types for input, output files.
+	 * 
+	 * @param type file format type
+	 * @throws LopsException if LopsException occurs
 	 */
 	public void setFileFormatAndProperties(FileFormatTypes type) throws LopsException 
 	{
@@ -208,7 +210,8 @@ public class Data extends Lop
 
 	/**
 	 * method to get format type for input, output files. 
-	 * @return
+	 * 
+	 * @return the file format type
 	 */
 	public FileFormatTypes getFileFormatType() 
 	{
@@ -226,7 +229,8 @@ public class Data extends Lop
 
 	/**
 	 * method to get operation type, i.e. read/write.
-	 * @return
+	 * 
+	 * @return the operation type
 	 */
 	 
 	public OperationTypes getOperationType()
@@ -236,7 +240,8 @@ public class Data extends Lop
 	
 	/**
 	 * method to get inputParams 
-	 * @return
+	 * 
+	 * @return the input params
 	 */
 	public HashMap<String, Lop> getInputParams(){
 		return _inputParams;
@@ -256,7 +261,8 @@ public class Data extends Lop
 	
 	/**
 	 * method to check if this data lop represents a literal.
-	 * @return
+	 * 
+	 * @return true if LOP is a literal, false otherwise
 	 */
 	
 	public boolean isLiteral()
@@ -308,17 +314,14 @@ public class Data extends Lop
 	
 	/**
 	 * Method to check if this represents a transient variable.
-	 * @return
+	 * 
+	 * @return true if transient variable, false otherwise
 	 */
 	public boolean isTransient()
 	{
 		return transient_var;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isPersistentWrite()
 	{
 		return operation == OperationTypes.WRITE && !transient_var;
@@ -329,6 +332,8 @@ public class Data extends Lop
 	 * Explicit write instructions are generated only in case of external file formats 
 	 * (e.g., CSV) except for MatrixMarket. MM format is overridden by TextCell, instead.
 	 * 
+	 * @param input_index the input index
+	 * @param output_index the output index
 	 */
 	@Override
 	public String getInstructions(int input_index, int output_index) throws LopsException {
@@ -393,6 +398,11 @@ public class Data extends Lop
 	/**
 	 * Method to get CP instructions for reading/writing scalars and matrices from/to HDFS.
 	 * This method generates CP read/write instructions.
+	 * 
+	 * @param input1 input 1
+	 * @param input2 input 2
+	 * @return the instructions
+	 * @throws LopsException if LopsException occurs
 	 */
 	@Override
 	public String getInstructions(String input1, String input2) 
@@ -504,7 +514,8 @@ public class Data extends Lop
 	/**
 	 * Method to generate createvar instruction that updates symbol table with metadata, hdfsfile name, etc.
 	 * 
-	 * @throws LopsException 
+	 * @return instructions
+	 * @throws LopsException if LopsException occurs
 	 */
 	public String getInstructions() throws LopsException {
 		return getCreateVarInstructions(getOutputParameters().getFile_name(), getOutputParameters().getLabel());
@@ -584,8 +595,8 @@ public class Data extends Lop
 	 * Helper function that attaches CSV format-specific properties to createvar instruction.
 	 * The set of properties that are attached for a READ operation is different from that for a WRITE operation.
 	 * 
-	 * @return
-	 * @throws LopsException
+	 * @return csv format properties to createvar instruction
+	 * @throws LopsException if LopsException occurs
 	 */
 	private String createVarCSVHelper() throws LopsException {
 		StringBuilder sb = new StringBuilder();

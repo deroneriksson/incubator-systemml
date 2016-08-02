@@ -291,6 +291,7 @@ public class ScriptExecutor {
 	 * 
 	 * @param script
 	 *            the DML or PYDML script to execute
+	 * @return the results as a MLResults object
 	 */
 	public MLResults execute(Script script) {
 		this.script = script;

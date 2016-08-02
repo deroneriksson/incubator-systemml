@@ -44,10 +44,14 @@ public class ConvolutionTransform extends Lop
 	
 	/**
 	 * Constructor when we have one input.
-	 * @param input
-	 * @param op
+	 * 
+	 * @param input input LOP
+	 * @param op convolution transform operation type
+	 * @param dt data type
+	 * @param vt value type
+	 * @param et execution type
+	 * @param k number of threads
 	 */
-
 	public ConvolutionTransform(Lop input, ConvolutionTransform.OperationTypes op, DataType dt, ValueType vt, ExecType et, int k) 
 	{
 		super(Lop.Type.Transform, dt, vt);		
@@ -91,7 +95,8 @@ public class ConvolutionTransform extends Lop
 
 	/**
 	 * method to get operation type
-	 * @return
+	 * 
+	 * @return operation type
 	 */
 	 
 	public OperationTypes getOperationType()
