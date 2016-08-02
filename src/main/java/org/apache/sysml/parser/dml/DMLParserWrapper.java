@@ -77,11 +77,12 @@ public class DMLParserWrapper extends AParserWrapper
 
 	/**
 	 * Parses the passed file with command line parameters. You can either pass both (local file) or just dmlScript (hdfs) or just file name (import command)
-	 * @param fileName either full path or null --> only used for better error handling
-	 * @param dmlScript required
-	 * @param argVals
-	 * @return
-	 * @throws ParseException
+	 * 
+	 * @param fileName either full path or null --&gt; only used for better error handling
+	 * @param dmlScript DML script
+	 * @param argVals arg values
+	 * @return DML program
+	 * @throws ParseException if ParseException occurs
 	 */
 	@Override
 	public DMLProgram parse(String fileName, String dmlScript, Map<String,String> argVals) throws ParseException {
@@ -92,12 +93,13 @@ public class DMLParserWrapper extends AParserWrapper
 	
 	/**
 	 * This function is supposed to be called directly only from DmlSyntacticValidator when it encounters 'import'
+	 * 
 	 * @param fileName script file name
 	 * @param dmlScript script file contents
 	 * @param sourceNamespace namespace from source statement
 	 * @param argVals script arguments
-	 * @return null if at least one error
-	 * @throws ParseException
+	 * @return DML program, or null if at least one error
+	 * @throws ParseException if ParseException occurs
 	 */
 	public DMLProgram doParse(String fileName, String dmlScript, String sourceNamespace, Map<String,String> argVals) throws ParseException {
 		DMLProgram dmlPgm = null;

@@ -76,6 +76,15 @@ public class ColGroupRLE extends ColGroupBitmap
 
 	/**
 	 * Constructor for internal use.
+	 * 
+	 * @param colIndices
+	 *            indices (within the block) of the columns included in this
+	 *            column
+	 * @param numRows
+	 *            total number of rows in the parent block
+	 * @param values the values
+	 * @param bitmaps the bitmaps
+	 * @param bitmapOffs the bitmap offsets
 	 */
 	public ColGroupRLE(int[] colIndices, int numRows, double[] values, char[] bitmaps, int[] bitmapOffs) {
 		super(CompressionType.RLE_BITMAP, colIndices, numRows, values);
@@ -505,10 +514,6 @@ public class ColGroupRLE extends ColGroupBitmap
 		result.quickSetValue(0, 1, kbuff._correction);
 	}
 	
-	/**
-	 * 
-	 * @param result
-	 */
 	private void computeRowSums(MatrixBlock result, KahanFunction kplus)
 	{
 		KahanObject kbuff = new KahanObject(0, 0);
@@ -536,10 +541,6 @@ public class ColGroupRLE extends ColGroupBitmap
 		}
 	}
 	
-	/**
-	 * 
-	 * @param result
-	 */
 	private void computeColSums(MatrixBlock result, KahanFunction kplus)
 	{
 		KahanObject kbuff = new KahanObject(0, 0);

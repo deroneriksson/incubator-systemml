@@ -61,6 +61,7 @@ public abstract class ColGroup implements Serializable
 	/**
 	 * Main constructor.
 	 * 
+	 * @param type compression type
 	 * @param colIndices
 	 *            offsets of the columns in the matrix block that make up the
 	 *            group
@@ -73,7 +74,15 @@ public abstract class ColGroup implements Serializable
 		_numRows = numRows;
 	}
 
-	/** Convenience constructor for converting indices to a more compact format. */
+	/** Convenience constructor for converting indices to a more compact format.
+	 * 
+	 * @param type compression type
+	 * @param colIndicesList
+	 *            offsets of the columns in the matrix block that make up the
+	 *            group
+	 * @param numRows
+	 *            total number of rows in the parent block
+	 */
 	protected ColGroup(CompressionType type, List<Integer> colIndicesList, int numRows) {
 		_compType = type;
 		_colIndexes = new int[colIndicesList.size()];
@@ -90,7 +99,7 @@ public abstract class ColGroup implements Serializable
 	}
 
 	/**
-	 * @param col
+	 * @param colNum
 	 *            an index from 0 to the number of columns in this group - 1
 	 * @return offset of the specified column in the matrix block that make up
 	 *         the group
@@ -117,10 +126,6 @@ public abstract class ColGroup implements Serializable
 		return _compType;
 	}
 
-	/**
-	 * 
-	 * @param offset
-	 */
 	public void shiftColIndices(int offset)  {
 		for( int i=0; i<_colIndexes.length; i++ )
 			_colIndexes[i] += offset;
@@ -178,8 +183,8 @@ public abstract class ColGroup implements Serializable
 	/**
 	 * Serializes column group to data output.
 	 * 
-	 * @param out
-	 * @throws IOException
+	 * @param out data output
+	 * @throws IOException if IOException occurs
 	 */
 	public abstract void write(DataOutput out) 
 		throws IOException;
@@ -187,8 +192,8 @@ public abstract class ColGroup implements Serializable
 	/**
 	 * Deserializes column group from data input.
 	 * 
-	 * @param in
-	 * @throws IOException
+	 * @param in data input
+	 * @throws IOException if IOException occurs
 	 */
 	public abstract void readFields(DataInput in) 
 		throws IOException;
@@ -198,16 +203,16 @@ public abstract class ColGroup implements Serializable
 	 * Returns the exact serialized size of column group.
 	 * This can be used for example for buffer preallocation.
 	 * 
-	 * @return
+	 * @return exact size on disk
 	 */
 	public abstract long getExactSizeOnDisk();
 	
 	/**
 	 * Get the value at a global row/column position.
 	 * 
-	 * @param r
-	 * @param c
-	 * @return
+	 * @param r row
+	 * @param c column
+	 * @return value at global row/column position
 	 */
 	public abstract double get(int r, int c);
 	
@@ -219,6 +224,8 @@ public abstract class ColGroup implements Serializable
 	 *            vector to multiply by (tall vector)
 	 * @param result
 	 *            accumulator for holding the result
+	 * @param rl rl value
+	 * @param ru ru value
 	 * @throws DMLRuntimeException
 	 *             if the internal SystemML code that performs the
 	 *             multiplication experiences an error
@@ -232,9 +239,11 @@ public abstract class ColGroup implements Serializable
 	 * row vector on the left (the original column vector is assumed to be
 	 * transposed already i.e. its size now is 1xn).
 	 * 
-	 * @param vector
-	 * @param result
-	 * @throws DMLRuntimeException 
+	 * @param vector vector to multiple by
+	 * @param result accumulator for holding the result
+	 * @throws DMLRuntimeException
+	 *             if the internal SystemML code that performs the
+	 *             multiplication experiences an error
 	 */
 	public abstract void leftMultByRowVector(MatrixBlock vector,
 			MatrixBlock result) throws DMLRuntimeException;
@@ -246,23 +255,20 @@ public abstract class ColGroup implements Serializable
 	 * @param op
 	 *            operation to perform
 	 * @return version of this column group with the operation applied
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public abstract ColGroup scalarOperation(ScalarOperator op)
 			throws DMLRuntimeException;
 
 	/**
+	 * Perform unary aggregate operation.
 	 * 
-	 * @param op
-	 * @param result
-	 * @throws DMLUnsupportedOperationException
-	 * @throws DMLRuntimeException
+	 * @param op unary aggregate operation to perform
+	 * @param result accumulator for holding the result
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public abstract void unaryAggregateOperations(AggregateUnaryOperator op, MatrixBlock result)
 		throws DMLRuntimeException;
 	
-	/**
-	 * 
-	 * @param rnnz
-	 */
 	protected abstract void countNonZerosPerRow(int[] rnnz);
 }

@@ -46,14 +46,6 @@ public abstract class AParserWrapper
 	protected boolean atLeastOneWarning = false;
 	protected List<ParseIssue> parseIssues;
 	
-	/**
-	 * 
-	 * @param fileName
-	 * @param dmlScript
-	 * @param argVals
-	 * @return
-	 * @throws ParseException
-	 */
 	public abstract DMLProgram parse(String fileName, String dmlScript, Map<String, String> argVals)
 		throws ParseException;
 
@@ -63,7 +55,7 @@ public abstract class AParserWrapper
 	 * simplificy fused with the abstract class.
 	 * 
 	 * @param pydml true if a PyDML parser is needed
-	 * @return
+	 * @return parser wrapper
 	 */
 	public static AParserWrapper createParser(boolean pydml)
 	{
@@ -82,6 +74,7 @@ public abstract class AParserWrapper
 	
 	/**
 	 * Custom wrapper to convert statement into statement blocks. Called by doParse and in DmlSyntacticValidator for for, parfor, while, ...
+	 * 
 	 * @param current a statement
 	 * @return corresponding statement block
 	 */

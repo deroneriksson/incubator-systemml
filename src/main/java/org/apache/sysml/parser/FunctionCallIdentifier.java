@@ -33,8 +33,8 @@ public class FunctionCallIdentifier extends DataIdentifier
 
 	/**
 	 * setFunctionName: sets the function namespace (if specified) and name
+	 * 
 	 * @param functionName the (optional) namespace information and name of function.  If both namespace and name are specified, they are concatinated with "::"
-	 * @throws ParseException 
 	 */
 	public void setFunctionName(String functionName) {
 		_name = functionName;
@@ -97,7 +97,12 @@ public class FunctionCallIdentifier extends DataIdentifier
 	 * 
 	 * NOTE: this does not override the normal validateExpression because it needs to pass dmlp!
 	 * 
-	 * @throws LanguageException
+	 * @param dmlp DML program
+	 * @param ids map of identifiers
+	 * @param constVars map of constant identifiers
+	 * @param conditional conditional flag
+	 * @throws LanguageException if LanguageException occurs
+	 * @throws IOException if IOException occurs
 	 */
 	public void validateExpression(DMLProgram dmlp, HashMap<String, DataIdentifier> ids, HashMap<String, ConstIdentifier> constVars, boolean conditional) 
 		throws LanguageException, IOException

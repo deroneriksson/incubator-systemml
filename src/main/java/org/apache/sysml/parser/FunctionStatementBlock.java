@@ -35,14 +35,14 @@ public class FunctionStatementBlock extends StatementBlock
 		
 	private boolean _recompileOnce = false;
 	
-	/**
+	/*
 	 *  TODO: DRB:  This needs to be changed to reflect:
 	 *  
 	 *    1)  Default values for variables -- need to add R styled check here to make sure that once vars with 
 	 *    default values start, they keep going to the right
 	 *    
 	 *    2)  The other parameters for External Functions
-	 * @throws IOException 
+	 * 
 	 */
 	@Override
 	public VariableSet validate(DMLProgram dmlProg, VariableSet ids, HashMap<String,ConstIdentifier> constVars, boolean conditional) 

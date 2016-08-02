@@ -535,10 +535,11 @@ public class DataExpression extends DataIdentifier
 	/**
 	 * Validate parse tree : Process Data Expression in an assignment
 	 * statement
-	 *  
-	 * @throws LanguageException
-	 * @throws ParseException 
-	 * @throws IOException 
+	 * 
+	 * @param ids map of data identifiers
+	 * @param currConstVars map of constant identifiers
+	 * @param conditional conditional flag
+	 * @throws LanguageException if LanguageException occurs
 	 */
 	@Override
 	public void validateExpression(HashMap<String, DataIdentifier> ids, HashMap<String, ConstIdentifier> currConstVars, boolean conditional)
@@ -1676,10 +1677,6 @@ public class DataExpression extends DataIdentifier
 		return;
 	}
 	
-	/**
-	 * 
-	 * @param currConstVars
-	 */
 	private void performConstantPropagationRand( HashMap<String, ConstIdentifier> currConstVars )
 	{
 		//here, we propagate constants for all rand parameters that are required during validate.
@@ -1689,10 +1686,6 @@ public class DataExpression extends DataIdentifier
 		performConstantPropagation(currConstVars, paramNamesForEval);
 	}
 	
-	/**
-	 * 
-	 * @param currConstVars
-	 */
 	private void performConstantPropagationReadWrite( HashMap<String, ConstIdentifier> currConstVars )
 	{
 		//here, we propagate constants for all read/write parameters that are required during validate.
@@ -1702,11 +1695,6 @@ public class DataExpression extends DataIdentifier
 		performConstantPropagation(currConstVars, paramNamesForEval);
 	}
 	
-	/**
-	 * 
-	 * @param currConstVars
-	 * @param paramNames
-	 */
 	private void performConstantPropagation( HashMap<String, ConstIdentifier> currConstVars, String[] paramNames )
 	{
 		for( String paramName : paramNames )
@@ -1900,12 +1888,6 @@ public class DataExpression extends DataIdentifier
     	}
 	}
 	
-	/**
-	 * 
-	 * @param filename
-	 * @return
-	 * @throws LanguageException
-	 */
 	public JSONObject readMetadataFile(String filename, boolean conditional) 
 		throws LanguageException 
 	{
@@ -2147,10 +2129,6 @@ public class DataExpression extends DataIdentifier
         // Therefore, one need not actually read the data to infer the format.
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isCSVReadWithUnknownSize()
 	{
 		boolean ret = false;
@@ -2170,10 +2148,6 @@ public class DataExpression extends DataIdentifier
 		return ret;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	public boolean isRead()
 	{
 		return (_opcode == DataOp.READ);

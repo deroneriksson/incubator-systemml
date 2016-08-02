@@ -97,6 +97,15 @@ public class ColGroupOLE extends ColGroupBitmap
 
 	/**
 	 * Constructor for internal use.
+	 * 
+	 * @param colIndices
+	 *            indices (within the block) of the columns included in this
+	 *            column
+	 * @param numRows
+	 *            total number of rows in the parent block
+	 * @param values the values
+	 * @param bitmaps the bitmaps
+	 * @param bitmapOffs the bitmap offsets
 	 */
 	public ColGroupOLE(int[] colIndices, int numRows, double[] values, char[] bitmaps, int[] bitmapOffs) {
 		super(CompressionType.OLE_BITMAP, colIndices, numRows, values);
@@ -466,10 +475,6 @@ public class ColGroupOLE extends ColGroupBitmap
 			computeColSums(result, kplus);
 	}
 	
-	/**
-	 * 
-	 * @param result
-	 */
 	private void computeSum(MatrixBlock result, KahanFunction kplus)
 	{
 		KahanObject kbuff = new KahanObject(result.quickGetValue(0, 0), result.quickGetValue(0, 1));
@@ -498,10 +503,6 @@ public class ColGroupOLE extends ColGroupBitmap
 		result.quickSetValue(0, 1, kbuff._correction);
 	}
 	
-	/**
-	 * 
-	 * @param result
-	 */
 	private void computeRowSums(MatrixBlock result, KahanFunction kplus)
 	{
 		KahanObject kbuff = new KahanObject(0, 0);
@@ -536,10 +537,6 @@ public class ColGroupOLE extends ColGroupBitmap
 		}
 	}
 	
-	/**
-	 * 
-	 * @param result
-	 */
 	private void computeColSums(MatrixBlock result, KahanFunction kplus)
 	{
 		KahanObject kbuff = new KahanObject(0, 0);
@@ -571,8 +568,8 @@ public class ColGroupOLE extends ColGroupBitmap
 	/**
 	 * Utility function of sparse-unsafe operations.
 	 * 
-	 * @return
-	 * @throws DMLRuntimeException
+	 * @return zero indicator vector
+	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	private boolean[] computeZeroIndicatorVector()
 		throws DMLRuntimeException 

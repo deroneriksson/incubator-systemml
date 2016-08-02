@@ -59,16 +59,16 @@ public class OutputStatement extends Statement
 	}
 	
 	/**
-	 * Called by the parser (both javacc and antlr).
+	 * Called by the parser (antlr).
 	 * 
-	 * @param fname
-	 * @param fci
-	 * @param filename
-	 * @param blp
-	 * @param bcp
-	 * @param elp
-	 * @param ecp
-	 * @throws DMLParseException
+	 * @param fname name
+	 * @param fci function call identifier
+	 * @param filename the file name
+	 * @param blp beginning line position
+	 * @param bcp beginning column position
+	 * @param elp ending line position
+	 * @param ecp ending column position
+	 * @throws LanguageException if LanguageException occurs
 	 */
 	public OutputStatement(String fname, FunctionCallIdentifier fci, 
 			String filename, int blp, int bcp, int elp, int ecp) 

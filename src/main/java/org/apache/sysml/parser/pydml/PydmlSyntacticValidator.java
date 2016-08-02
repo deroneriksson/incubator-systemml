@@ -50,8 +50,8 @@ import org.apache.sysml.parser.FunctionCallIdentifier;
 import org.apache.sysml.parser.FunctionStatement;
 import org.apache.sysml.parser.IfStatement;
 import org.apache.sysml.parser.ImportStatement;
-import org.apache.sysml.parser.IntIdentifier;
 import org.apache.sysml.parser.IndexedIdentifier;
+import org.apache.sysml.parser.IntIdentifier;
 import org.apache.sysml.parser.IterablePredicate;
 import org.apache.sysml.parser.LanguageException;
 import org.apache.sysml.parser.ParForStatement;
@@ -66,7 +66,6 @@ import org.apache.sysml.parser.common.CommonSyntacticValidator;
 import org.apache.sysml.parser.common.CustomErrorListener;
 import org.apache.sysml.parser.common.ExpressionInfo;
 import org.apache.sysml.parser.common.StatementInfo;
-import org.apache.sysml.parser.dml.DmlParser.MatrixMulExpressionContext;
 import org.apache.sysml.parser.dml.DmlSyntacticValidator;
 import org.apache.sysml.parser.pydml.PydmlParser.AddSubExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.AssignmentStatementContext;
@@ -84,6 +83,7 @@ import org.apache.sysml.parser.pydml.PydmlParser.ConstStringIdExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ConstTrueExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.DataIdExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.DataIdentifierContext;
+import org.apache.sysml.parser.pydml.PydmlParser.ElifBranchContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ExternalFunctionDefExpressionContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ForStatementContext;
@@ -91,7 +91,6 @@ import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallAssignmentStatement
 import org.apache.sysml.parser.pydml.PydmlParser.FunctionCallMultiAssignmentStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.FunctionStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfStatementContext;
-import org.apache.sysml.parser.pydml.PydmlParser.ElifBranchContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IfdefAssignmentStatementContext;
 import org.apache.sysml.parser.pydml.PydmlParser.IgnoreNewLineContext;
 import org.apache.sysml.parser.pydml.PydmlParser.ImportStatementContext;
@@ -1069,7 +1068,7 @@ public class PydmlSyntacticValidator extends CommonSyntacticValidator implements
 	 * For Pydml, matrix multiply is invoked using dot (A, B). This is taken from numpy.dot
 	 * For Dml, it is invoked using "%*%". The dot function call in pydml is converted to a
 	 * {@link BinaryExpression} equivalent to what is done in
-	 * {@link DmlSyntacticValidator#exitMatrixMulExpression(MatrixMulExpressionContext)}
+	 * {@link DmlSyntacticValidator}'s exitMatrixMulExpression(MatrixMulExpressionContext)
 	 */
 	@Override
 	protected Expression handleLanguageSpecificFunction(ParserRuleContext ctx, String functionName, ArrayList<ParameterExpression> paramExpression){
