@@ -20,6 +20,7 @@
 package org.apache.sysml.runtime.controlprogram.context;
 
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.runtime.controlprogram.Program;
 
 public class ExecutionContextFactory 
@@ -31,10 +32,20 @@ public class ExecutionContextFactory
 	
 	public static ExecutionContext createContext( Program prog )
 	{
-		return createContext(true, prog);
+		return createContext(true, prog, null);
 	}
 
-	public static ExecutionContext createContext( boolean allocateVars, Program prog )
+	public static ExecutionContext createContext( Program prog, ScriptType scriptType )
+	{
+		return createContext(true, prog, scriptType);
+	}
+
+//	public static ExecutionContext createContext( boolean allocateVars, Program prog)
+//	{
+//		return createContext(allocateVars, prog, ScriptType.DML);
+//	}
+	
+	public static ExecutionContext createContext( boolean allocateVars, Program prog, ScriptType scriptType )
 	{
 		ExecutionContext ec = null;
 		
@@ -43,12 +54,12 @@ public class ExecutionContextFactory
 			case SINGLE_NODE:
 			case HADOOP:
 			case HYBRID:
-				ec = new ExecutionContext(allocateVars, prog);
+				ec = new ExecutionContext(allocateVars, prog, scriptType);
 				break;
 				
 			case SPARK:
 			case HYBRID_SPARK:
-				ec = new SparkExecutionContext(allocateVars, prog);
+				ec = new SparkExecutionContext(allocateVars, prog, scriptType);
 				break;
 		}
 		

@@ -254,7 +254,7 @@ public class DMLTranslator
 		throws ParseException, LanguageException, HopsException 
 	{
 		//apply hop rewrites (static rewrites)
-		ProgramRewriter rewriter = new ProgramRewriter(true, false);
+		ProgramRewriter rewriter = new ProgramRewriter(true, false, dmlp.getScriptType());
 		rewriter.rewriteProgramHopDAGs(dmlp);
 		resetHopsDAGVisitStatus(dmlp);
 		

@@ -381,7 +381,9 @@ public class ResourceOptimizer
 		if( COST_INDIVIDUAL_BLOCKS ) {
 			LocalVariableMap vars = new LocalVariableMap();
 			collectReadVariables(pb.getStatementBlock().get_hops(), vars);
-			ExecutionContext ec = ExecutionContextFactory.createContext(false, null);
+			// ######################################## SHOULD SPECIFY SCRIPTTYPE TO FACTORY
+			System.out.println("BOOOO1");
+			ExecutionContext ec = ExecutionContextFactory.createContext(false, null, null);
 			ec.setVariables(vars);
 			val = CostEstimationWrapper.getTimeEstimate(pb, ec, false);	
 		}

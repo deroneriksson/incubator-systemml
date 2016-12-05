@@ -25,11 +25,11 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.compile.Dag;
 import org.apache.sysml.parser.Expression.DataType;
@@ -57,11 +57,17 @@ public class DMLProgram
 	public static String DEFAULT_NAMESPACE = ".defaultNS";
 	public static String INTERNAL_NAMESPACE = "_internal"; // used for multi-return builtin functions
 	private static final Log LOG = LogFactory.getLog(DMLProgram.class.getName());
+	private ScriptType _scriptType;
 	
 	public DMLProgram(){
 		_blocks = new ArrayList<StatementBlock>();
 		_functionBlocks = new HashMap<String,FunctionStatementBlock>();
 		_namespaces = new HashMap<String,DMLProgram>();
+	}
+	
+	public DMLProgram(ScriptType scriptType) {
+		this();
+		_scriptType = scriptType;
 	}
 	
 	public HashMap<String,DMLProgram> getNamespaces(){
@@ -155,12 +161,13 @@ public class DMLProgram
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
+		sb.append("SCRIPT TYPE = " + this.getScriptType().toString() + "\n");
+		
 		// for each namespace, display all functions
 		for (String namespaceKey : this.getNamespaces().keySet()){
 			
 			sb.append("NAMESPACE = " + namespaceKey + "\n");
 			DMLProgram namespaceProg = this.getNamespaces().get(namespaceKey);
-			
 			
 			sb.append("FUNCTIONS = ");
 			
@@ -766,5 +773,15 @@ public class DMLProgram
 	{
 		return fkey.split(Program.KEY_DELIM);
 	}
+
+	public ScriptType getScriptType() {
+		return _scriptType;
+	}
+
+	public void setScriptType(ScriptType scriptType) {
+		this._scriptType = scriptType;
+	}
+	
+	
 }
 

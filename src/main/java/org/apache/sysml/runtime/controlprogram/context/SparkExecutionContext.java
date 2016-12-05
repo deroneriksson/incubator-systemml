@@ -37,6 +37,7 @@ import org.apache.spark.storage.RDDInfo;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.MLContextProxy;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Checkpoint;
@@ -109,15 +110,22 @@ public class SparkExecutionContext extends ExecutionContext
 		this( true, prog );
 	}
 
-	protected SparkExecutionContext(boolean allocateVars, Program prog) 
+	protected SparkExecutionContext( boolean allocateVars, Program prog )
+	{
+		this(allocateVars, prog, null);
+	}
+
+	protected SparkExecutionContext(boolean allocateVars, Program prog, ScriptType scriptType)
 	{
 		//protected constructor to force use of ExecutionContextFactory
 		super( allocateVars, prog );
-				
+
 		//spark context creation via internal initializer
 		if( !(LAZY_SPARKCTX_CREATION && OptimizerUtils.isHybridExecutionMode()) ) {
 			initSparkContext();
 		}
+
+		_scriptType = scriptType;
 	}
 		
 	/**

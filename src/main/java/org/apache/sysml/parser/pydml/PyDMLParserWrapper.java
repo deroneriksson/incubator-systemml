@@ -36,6 +36,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.parser.AParserWrapper;
 import org.apache.sysml.parser.DMLProgram;
 import org.apache.sysml.parser.FunctionStatementBlock;
@@ -70,7 +71,7 @@ public class PyDMLParserWrapper extends AParserWrapper
 	@Override
 	public DMLProgram parse(String fileName, String dmlScript, Map<String,String> argVals) throws ParseException {
 		DMLProgram prog = doParse(fileName, dmlScript, null, argVals);
-		
+		prog.setScriptType(ScriptType.PYDML);
 		return prog;
 	}
 	

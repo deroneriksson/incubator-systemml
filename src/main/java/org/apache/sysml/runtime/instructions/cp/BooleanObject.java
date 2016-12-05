@@ -19,6 +19,8 @@
 
 package org.apache.sysml.runtime.instructions.cp;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.parser.Expression.ValueType;
 
 
@@ -57,7 +59,15 @@ public class BooleanObject extends ScalarObject
 	public String getStringValue(){
 		return Boolean.toString(_value).toUpperCase();
 	}
-	
+
+	public String getLanguageSpecificBooleanStringValue(ScriptType scriptType) {
+		if (scriptType == ScriptType.DML) {
+			return Boolean.toString(_value).toUpperCase();
+		} else {
+			return StringUtils.capitalize(Boolean.toString(_value));
+		}
+	}
+
 	@Override
 	public Object getValue(){
 		return _value;

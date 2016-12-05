@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.debug.DMLFrame;
 import org.apache.sysml.debug.DMLProgramCounter;
 import org.apache.sysml.debug.DebugState;
@@ -60,27 +61,30 @@ public class ExecutionContext
 	
 	//program reference (e.g., function repository)
 	protected Program _prog = null;
-	
 	//symbol table
 	protected LocalVariableMap _variables;
-	
 	//debugging (optional)
 	protected DebugState _dbState = null;
-	
 	protected GPUContext _gpuCtx = null;
-	
+	protected ScriptType _scriptType = ScriptType.DML;
+
 	protected ExecutionContext()
 	{
 		//protected constructor to force use of ExecutionContextFactory
 		this( true, null );
 	}
-	
+
 	protected ExecutionContext(Program prog)
 	{
 		//protected constructor to force use of ExecutionContextFactory
 		this( true, prog );
 	}
-	
+
+	protected ExecutionContext(Program prog, ScriptType scriptType) {
+		this(true, prog);
+		_scriptType = scriptType;
+	}
+
 	protected ExecutionContext(LocalVariableMap vars)
 	{
 		//protected constructor to force use of ExecutionContextFactory
@@ -89,6 +93,11 @@ public class ExecutionContext
 	}
 
 	protected ExecutionContext( boolean allocateVariableMap, Program prog )
+	{
+		this(allocateVariableMap, prog, null);
+	}
+
+	protected ExecutionContext( boolean allocateVariableMap, Program prog, ScriptType scriptType )
 	{
 		//protected constructor to force use of ExecutionContextFactory
 		if( allocateVariableMap )
@@ -99,6 +108,7 @@ public class ExecutionContext
 		if (DMLScript.ENABLE_DEBUG_MODE){
 			_dbState = DebugState.getInstance();
 		}
+		_scriptType = scriptType;
 	}
 	
 	public Program getProgram(){
@@ -677,5 +687,13 @@ public class ExecutionContext
 		_dbState.prevPC.setFunctionName(_dbState.getPC().getFunctionName());
 		_dbState.prevPC.setProgramBlockNumber(_dbState.getPC().getProgramBlockNumber());
 		_dbState.prevPC.setLineNumber(currInst.getLineNum());
+	}
+
+	public ScriptType getScriptType() {
+		return _scriptType;
+	}
+
+	public void setScriptType(ScriptType scriptType) {
+		_scriptType = scriptType;
 	}
 }

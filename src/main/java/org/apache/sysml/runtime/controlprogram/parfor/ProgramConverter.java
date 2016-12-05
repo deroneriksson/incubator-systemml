@@ -167,7 +167,8 @@ public class ProgramConverter
 	public static ExecutionContext createDeepCopyExecutionContext(ExecutionContext ec) 
 		throws CloneNotSupportedException, DMLRuntimeException 
 	{
-		ExecutionContext cpec = ExecutionContextFactory.createContext(false, ec.getProgram());
+		System.out.println("zScriptType:" + ec.getScriptType());
+		ExecutionContext cpec = ExecutionContextFactory.createContext(false, ec.getProgram(), ec.getScriptType());
 		cpec.setVariables((LocalVariableMap) ec.getVariables().clone());
 	
 		//handle result variables with in-place update flag
@@ -1893,7 +1894,10 @@ public class ProgramConverter
 		if( !lin.equals( EMPTY ) )
 		{
 			LocalVariableMap vars = parseVariables(lin);
-			ec = ExecutionContextFactory.createContext( false, prog );
+			// ######################################## SHOULD SPECIFY SCRIPTTYPE TO FACTORY
+			System.out.println("BOOOO2");
+//			System.out.println("zScriptType:" + ec.getScriptType());
+			ec = ExecutionContextFactory.createContext( false, prog, null );
 			ec.setVariables(vars);
 		}
 		

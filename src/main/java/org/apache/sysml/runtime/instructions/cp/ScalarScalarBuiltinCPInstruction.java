@@ -63,7 +63,8 @@ public class ScalarScalarBuiltinCPInstruction extends BuiltinBinaryCPInstruction
 						System.out.println(buffer + so1.getDoubleValue());
 						break;
 					case BOOLEAN:
-						System.out.println(buffer + so1.getBooleanValue());
+						System.out.println("OK");
+						System.out.println(buffer + ((BooleanObject) so1).getLanguageSpecificBooleanStringValue(ec.getScriptType()));
 						break;
 					case STRING:
 						System.out.println(buffer + so1.getStringValue());

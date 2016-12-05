@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop;
@@ -60,6 +61,8 @@ public class ProgramRewriter
 	private ArrayList<HopRewriteRule> _dagRuleSet = null;
 	private ArrayList<StatementBlockRewriteRule> _sbRuleSet = null;
 	
+	private ScriptType _scriptType;
+	
 	static{
 		// for internal debugging only
 		if( LDEBUG ) {
@@ -76,8 +79,14 @@ public class ProgramRewriter
 		this( true, true );
 	}
 	
-	public ProgramRewriter( boolean staticRewrites, boolean dynamicRewrites )
+	public ProgramRewriter(boolean staticRewrites, boolean dynamicRewrites) {
+		this(staticRewrites, dynamicRewrites, null);
+	}
+	
+	public ProgramRewriter( boolean staticRewrites, boolean dynamicRewrites, ScriptType scriptType )
 	{
+		_scriptType = scriptType;
+		
 		//initialize HOP DAG rewrite ruleSet (with fixed rewrite order)
 		_dagRuleSet = new ArrayList<HopRewriteRule>();
 		
@@ -368,4 +377,13 @@ public class ProgramRewriter
 		
 		return ret;
 	}
+
+	public ScriptType getScriptType() {
+		return _scriptType;
+	}
+
+	public void setScriptType(ScriptType scriptType) {
+		this._scriptType = scriptType;
+	}
+
 }

@@ -498,8 +498,10 @@ public class Builtin extends ValueFunction
 	{
 		switch (bFunc) {
 		case PRINT:
-			if (!DMLScript.suppressPrint2Stdout())
+			if (!DMLScript.suppressPrint2Stdout()) {
+				System.out.println("OK2");
 				System.out.println(in1);
+			}
 			return null;
 		case STOP:
 			throw new DMLScriptException(in1);
