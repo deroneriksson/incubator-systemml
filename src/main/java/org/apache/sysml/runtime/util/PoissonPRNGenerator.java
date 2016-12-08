@@ -51,13 +51,7 @@ public class PoissonPRNGenerator extends PRNGenerator
 		_mean = mean;
 		setup(_mean, seed);
 	}
-	
-	public PoissonPRNGenerator(long sd) {
-		// default mean
-		super();
-		setup(DEFAULT_MEAN, sd);
-	}
-	
+
 	public void setup(double mean, long sd) {
 		seed = sd;
 		

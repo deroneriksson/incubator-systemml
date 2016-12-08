@@ -51,17 +51,6 @@ public class ExternalFunctionStatement extends FunctionStatement
 		super();
 	}
 	
-	
-	
-	public ExternalFunctionStatement( ArrayList<DataIdentifier> functionInputs, ArrayList<DataIdentifier> functionOutputs, HashMap<String,String> map)
-	{
-		super();
-		_inputParams = functionInputs; 
-		_outputParams = (functionOutputs == null) ? new ArrayList<DataIdentifier>() : functionOutputs;
-		setOtherParams(map);
-	}
-	
-	
 	public void setOtherParams(HashMap<String,String> params){
 		_otherParams = params;
 	}

@@ -52,12 +52,7 @@ public class EncoderComposite extends Encoder
 		super(null, -1);
 		_encoders = encoders;
 	}
-	
-	protected EncoderComposite(Encoder[] encoders) {
-		super(null, -1);
-		_encoders = Arrays.asList(encoders);
-	}
-	
+
 	@Override
 	public int getNumCols() {
 		int clen = 0;

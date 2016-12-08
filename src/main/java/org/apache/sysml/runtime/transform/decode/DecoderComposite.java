@@ -42,11 +42,6 @@ public class DecoderComposite extends Decoder
 		super(schema, null);
 		_decoders = decoders;
 	}
-	
-	protected DecoderComposite(ValueType[] schema, Decoder[] decoders) {
-		super(schema, null);
-		_decoders = Arrays.asList(decoders);
-	}
 
 	@Override
 	public FrameBlock decode(MatrixBlock in, FrameBlock out) {
