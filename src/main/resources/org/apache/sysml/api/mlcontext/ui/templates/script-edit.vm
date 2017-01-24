@@ -1,0 +1,125 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+<h3>Name:</h3>
+#if ($script.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Type:</h3>
+#if ($script.scriptType)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.scriptType
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Script:</h3>
+<form action="edit" method="POST">
+<textarea rows="15" cols="120" name="scriptString" style="font-family: monospace; font-size: 12px;">$script.scriptStringRaw</textarea>
+<br/>
+<input type="submit" name="submit" value="Submit" />
+</form>
+
+<div>
+<a href="../script">Back to Script</a>
+</div>
+
+<h3>Execution Script with Line Numbers:</h3>
+#if ($script.scriptExecutionString)
+#if ($script.scriptExecutionStringSize >= 10)
+<pre style="font-size: 12px; height: 250px; overflow-y: auto;">
+#else
+<pre style="font-size: 12px;">
+#end
+$script.scriptExecutionStringWithLineNumbers
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Inputs:</h3>
+#if ($script.displayInputs)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displayInputs
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Outputs:</h3>
+#if ($script.displayOutputs)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displayOutputs
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Input Parameters:</h3>
+#if ($script.displayInputParameters)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displayInputParameters
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Input Variables:</h3>
+#if ($script.displayInputVariables)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displayInputVariables
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Output Variables:</h3>
+#if ($script.displayOutputVariables)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displayOutputVariables
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Symbol Table:</h3>
+#if ($script.displaySymbolTable)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.displaySymbolTable
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+#else
+No script is active or has been registered.
+#end

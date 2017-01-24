@@ -1,0 +1,42 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+<h3>Name:</h3>
+#if ($script.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Program Live Variable Analysis:</h3>
+
+<div id="lva-display-tree"></div>
+
+<script>
+var data = [
+$script.programD3
+];
+$('#lva-display-tree').tree({
+    data: data,
+    autoOpen: true,
+    dragAndDrop: true
+});
+</script>
+
+<h3>Program Live Variable Analysis (Text):</h3>
+<pre style="font-size: 12px;">
+$script.programDisplay
+</pre>
+
+#else
+No script is active or has been registered.
+#end

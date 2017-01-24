@@ -1,0 +1,26 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+<h3>Name:</h3>
+#if ($scriptdiff.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$scriptdiff.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Program Execution Diff:</h3>
+<pre style="font-size: 12px;">
+$scriptdiff.executionDiff
+</pre>
+
+<h3>Program Execution Diff Details:</h3>
+<pre style="font-size: 12px;">
+$scriptdiff.executionDiffDetails
+</pre>

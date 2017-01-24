@@ -107,11 +107,11 @@ public class PyDMLParserWrapper extends AParserWrapper
 
 		ProgramrootContext ast = null;
 		CustomErrorListener errorListener = new CustomErrorListener();
-		
+		PydmlParser antlr4Parser = null;
 		try {
 			PydmlLexer lexer = new PydmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			PydmlParser antlr4Parser = new PydmlParser(tokens);
+			antlr4Parser = new PydmlParser(tokens);
 			
 			boolean tryOptimizedParsing = false; // For now no optimization, since it is not able to parse integer value. 
 	
@@ -177,15 +177,15 @@ public class PyDMLParserWrapper extends AParserWrapper
 		if (atLeastOneWarning) {
 			LOG.warn(CustomErrorListener.generateParseIssuesMessage(dmlScript, parseIssues));
 		}
-		dmlPgm = createDMLProgram(ast, sourceNamespace);
+		dmlPgm = createDMLProgram(ast, antlr4Parser, sourceNamespace);
 		
 		return dmlPgm;
 	}
 
 
-	private DMLProgram createDMLProgram(ProgramrootContext ast, String sourceNamespace) {
+	private DMLProgram createDMLProgram(ProgramrootContext ast, PydmlParser parser, String sourceNamespace) {
 
-		DMLProgram dmlPgm = new DMLProgram();
+		DMLProgram dmlPgm = new DMLProgram(ast, parser);
 		String namespace = (sourceNamespace != null && sourceNamespace.length() > 0) ? sourceNamespace : DMLProgram.DEFAULT_NAMESPACE;
 		dmlPgm.getNamespaces().put(namespace, dmlPgm);
 

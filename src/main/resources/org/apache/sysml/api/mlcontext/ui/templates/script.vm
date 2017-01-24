@@ -1,0 +1,134 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+<h3>Name:</h3>
+#if ($script.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Type:</h3>
+#if ($script.scriptType)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.scriptType
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Script:</h3>
+#if ($script.scriptString)
+#if ($script.scriptStringSize >= 10)
+<pre style="font-size: 12px; height: 250px; overflow-y: auto;">
+#else
+<pre style="font-size: 12px;">
+#end
+$script.scriptString
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+<div>
+<a href="script/edit">Edit</a>
+</div>
+<div>
+<a href="script/execute">Execute</a>
+</div>
+<h3>Execution Script with Line Numbers:</h3>
+#if ($script.scriptExecutionString)
+#if ($script.scriptExecutionStringSize >= 10)
+<pre style="font-size: 12px; height: 250px; overflow-y: auto;">
+#else
+<pre style="font-size: 12px;">
+#end
+$script.scriptExecutionStringWithLineNumbers
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Inputs:</h3>
+#if ($script.displayInputs)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displayInputs
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Outputs:</h3>
+#if ($script.displayOutputs)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displayOutputs
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Input Parameters:</h3>
+#if ($script.displayInputParameters)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displayInputParameters
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Input Variables:</h3>
+#if ($script.displayInputVariables)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displayInputVariables
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Output Variables:</h3>
+#if ($script.displayOutputVariables)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displayOutputVariables
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Symbol Table:</h3>
+#if ($script.displaySymbolTable)
+<pre style="font-weight: bold; padding-left: 2em; font-style: normal; font-family: courier; font-size: 14px; padding-bottom:0px;">
+$script.displaySymbolTable
+</pre>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+#else
+No script is active or has been registered.
+#end

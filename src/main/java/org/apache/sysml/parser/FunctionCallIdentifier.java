@@ -177,17 +177,17 @@ public class FunctionCallIdentifier extends DataIdentifier
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		if (_namespace != null && _namespace.length() > 0 && !_namespace.equals(".defaultNS")) 
-			sb.append(_namespace + "::"); 
+		if (_namespace != null && _namespace.length() > 0 && !_namespace.equals(DMLProgram.DEFAULT_NAMESPACE))
+			sb.append(_namespace + "::");
 		sb.append(_name);
-		sb.append(" ( ");		
-				
-		for (int i = 0; i < _paramExprs.size(); i++){
+		sb.append("(");
+
+		for (int i = 0; i < _paramExprs.size(); i++) {
 			sb.append(_paramExprs.get(i).toString());
-			if (i<_paramExprs.size() - 1) 
+			if (i < _paramExprs.size() - 1)
 				sb.append(",");
 		}
-		sb.append(" )");
+		sb.append(")");
 		return sb.toString();
 	}
 

@@ -33,6 +33,7 @@ import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.api.MLContextProxy;
 import org.apache.sysml.api.ExternalUDFRegistration;
 import org.apache.sysml.api.jmlc.JMLCUtils;
+import org.apache.sysml.api.mlcontext.ui.UI;
 import org.apache.sysml.api.monitoring.SparkMonitoringUtil;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -116,6 +117,11 @@ public class MLContext {
 	 * Project information such as the version and the build time.
 	 */
 	private ProjectInfo projectInfo = null;
+
+	/**
+	 * SystemML MLContext user interface.
+	 */
+	private UI ui = null;
 
 	private List<String> scriptHistoryStrings = new ArrayList<String>();
 	private Map<String, Script> scripts = new LinkedHashMap<String, Script>();
@@ -639,6 +645,18 @@ public class MLContext {
 	 */
 	public String buildTime() {
 		return info().buildTime();
+	}
+
+	/**
+	 * Obtain a reference to the SystemML MLContext user interface object.
+	 * 
+	 * @return user interface object
+	 */
+	public UI ui() {
+		if (ui == null) {
+			ui = new UI(this);
+		}
+		return ui;
 	}
 
 }

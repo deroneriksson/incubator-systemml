@@ -111,6 +111,30 @@ public class FunctionStatement extends Statement
 		return sb.toString();
 	}
 
+	public String getSignature() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(_name + " = ");
+		sb.append("function(");
+
+		for (int i = 0; i < _inputParams.size(); i++) {
+			DataIdentifier curr = _inputParams.get(i);
+			sb.append(curr.getName());
+			if (curr.getDefaultValue() != null)
+				sb.append(" = " + curr.getDefaultValue());
+			if ((i < _inputParams.size() - 1) && (i > 0))
+				sb.append(", ");
+		}
+		sb.append(") return (");
+
+		for (int i = 0; i < _outputParams.size(); i++) {
+			sb.append(_outputParams.get(i).getName());
+			if ((i < _outputParams.size() - 1) && (i > 0))
+				sb.append(", ");
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
 	public void initializeforwardLV(VariableSet activeIn) throws LanguageException{
 		LOG.error(this.printErrorLocation() + "should never call initializeforwardLV for FunctionStatement");
 		throw new LanguageException(this.printErrorLocation() + "should never call initializeforwardLV for FunctionStatement");

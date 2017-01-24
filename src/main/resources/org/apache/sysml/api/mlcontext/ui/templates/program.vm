@@ -1,0 +1,192 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+<h3>Name:</h3>
+#if ($script.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Program Display:</h3>
+
+<div id="program-display-tree"></div>
+
+<script>
+var data = [
+$script.programD3
+];
+$('#program-display-tree').tree({
+    data: data,
+    autoOpen: true,
+    dragAndDrop: true
+});
+</script>
+
+<h3>Program Display Details:</h3>
+
+<div id="program-display-details-tree"></div>
+
+<script>
+var data2 = [
+$script.programBasicDetailsD3
+];
+$('#program-display-details-tree').tree({
+    data: data2,
+    autoOpen: true,
+    dragAndDrop: true
+});
+</script>
+
+<h3>Program D3 Tree:</h3>
+
+<div id="program-container"></div>
+
+<style>
+.program-svg {
+  background-color: #EFFFEF;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+}
+.edge {
+  stroke: #999;
+  stroke-width: 2px;
+  fill: none;
+}
+.branch circle, .leaf circle {
+  stroke: #AAA;
+  stroke-width: 2px;
+  fill: #FFF;
+}
+
+.branch text, .leaf text {
+  font: 12px sans-serif;
+}
+
+.branch text, .leaf text {
+  font-weight: bold;
+  text-shadow: 1px 1px #fff;
+}
+
+</style>
+<script>
+var treeData =
+$script.programD3
+;
+
+var w = $("\#program-container").width()-100;
+//var h = 1000;
+// var w = $script.programWidth ;
+ var h = $script.programHeight ;
+var margin = {top:20, right:50, bottom:20, left:100};
+var programSvg = d3.select("\#program-container")
+                     .append("svg")
+                     .attr("width", w)
+                     .attr("height", h)
+                     .attr("class", "program-svg");
+var programGroup = programSvg.append("g")
+                                 .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+console.log("w:" + w);
+console.log("h:" + h);
+var programTree = d3.tree().size([h - margin.top - margin.bottom, w - margin.left - margin.right]);
+var programNodes = d3.hierarchy(treeData, function(d) { return d.children; });
+programNodes = programTree(programNodes);
+
+var edgeLine = function(node) {
+  var x = node.x, y = node.y, px = node.parent.x, py = node.parent.y;
+  var moveto = "M" + y + "," + x;
+  // curveto when not rotated: Cc1x,c1y c2x,c2y x,y
+  var curveto = "C" + (y + py)/2 + "," + x + " " + (y + py)/2 + "," + px + " " + py + "," + px;
+  return moveto + " " + curveto;
+};
+
+var edges = programGroup.selectAll(".edge")
+                         .data(programNodes.descendants().slice(1))
+                         .enter().append("path")
+                         .attr("class", "edge")
+                         .attr("d", function(d) { return edgeLine(d); });
+
+var branchOrLeaf = function(node) {
+  if (node.children) {
+    return "node branch";
+  } else {
+    return "node leaf";
+  }
+}
+
+var nodes = programGroup.selectAll(".node")
+                         .data(programNodes.descendants())
+                         .enter().append("g")
+                         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+                         .attr("class", function(d) { return branchOrLeaf(d); });
+
+nodes.append("circle").attr("r", 6);
+
+var textPosition = function(node) {
+  if (node.children) {
+    return -9;
+  } else {
+    return 11;
+  }
+}
+
+var textAnchor = function(node) {
+  if (node.children) {
+    return "end";
+  } else {
+    return "start";
+  }
+}
+
+nodes.append("text")
+     .text(function(d) { return d.data.name; })
+     .attr("x", function(d) { return textPosition(d); })
+     .attr("dy", function(d) { return d.children ? "-3px" : "4px"; })
+     .style("text-anchor", function(d) { return textAnchor(d); });
+
+</script>
+
+
+<h3>Program Display (Text):</h3>
+<pre style="font-size: 12px;">
+$script.programDisplay
+</pre>
+
+<h3>Program Display Details (Text):</h3>
+<pre style="font-size: 12px;">
+$script.programDisplayDetails
+</pre>
+
+<h3>Program JSON Data:</h3>
+<pre style="font-size: 12px;">
+$script.programD3
+</pre>
+
+<h3>Program Basic Details JSON Data:</h3>
+<pre style="font-size: 12px;">
+$script.programBasicDetailsD3
+</pre>
+
+
+<h3>Program Details JSON Data:</h3>
+<pre style="font-size: 12px;">
+$script.programDetailsD3
+</pre>
+
+<h3>Program 'toString':</h3>
+<pre style="font-size: 12px;">
+$script.programToString
+</pre>
+
+#else
+No script is active or has been registered.
+#end

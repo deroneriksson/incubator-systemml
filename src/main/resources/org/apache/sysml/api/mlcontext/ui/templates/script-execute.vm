@@ -1,0 +1,11 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+#else
+No script is active or has been registered.
+#end

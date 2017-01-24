@@ -120,11 +120,11 @@ public class DMLParserWrapper extends AParserWrapper
 
 		ProgramrootContext ast = null;
 		CustomErrorListener errorListener = new CustomErrorListener();
-		
+		DmlParser antlr4Parser = null;
 		try {
 			DmlLexer lexer = new DmlLexer(in);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			DmlParser antlr4Parser = new DmlParser(tokens);
+			antlr4Parser = new DmlParser(tokens);
 			
 			boolean tryOptimizedParsing = false; // For now no optimization, since it is not able to parse integer value. 
 	
@@ -190,14 +190,14 @@ public class DMLParserWrapper extends AParserWrapper
 		if (atLeastOneWarning) {
 			LOG.warn(CustomErrorListener.generateParseIssuesMessage(dmlScript, parseIssues));
 		}
-		dmlPgm = createDMLProgram(ast, sourceNamespace);
+		dmlPgm = createDMLProgram(ast, antlr4Parser, sourceNamespace);
 		
 		return dmlPgm;
 	}
 	
-	private DMLProgram createDMLProgram(ProgramrootContext ast, String sourceNamespace) {
+	private DMLProgram createDMLProgram(ProgramrootContext ast, DmlParser parser, String sourceNamespace) {
 
-		DMLProgram dmlPgm = new DMLProgram();
+		DMLProgram dmlPgm = new DMLProgram(ast, parser);
 		String namespace = (sourceNamespace != null && sourceNamespace.length() > 0) ? sourceNamespace : DMLProgram.DEFAULT_NAMESPACE;
 		dmlPgm.getNamespaces().put(namespace, dmlPgm);
 

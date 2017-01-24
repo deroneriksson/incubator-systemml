@@ -117,6 +117,10 @@
 			</excludes>
 			<targetPath>kernels</targetPath>
 		</resource>
+		<resource>
+			<directory>src/main/resources/org</directory>
+			<targetPath>org</targetPath>
+		</resource>
 	</resources>
 
 		<plugins>
@@ -1007,7 +1011,17 @@
 
 
 	<dependencies>
-	
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-repl_${scala.binary.version}</artifactId>
+			<version>2.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sksamuel.diff</groupId>
+			<artifactId>diff</artifactId>
+			<version>1.1.11</version>
+		</dependency>
 		<!-- For GPU backend
 			Use org.mystic:mavenized-jcuda until Alan puts org.jcuda:*
 		 -->
@@ -1081,7 +1095,11 @@
 			<version>14.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.7</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-common</artifactId>

@@ -1,0 +1,32 @@
+<h1>$title</h1>
+
+#if ($message)
+<div>$message</div>
+#end
+
+#if ($script.exists)
+
+<h3>Name:</h3>
+#if ($script.name)
+<div style="font-weight: bold; padding-left: 2em; font-style: italic;">
+$script.name
+</div>
+#else
+<div style="padding-left: 2em; font-style: italic;">
+None
+</div>
+#end
+
+<h3>Execution Script with Line Numbers:</h3>
+<pre style="font-size: 12px;">
+$script.scriptExecutionStringWithErrorHighlighting
+</pre>
+
+<div>
+<a href="script/edit">Edit</a>
+</div>
+
+
+#else
+No script is active or has been registered.
+#end

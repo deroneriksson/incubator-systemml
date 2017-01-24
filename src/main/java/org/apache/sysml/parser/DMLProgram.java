@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.compile.Dag;
 import org.apache.sysml.parser.Expression.DataType;
@@ -57,13 +58,21 @@ public class DMLProgram
 	public static String DEFAULT_NAMESPACE = ".defaultNS";
 	public static String INTERNAL_NAMESPACE = "_internal"; // used for multi-return builtin functions
 	private static final Log LOG = LogFactory.getLog(DMLProgram.class.getName());
-	
+	private ParseTree parseTree;
+	private Parser parser;
+
 	public DMLProgram(){
 		_blocks = new ArrayList<StatementBlock>();
 		_functionBlocks = new HashMap<String,FunctionStatementBlock>();
 		_namespaces = new HashMap<String,DMLProgram>();
 	}
-	
+
+	public DMLProgram(ParseTree parseTree, Parser parser) {
+		this();
+		this.parseTree = parseTree;
+		this.parser = parser;
+	}
+
 	public HashMap<String,DMLProgram> getNamespaces(){
 		return _namespaces;
 	}
@@ -758,5 +767,21 @@ public class DMLProgram
 	{
 		return fkey.split(Program.KEY_DELIM);
 	}
+
+	public ParseTree getParseTree() {
+		return parseTree;
+	}
+
+	public Parser getParser() {
+		return parser;
+	}
+
+	public HashMap<String, FunctionStatementBlock> getFunctionBlocks() {
+		return _functionBlocks;
+	}
+
+//	public ArrayList<StatementBlock> getBlocks() {
+//		return _blocks;
+//	}
 }
 

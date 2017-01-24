@@ -1,0 +1,30 @@
+<div style="margin-left: 216px; margin-right: 216px;">
+<h1 style="text-align: center">$title</h1>
+
+<div style="text-align: center">
+Welcome to the Apache SystemML UI! This interface can be used to inspect scripts and their executions.
+</div>
+
+#if ($message)
+<div style="text-align: center">$message</div>
+#end
+
+#if ($script.exists)
+
+#if ($script.name)
+<div style="text-align: center; font-weight: bold; font-style: italic;">
+<a href="/script">Inspect "$script.name" Script</a>
+</div>
+#else
+<div style="text-align: center; font-weight: bold; font-style: italic;">
+<a href="/script">Inspect Script</a>
+</div>
+#end
+
+#else
+<div style="text-align: center; font-style: italic;">
+No script is active or has been registered.
+</div>
+#end
+
+</div>

@@ -644,8 +644,10 @@ public final class MLContextUtil {
 	 */
 	public static String displayMap(String mapName, Map<String, Object> map) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(mapName);
-		sb.append(":\n");
+		if (mapName != null) {
+			sb.append(mapName);
+			sb.append(":\n");
+		}
 		Set<String> keys = map.keySet();
 		if (keys.isEmpty()) {
 			sb.append("None\n");
@@ -665,6 +667,17 @@ public final class MLContextUtil {
 	}
 
 	/**
+	 * Display the keys and values in a Map
+	 * 
+	 * @param map
+	 *            Map of String keys and Object values
+	 * @return the keys and values in the Map as a String
+	 */
+	public static String displayMap(Map<String, Object> map) {
+		return displayMap(null, map);
+	}
+
+	/**
 	 * Display the values in a Set
 	 * 
 	 * @param setName
@@ -675,8 +688,10 @@ public final class MLContextUtil {
 	 */
 	public static String displaySet(String setName, Set<String> set) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(setName);
-		sb.append(":\n");
+		if (setName != null) {
+			sb.append(setName);
+			sb.append(":\n");
+		}
 		if (set.isEmpty()) {
 			sb.append("None\n");
 		} else {
@@ -690,6 +705,17 @@ public final class MLContextUtil {
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Display the values in a Set
+	 * 
+	 * @param set
+	 *            Set of String values
+	 * @return the values in the Set as a String
+	 */
+	public static String displaySet(Set<String> set) {
+		return displaySet(null, set);
 	}
 
 	/**
@@ -781,8 +807,10 @@ public final class MLContextUtil {
 	 */
 	public static String displayInputs(String name, Map<String, Object> map, LocalVariableMap symbolTable) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(name);
-		sb.append(":\n");
+		if (name != null) {
+			sb.append(name);
+			sb.append(":\n");
+		}
 		Set<String> keys = map.keySet();
 		if (keys.isEmpty()) {
 			sb.append("None\n");
@@ -821,6 +849,18 @@ public final class MLContextUtil {
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Obtain a display of script inputs.
+	 * 
+	 * @param map
+	 *            the map of inputs
+	 * @param symbolTable the symbol table
+	 * @return the script inputs represented as a String
+	 */
+	public static String displayInputs(Map<String, Object> map, LocalVariableMap symbolTable) {
+		return displayInputs(null, map, symbolTable);
 	}
 
 	/**
