@@ -177,7 +177,7 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 	class MaxAccumulator extends AccumulatorV2<Long, Long> {
 
 		private static final long serialVersionUID = 8380715089712894759L;
-		Long maxValue = Long.MIN_VALUE;
+		Long maxValue = 0L;
 
 		public MaxAccumulator() {
 		}
@@ -216,6 +216,7 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 
 		@Override
 		public void reset() {
+			maxValue = 0L;
 		}
 
 		@Override
