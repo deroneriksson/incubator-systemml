@@ -23,12 +23,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.spark.Accumulator;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-
-import scala.Tuple2;
-
+import org.apache.spark.util.AccumulatorV2;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
@@ -43,6 +40,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.utils.Statistics;
+
+import scala.Tuple2;
 
 /**
  * TODO robustness on failures (cleanup files)
@@ -73,8 +72,8 @@ public class RemoteDPParForSpark
 		InputInfo ii = InputInfo.BinaryBlockInputInfo;
 				
 		//initialize accumulators for tasks/iterations
-		Accumulator<Integer> aTasks = sc.accumulator(0);
-		Accumulator<Integer> aIters = sc.accumulator(0);
+		AccumulatorV2<Long, Long> aTasks = sc.sc().longAccumulator();
+		AccumulatorV2<Long, Long> aIters = sc.sc().longAccumulator();
 		
 		JavaPairRDD<MatrixIndexes,MatrixBlock> in = sec.getBinaryBlockRDDHandleForVariable(matrixvar);
 		DataPartitionerRemoteSparkMapper dpfun = new DataPartitionerRemoteSparkMapper(mc, ii, oi, dpf);
@@ -88,11 +87,11 @@ public class RemoteDPParForSpark
 		
 		//de-serialize results
 		LocalVariableMap[] results = RemoteParForUtils.getResults(out, LOG);
-		int numTasks = aTasks.value(); //get accumulator value
-		int numIters = aIters.value(); //get accumulator value
+		long numTasks = aTasks.value(); //get accumulator value
+		long numIters = aIters.value(); //get accumulator value
 		
 		//create output symbol table entries
-		RemoteParForJobReturn ret = new RemoteParForJobReturn(true, numTasks, numIters, results);
+		RemoteParForJobReturn ret = new RemoteParForJobReturn(true, (int) numTasks, (int) numIters, results);
 		
 		//maintain statistics
 	    Statistics.incrementNoOfCompiledSPInst();

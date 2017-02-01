@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.spark.Accumulator;
 import org.apache.spark.TaskContext;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
+import org.apache.spark.util.AccumulatorV2;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.caching.CacheableData;
 import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
@@ -42,10 +42,10 @@ public class RemoteParForSparkWorker extends ParWorker implements PairFlatMapFun
 	private String  _prog = null;
 	private boolean _caching = true;
 	
-	private Accumulator<Integer> _aTasks = null;
-	private Accumulator<Integer> _aIters = null;
+	private AccumulatorV2<Long, Long> _aTasks = null;
+	private AccumulatorV2<Long, Long> _aIters = null;
 	
-	public RemoteParForSparkWorker(String program, boolean cpCaching, Accumulator<Integer> atasks, Accumulator<Integer> aiters) 
+	public RemoteParForSparkWorker(String program, boolean cpCaching, AccumulatorV2<Long, Long> atasks, AccumulatorV2<Long, Long> aiters) 
 		throws DMLRuntimeException
 	{
 		//keep inputs (unfortunately, spark does not expose task ids and it would be implementation-dependent
@@ -72,8 +72,8 @@ public class RemoteParForSparkWorker extends ParWorker implements PairFlatMapFun
 		super.executeTask( arg0 );
 		
 		//maintain accumulators
-		_aTasks.add( 1 );
-		_aIters.add( (int)(getExecutedIterations()-numIter) );
+		_aTasks.add( 1L );
+		_aIters.add( (getExecutedIterations()-numIter) );
 		
 		//write output if required (matrix indexed write) 
 		//note: this copy is necessary for environments without spark libraries

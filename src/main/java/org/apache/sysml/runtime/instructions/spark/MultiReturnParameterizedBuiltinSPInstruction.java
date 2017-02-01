@@ -20,20 +20,18 @@
 package org.apache.sysml.runtime.instructions.spark;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.apache.spark.Accumulator;
-import org.apache.spark.AccumulatorParam;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.broadcast.Broadcast;
+import org.apache.spark.util.AccumulatorV2;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -124,7 +122,9 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 			Encoder encoderBuild = EncoderFactory.createEncoder(spec, colnames,
 					fo.getSchema(), (int)fo.getNumColumns(), null);
 			
-			Accumulator<Long> accMax = sec.getSparkContext().accumulator(0L, new MaxAcc()); 
+//			Accumulator<Long> accMax = sec.getSparkContext().accumulator(0L, new MaxAcc());
+			AccumulatorV2<Long, Long> accMax = new MaxAccumulator();
+			sec.getSparkContext().sc().register(accMax);
 			JavaRDD<String> rcMaps = in
 					.mapPartitionsToPair(new TransformEncodeBuildFunction(encoderBuild))
 					.distinct().groupByKey()
@@ -172,6 +172,57 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 		catch(IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	class MaxAccumulator extends AccumulatorV2<Long, Long> {
+
+		private static final long serialVersionUID = 8380715089712894759L;
+		Long maxValue = Long.MIN_VALUE;
+
+		public MaxAccumulator() {
+		}
+
+		public MaxAccumulator(Long maxValue) {
+			this.maxValue = maxValue;
+		}
+
+		@Override
+		public void add(Long val) {
+			if (val > maxValue) {
+				maxValue = val;
+			}
+		}
+
+		@Override
+		public AccumulatorV2<Long, Long> copy() {
+			return new MaxAccumulator(maxValue);
+		}
+
+		@Override
+		public boolean isZero() {
+			if (maxValue == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		@Override
+		public void merge(AccumulatorV2<Long, Long> that) {
+			if (that.value() > maxValue) {
+				maxValue = that.value();
+			}
+		}
+
+		@Override
+		public void reset() {
+		}
+
+		@Override
+		public Long value() {
+			return maxValue;
+		}
+
 	}
 
 	private boolean containsMVImputeEncoder(Encoder encoder) {
@@ -242,9 +293,9 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 	{
 		private static final long serialVersionUID = -1034187226023517119L;
 
-		private Accumulator<Long> _accMax = null;
+		private AccumulatorV2<Long, Long> _accMax = null;
 		
-		public TransformEncodeGroupFunction( Accumulator<Long> accMax ) {
+		public TransformEncodeGroupFunction( AccumulatorV2<Long, Long> accMax ) {
 			_accMax = accMax;
 		}
 		
@@ -275,25 +326,25 @@ public class MultiReturnParameterizedBuiltinSPInstruction extends ComputationSPI
 		}
 	}
 
-	private static class MaxAcc implements AccumulatorParam<Long>, Serializable 
-	{
-		private static final long serialVersionUID = -3739727823287550826L;
-
-		@Override
-		public Long addInPlace(Long arg0, Long arg1) {
-			return Math.max(arg0, arg1);
-		}
-
-		@Override
-		public Long zero(Long arg0) {
-			return arg0;
-		}
-
-		@Override
-		public Long addAccumulator(Long arg0, Long arg1) {
-			return Math.max(arg0, arg1);	
-		}
-	}
+//	private static class MaxAcc implements AccumulatorParam<Long>, Serializable 
+//	{
+//		private static final long serialVersionUID = -3739727823287550826L;
+//
+//		@Override
+//		public Long addInPlace(Long arg0, Long arg1) {
+//			return Math.max(arg0, arg1);
+//		}
+//
+//		@Override
+//		public Long zero(Long arg0) {
+//			return arg0;
+//		}
+//
+//		@Override
+//		public Long addAccumulator(Long arg0, Long arg1) {
+//			return Math.max(arg0, arg1);	
+//		}
+//	}
 
 	public static class TransformEncodeBuild2Function implements PairFlatMapFunction<Iterator<Tuple2<Long, FrameBlock>>, Integer, ColumnMetadata>
 	{

@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.spark.Accumulator;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,20 +34,18 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.ml.linalg.DenseVector;
 import org.apache.spark.ml.linalg.Vector;
 import org.apache.spark.ml.linalg.VectorUDT;
 import org.apache.spark.ml.linalg.Vectors;
-import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
-
-import scala.Tuple2;
-
+import org.apache.spark.util.AccumulatorV2;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -67,6 +64,8 @@ import org.apache.sysml.runtime.matrix.mapred.ReblockBuffer;
 import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.runtime.util.FastStringTokenizer;
 import org.apache.sysml.runtime.util.UtilFunctions;
+
+import scala.Tuple2;
 
 public class RDDConverterUtils 
 {
@@ -166,7 +165,7 @@ public class RDDConverterUtils
 	{
 		//determine unknown dimensions and sparsity if required
 		if( !mc.dimsKnown(true) ) {
-			Accumulator<Double> aNnz = sc.accumulator(0L);
+			AccumulatorV2<Long, Long> aNnz = sc.sc().longAccumulator();
 			JavaRDD<String> tmp = input.values()
 					.map(new CSVAnalysisFunction(aNnz, delim));
 			long rlen = tmp.count() - (hasHeader ? 1 : 0);
@@ -230,7 +229,7 @@ public class RDDConverterUtils
 	{
 		//determine unknown dimensions and sparsity if required
 		if( !mc.dimsKnown(true) ) {
-			Accumulator<Double> aNnz = sc.accumulator(0L);
+			AccumulatorV2<Long, Long> aNnz = sc.sc().longAccumulator();
 			JavaRDD<Row> tmp = df.javaRDD().map(new DataFrameAnalysisFunction(aNnz, containsID, isVector));
 			long rlen = tmp.count();
 			long clen = !isVector ? df.columns().length - (containsID?1:0) : 
@@ -531,10 +530,10 @@ public class RDDConverterUtils
 	{
 		private static final long serialVersionUID = 2310303223289674477L;
 
-		private Accumulator<Double> _aNnz = null;
+		private AccumulatorV2<Long, Long> _aNnz = null;
 		private String _delim = null;
 		
-		public CSVAnalysisFunction( Accumulator<Double> aNnz, String delim )
+		public CSVAnalysisFunction( AccumulatorV2<Long, Long> aNnz, String delim )
 		{
 			_aNnz = aNnz;
 			_delim = delim;
@@ -552,7 +551,7 @@ public class RDDConverterUtils
 			int lnnz = IOUtilFunctions.countNnz(cols);
 			
 			//update counters
-			_aNnz.add( (double)lnnz );
+			_aNnz.add( (long)lnnz );
 			
 			return line;
 		}
@@ -922,11 +921,11 @@ public class RDDConverterUtils
 	{	
 		private static final long serialVersionUID = 5705371332119770215L;
 		
-		private Accumulator<Double> _aNnz = null;
+		private AccumulatorV2<Long, Long> _aNnz = null;
 		private boolean _containsID;
 		private boolean _isVector;
 		
-		public DataFrameAnalysisFunction( Accumulator<Double> aNnz, boolean containsID, boolean isVector) {
+		public DataFrameAnalysisFunction( AccumulatorV2<Long, Long> aNnz, boolean containsID, boolean isVector) {
 			_aNnz = aNnz;
 			_containsID = containsID;
 			_isVector = isVector;
@@ -940,7 +939,7 @@ public class RDDConverterUtils
 			int lnnz = countNnz(vect, _isVector, off);
 			
 			//update counters
-			_aNnz.add( (double)lnnz );
+			_aNnz.add( (long) lnnz );
 			return arg0;
 		}
 	}
