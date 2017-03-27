@@ -173,4 +173,27 @@ if( !converged ) {
 V = t(V);
 write (U, fileU, format=fmtO);
 write (V, fileV, format=fmtO);
- 
+
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Alternating Least Squares (ALS) with Conjugate Gradient",
+	"description": "This script computes an approximate factorization of a low-rank matrix X into two matrices U and V using Alternating Least Squares (ALS) with conjugate gradient. Matrices U and V are computed by minimizing a loss function (with regularization)",
+	"inputs": [
+		{"name":"X",       "type":"Matrix",                        "description":"Input matrix X to be factorized"},
+		{"name":"$rank",   "type":"Integer", "default":"10",       "description":"Rank of the factorization"},
+		{"name":"$reg",    "type":"String",  "default":"L2",       "description":"Regularization", "options": [{"name":"L2", "description":"L2 regularization"}, {"name":"wL2", "description":"Weighted L2 regularization"}]},
+		{"name":"$lambda", "type":"Double",  "default":"0.000001", "description":"Regularization parameter, no regularization if 0.0"},
+		{"name":"$maxi",   "type":"Integer", "default":"50",       "description":"Maximum number of iterations"},
+		{"name":"$check",  "type":"Boolean", "default":"TRUE",     "description":"Check for convergence after every iteration"},
+		{"name":"$thr",    "type":"Double",  "default":"0.0001",   "description":"If check is TRUE, the algorithm stops and convergence is declared if the decrease in loss in any two consecutive iterations falls below this threshold. If check is FALSE, thr is ignored."},
+	],
+	"outputs": [
+		{"name":"U", "type":"Matrix", "description":"m x r matrix"},
+		{"name":"V", "type":"Matrix", "description":"r x n matrix"}
+	],
+	"examples": [
+		{"example":"val dataGen = dmlFromFile(\"scripts/datagen/genRandData4ALS.dml\")\ndataGen.in(\"$rows\", 1000).in(\"$cols\", 1000).in(\"$rank\", 100).in(\"$nnz\", 10000).out(\"X\", \"W\", \"H\")\nval x = ml.execute(dataGen).getMatrix(\"X\")\nval als = dmlFromFile(\"scripts/algorithms/ALS-CG.dml\")\nals.in(\"X\", x).in(\"$rank\", 100).out(\"U\", \"V\")\nval alsResults = ml.execute(als)\nval u = alsResults.getMatrix(\"U\").toDFDoubleWithIDColumn().sort(\"__INDEX\")\nval v = alsResults.getMatrix(\"V\").toDFDoubleWithIDColumn().sort(\"__INDEX\")"}
+	]
+}
+END-SCRIPT-METADATA */
+

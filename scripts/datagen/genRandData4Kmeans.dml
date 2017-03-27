@@ -118,3 +118,28 @@ print ("Please run the scoring script to compare " + fileY + " with " + fileYbyC
 
 print ("DONE: K-MEANS GENERATOR SCRIPT");
 
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Generate Random Data for K-Means clustering algorithms",
+	"description": "This script generates random Gaussian-mixture data to test k-Means clustering algorithms.",
+	"inputs": [
+		{"name":"$nr",  "type":"Integer", "description":"Number of records"},
+		{"name":"$nf",  "type":"Integer", "description":"Number of features"},
+		{"name":"$nc",  "type":"Integer", "description":"Number of clusters"},
+		{"name":"$dc",  "type":"Double",  "description":"St.dev. of cluster \"centroid\" features from zero mean"},
+		{"name":"$dr",  "type":"Double",  "description":"St.dev. of the 1-st feature in a record within cluster"},
+		{"name":"$fbf", "type":"Double",  "description":"Feature bias factor: Stdev(last) / Stdev(1-st) feature"},
+		{"name":"$cbf", "type":"Double",  "description":"Cluster bias factor: Prob[1-st clus] / Prob[k-th clus]"},
+	],
+	"outputs": [
+		{"name":"X",      "type":"Matrix", "description":"matrix with generated data records"},
+		{"name":"C",      "type":"Matrix", "description":"cluster \"centroids\" (Gaussian means)"},
+		{"name":"Y",      "type":"Matrix", "description":"assignment of records to cluster ids"},
+		{"name":"Y_by_C", "type":"Matrix", "description":"rec-cluster assigns by min-dist to C"},
+	],
+	"examples": [
+		{"example":"val dataGen = dmlFromFile(\"scripts/datagen/genRandData4Kmeans.dml\")\ndataGen.in(\"$nr\", 1000).in(\"$nf\", 100).in(\"$nc\", 10).in(\"$dc\", 10.0).in(\"$dr\", 1.0).in(\"$fbf\", 100.0).in(\"$cbf\", 100.0).out(\"X\", \"C\", \"Y\", \"Y_by_C\")\nval dataGenResults = ml.execute(dataGen)\nval x = dataGenResults.getMatrix(\"X\").toDF().sort(\"__INDEX\")\nval c = dataGenResults.getMatrix(\"C\").toDF().sort(\"__INDEX\")\nval y = dataGenResults.getMatrix(\"Y\").toDF().sort(\"__INDEX\")\nval yByC = dataGenResults.getMatrix(\"Y_by_C\").toDF().sort(\"__INDEX\")"}
+	]
+}
+END-SCRIPT-METADATA */
+

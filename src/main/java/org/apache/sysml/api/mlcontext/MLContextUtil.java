@@ -51,6 +51,10 @@ import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.sysml.api.mlcontext.ScriptMetadata.Example;
+import org.apache.sysml.api.mlcontext.ScriptMetadata.Input;
+import org.apache.sysml.api.mlcontext.ScriptMetadata.Option;
+import org.apache.sysml.api.mlcontext.ScriptMetadata.Output;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -80,6 +84,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import scala.Console;
+
 /**
  * Utility class containing methods for working with the MLContext API.
  *
@@ -96,9 +102,9 @@ public final class MLContextUtil {
 	 * Complex data types supported by the MLContext API
 	 */
 	@SuppressWarnings("rawtypes")
-	public static final Class[] COMPLEX_DATA_TYPES = { JavaRDD.class, RDD.class, Dataset.class,
-			BinaryBlockMatrix.class, BinaryBlockFrame.class, Matrix.class, Frame.class, (new double[][] {}).getClass(),
-			MatrixBlock.class, URL.class };
+	public static final Class[] COMPLEX_DATA_TYPES = { JavaRDD.class, RDD.class, Dataset.class, BinaryBlockMatrix.class,
+			BinaryBlockFrame.class, Matrix.class, Frame.class, (new double[][] {}).getClass(), MatrixBlock.class,
+			URL.class };
 
 	/**
 	 * All data types supported by the MLContext API
@@ -184,12 +190,15 @@ public final class MLContextUtil {
 			minimumRecommendedSparkVersion = projectInfo.minimumRecommendedSparkVersion();
 		} catch (MLContextException e) {
 			try {
-				// During development (such as in an IDE), there is no jar file typically
-				// built, so attempt to obtain the minimum recommended Spark version from
+				// During development (such as in an IDE), there is no jar file
+				// typically
+				// built, so attempt to obtain the minimum recommended Spark
+				// version from
 				// the pom.xml file
 				minimumRecommendedSparkVersion = getMinimumRecommendedSparkVersionFromPom();
 			} catch (MLContextException e1) {
-				throw new MLContextException("Minimum recommended Spark version could not be determined from SystemML jar file manifest or pom.xml");
+				throw new MLContextException(
+						"Minimum recommended Spark version could not be determined from SystemML jar file manifest or pom.xml");
 			}
 		}
 		String sparkVersion = sc.version();
@@ -202,17 +211,20 @@ public final class MLContextUtil {
 	/**
 	 * Obtain minimum recommended Spark version from the pom.xml file.
 	 * 
-	 * @return the minimum recommended Spark version from XML parsing of the pom file (during development).
+	 * @return the minimum recommended Spark version from XML parsing of the pom
+	 *         file (during development).
 	 */
 	static String getMinimumRecommendedSparkVersionFromPom() {
 		return getUniquePomProperty("spark.version");
 	}
 
 	/**
-	 * Obtain the text associated with an XML element from the pom.xml file. In this implementation,
-	 * the element should be uniquely named, or results will be unpredicable.
+	 * Obtain the text associated with an XML element from the pom.xml file. In
+	 * this implementation, the element should be uniquely named, or results
+	 * will be unpredicable.
 	 * 
-	 * @param property unique property (element) from the pom.xml file
+	 * @param property
+	 *            unique property (element) from the pom.xml file
 	 * @return the text value associated with the given property
 	 */
 	static String getUniquePomProperty(String property) {
@@ -665,7 +677,7 @@ public final class MLContextUtil {
 			DataType dataType = field.dataType();
 			if ((dataType != DataTypes.DoubleType) && (dataType != DataTypes.IntegerType)
 					&& (dataType != DataTypes.LongType) && (!(dataType instanceof org.apache.spark.ml.linalg.VectorUDT))
-					&& (!(dataType instanceof org.apache.spark.mllib.linalg.VectorUDT)) ) {
+					&& (!(dataType instanceof org.apache.spark.mllib.linalg.VectorUDT))) {
 				// uncomment if we support arrays of doubles for matrices
 				// if (dataType instanceof ArrayType) {
 				// ArrayType arrayType = (ArrayType) dataType;
@@ -853,7 +865,8 @@ public final class MLContextUtil {
 	 *            the title to display for the inputs
 	 * @param map
 	 *            the map of inputs
-	 * @param symbolTable the symbol table
+	 * @param symbolTable
+	 *            the symbol table
 	 * @return the script inputs represented as a String
 	 */
 	public static String displayInputs(String name, Map<String, Object> map, LocalVariableMap symbolTable) {
@@ -1131,6 +1144,262 @@ public final class MLContextUtil {
 				instructions.remove(varinst);
 				i--;
 			}
+		}
+	}
+
+	/**
+	 * Determine if script contains metadata.
+	 * 
+	 * @param script
+	 *            the DML or PyDML script object
+	 * @return true if the script contains metadata, false otherwise
+	 */
+	public static boolean doesScriptContainMetadata(Script script) {
+		if (script == null) {
+			return false;
+		}
+		if (script.getScriptString() == null) {
+			return false;
+		}
+		return (script.getScriptString().contains(ScriptMetadata.BEGIN_SCRIPT_METADATA)) ? true : false;
+	}
+
+	public static String displayScriptMetadata(Script script) {
+		if (script == null) {
+			return "";
+		} else if (script.getScriptMetadata() == null) {
+			return "No script metadata available";
+		}
+		ScriptMetadata sm = script.getScriptMetadata();
+		StringBuilder sb = new StringBuilder();
+		sb.append(consoleBold("Name:"));
+		sb.append(" " + sm.name);
+		sb.append("\n");
+		sb.append(consoleBold("Description:"));
+		sb.append(" " + sm.description);
+		List<Input> inputs = sm.inputs;
+		if ((inputs == null) || (inputs.size() == 0)) {
+			sb.append("\n");
+			sb.append(consoleBold("Inputs:"));
+			sb.append("\n   None");
+		} else {
+			if (sm.hasRequiredInputs()) {
+				sb.append("\n");
+				sb.append(consoleBold("Required Inputs:"));
+				for (Input input : inputs) {
+					if (input.isRequired()) {
+						sb.append("\n   ");
+
+						if (doesMetadataInputExistInScript(input, script.getInputs())) {
+							if (doColor()) {
+								sb.append(Console.GREEN() + Console.BOLD() + "+ ");
+							} else {
+								sb.append("+ ");
+							}
+						} else {
+							if (doColor()) {
+								sb.append(Console.RED() + Console.BOLD() + "- ");
+							} else {
+								sb.append("- ");
+							}
+						}
+
+						sb.append("(" + input.type + ") " + input.name);
+						if (input.description != null) {
+							sb.append(": " + input.description);
+						}
+
+						if (doesMetadataInputExistInScript(input, script.getInputs())) {
+							if (doColor()) {
+								sb.append(Console.RESET());
+							}
+						} else {
+							if (doColor()) {
+								sb.append(Console.RESET());
+							}
+						}
+					}
+				}
+			}
+			if (sm.hasOptionalInputs()) {
+				sb.append("\n");
+				sb.append(consoleBold("Optional Inputs:"));
+				for (Input input : inputs) {
+					if (input.isOptional()) {
+						sb.append("\n   ");
+
+						if (doesMetadataInputExistInScript(input, script.getInputs())) {
+							if (doColor()) {
+								sb.append(Console.GREEN() + Console.BOLD() + "+ ");
+							} else {
+								sb.append("+ ");
+							}
+						}
+
+						sb.append("(" + input.type + ") " + input.name);
+						if (input.defaultValue != null) {
+							if ("String".equalsIgnoreCase(input.type)) {
+								sb.append(": (Default:\"" + input.defaultValue + "\")");
+							} else {
+								sb.append(": (Default:" + input.defaultValue + ")");
+							}
+						}
+						if (input.description != null) {
+							sb.append(" " + input.description);
+						}
+
+						if (input.hasOptions()) {
+							sb.append(", Options:[");
+							for (int i = 0; i < input.options.size(); i++) {
+								Option option = input.options.get(i);
+								if (i > 0) {
+									sb.append(", ");
+								}
+								if ("String".equalsIgnoreCase(input.type)) {
+									sb.append("\"");
+									sb.append(option.name);
+									sb.append("\"");
+								} else {
+									sb.append(option.name);
+								}
+								if (option.description != null) {
+									sb.append(" (");
+									sb.append(option.description);
+									sb.append(")");
+								}
+							}
+							sb.append("]");
+						}
+
+						if (doesMetadataInputExistInScript(input, script.getInputs())) {
+							if (doColor()) {
+								sb.append(Console.RESET());
+							}
+						}
+					}
+				}
+			}
+		}
+		List<Output> outputs = sm.outputs;
+		if ((outputs == null) || (outputs.size() == 0)) {
+			sb.append("\n");
+			sb.append(consoleBold("Outputs:"));
+			sb.append("\n   None");
+		} else {
+			sb.append("\n");
+			sb.append(consoleBold("Outputs:"));
+			for (Output output : outputs) {
+				sb.append("\n   ");
+
+				if (doesMetadataOutputExistInScript(output, script.getOutputVariables())) {
+					if (doColor()) {
+						sb.append(Console.GREEN() + Console.BOLD() + "+ ");
+					} else {
+						sb.append("+ ");
+					}
+				} else {
+					if (doColor()) {
+						sb.append(Console.RED() + Console.BOLD() + "- ");
+					} else {
+						sb.append("- ");
+					}
+				}
+
+				sb.append("(" + output.type + ") " + output.name);
+				if (output.description != null) {
+					sb.append(": " + output.description);
+				}
+
+				if (doesMetadataOutputExistInScript(output, script.getOutputVariables())) {
+					if (doColor()) {
+						sb.append(Console.RESET());
+					}
+				} else {
+					if (doColor()) {
+						sb.append(Console.RESET());
+					}
+				}
+			}
+		}
+		sb.append("\n");
+
+		if (!doAllRequiredMetadataInputsAndOutputsExistInScript(script)) {
+			sb.append(consoleBold("Note:"));
+			if (doColor()) {
+				sb.append("\n   " + Console.RED() + Console.BOLD()
+						+ "'-' above indicates a Required Input or Output has not been supplied yet."
+						+ Console.RESET());
+			} else {
+				sb.append("\n   '-' above indicates a Required Input or Output has not been supplied yet.");
+			}
+		} else {
+			sb.append(consoleBold("Note:"));
+			sb.append("\n   All Required Inputs and Outputs have been supplied.");
+		}
+
+		List<Example> examples = sm.examples;
+		if ((examples != null) && (examples.size() > 0)) {
+			sb.append("\n");
+			sb.append(consoleBold("Examples:"));
+			boolean first = true;
+			for (Example example : examples) {
+				if (!first) {
+					sb.append("\n");
+				}
+				String ex = example.example;
+				String lines[] = ex.split("\\r?\\n");
+				for (String line : lines) {
+					sb.append("\n   " + line);
+				}
+				first = false;
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private static boolean doAllRequiredMetadataInputsAndOutputsExistInScript(Script script) {
+		ScriptMetadata sm = script.getScriptMetadata();
+		for (Input input : sm.inputs) {
+			if (input.isRequired()) {
+				boolean mdInputExists = doesMetadataInputExistInScript(input, script.getInputs());
+				if (!mdInputExists) {
+					return false;
+				}
+			}
+		}
+		for (Output output : sm.outputs) {
+			boolean mdOutputExists = doesMetadataOutputExistInScript(output, script.getOutputVariables());
+			if (!mdOutputExists) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean doesMetadataInputExistInScript(Input metadataInput, Map<String, Object> inputs) {
+		String mdInputName = metadataInput.name;
+		return (inputs.containsKey(mdInputName));
+	}
+
+	private static boolean doesMetadataOutputExistInScript(Output metadataOutput, Set<String> outputs) {
+		String mdOutputName = metadataOutput.name;
+		return (outputs.contains(mdOutputName));
+	}
+
+	private static String consoleBold(String topic) {
+		if (doColor()) {
+			return Console.BOLD() + topic + Console.RESET();
+		} else {
+			return topic;
+		}
+	}
+
+	private static boolean doColor() {
+		if (System.getProperty("scala.color") == null) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }

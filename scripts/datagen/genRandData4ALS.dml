@@ -42,3 +42,26 @@ X = T * (W %*% H) + T * N;
 write(X, Xfile, format = fmt);
 write(W, Wfile, format = fmt);
 write(H, Hfile, format = fmt);
+
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Generate Random Data for ALS Algorithm",
+	"description": "This script generates random data for an ALS algorithm.",
+	"inputs": [
+		{"name":"$rows",   "type":"Integer",    "description":"Number of rows of X"},
+		{"name":"$cols",   "type":"Integer",    "description":"Number of columns of X"},
+		{"name":"$rank",   "type":"Integer",    "description":"Rank of factorization"},
+		{"name":"$nnz",    "type":"Integer",    "description":"Number of nonzeros in X"},
+		{"name":"$sigma",  "type":"Double",     "description":"Variance of Gaussian noise", "default":"0.01"},
+	],
+	"outputs": [
+		{"name":"X", "type":"Matrix", "description":"rows x cols matrix"},
+		{"name":"W", "type":"Matrix", "description":"rows x rank matrix"},
+		{"name":"H", "type":"Matrix", "description":"rank x cols matrix"},
+	],
+	"examples": [
+		{"example":"val dataGen = dmlFromFile(\"scripts/datagen/genRandData4ALS.dml\")\ndataGen.in(\"$rows\", 1000).in(\"$cols\", 1000).in(\"$rank\", 100).in(\"$nnz\", 10000).out(\"X\", \"W\", \"H\")"}
+	]
+}
+END-SCRIPT-METADATA */
+

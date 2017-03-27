@@ -34,6 +34,52 @@
 # or the result of recoding
 #
 
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Binary-Class SVM with Squared Slack Variables",
+	"description": "This script models the relationship between a categorical dependent variable and one or more explanatory variables.",
+	"inputs": [
+		{"name":"X",        "type":"Matrix",                     "description":"Input training features, needs at least 2 rows."},
+		{"name":"Y",        "type":"Matrix",                     "description":"Input training labels, needs at least 2 rows."},
+		{"name":"$icpt",    "type":"Integer", "default":"0",     "description":"Intercept", "options": [{"name":"0", "description":"0 Intercept"}, {"name":"1", "description":"1 Intercept"}]},
+		{"name":"$tol",     "type":"Double",  "default":"0.001", "description":"Tolerance (epsilon), must be non-negative."},
+		{"name":"$reg",     "type":"Double",  "default":"1.0",   "description":"Regularization constant (lambda), must be non-negative."},
+		{"name":"$maxiter", "type":"Integer", "default":"100",   "description":"Maximum iterations, must be a positive integer."},
+	],
+	"outputs": [
+		{"name":"w", "type":"Matrix", "description":"Output model"},
+	],
+	"examples": [
+		{"example":"
+val habermanUrl = \"http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data\"
+val habermanList = scala.io.Source.fromURL(habermanUrl).mkString.split(\"\\n\")
+val habermanRDD = sc.parallelize(habermanList)
+val subsets = dmlFromFile(\"scripts/utils/sample2subsets.dml\")
+subsets.in(\"X\", habermanRDD).out(\"S1\", \"S2\")
+val (training,testing) = ml.execute(subsets).getTuple[Matrix, Matrix](\"S1\", \"S2\")
+
+val splitTraining = dmlFromFile(\"scripts/utils/splitByColumnIndex.dml\")
+splitTraining.in(\"X\",training).in(\"$index\",3).out(\"Y\",\"Z\")
+val (trainingFeatures,trainingLabels) = ml.execute(splitTraining).getTuple[Matrix,Matrix](\"Y\",\"Z\")
+
+val l2svm = dmlFromFile(\"scripts/algorithms/l2-svm.dml\")
+l2svm.in(\"X\",trainingFeatures).in(\"Y\",trainingLabels).out(\"w\")
+val l2svmModel = ml.execute(l2svm).getMatrix(\"w\")
+
+val splitTesting = dmlFromFile(\"scripts/utils/splitByColumnIndex.dml\")
+splitTesting.in(\"X\",testing).in(\"$index\",3).out(\"Y\",\"Z\")
+val (testingFeatures,testingLabels) = ml.execute(splitTesting).getTuple[Matrix,Matrix](\"Y\",\"Z\")
+
+val l2svmPredict = dmlFromFile(\"scripts/algorithms/l2-svm-predict.dml\")
+l2svmPredict.in(\"X\",testingFeatures).in(\"y\",testingLabels).in(\"w\", l2svmModel).in(\"$Y\",\"yes\").in(\"$confusion\",\"yes\").out(\"scores\", \"confusion_mat\", \"acc\")
+val (scores, confusion, accuracy) = ml.execute(l2svmPredict).getTuple[Matrix, Matrix, Double](\"scores\", \"confusion_mat\", \"acc\")
+println(accuracy)
+confusion.toDF().sort(\"__INDEX\").show()
+"}
+	]
+}
+END-SCRIPT-METADATA */
+
 cmdLine_fmt = ifdef($fmt, "text")
 cmdLine_icpt = ifdef($icpt, 0)
 cmdLine_tol = ifdef($tol, 0.001)

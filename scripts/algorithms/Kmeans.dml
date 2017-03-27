@@ -43,6 +43,30 @@
 # hadoop jar SystemML.jar -f Kmeans.dml -nvargs X=X.mtx k=5 C=centroids.mtx
 # hadoop jar SystemML.jar -f Kmeans.dml -nvargs X=X.mtx k=5 runs=100 maxi=5000 tol=0.00000001 samp=20 C=centroids.mtx isY=1 Y=clusters.mtx verb=1
 
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "K-Means Clustering Algorithm",
+	"description": "Implementation of the K-Means Clustering Algorithm",
+	"inputs": [
+		{"name":"X",     "type":"Matrix",                        "description":"Input matrix X"},
+		{"name":"$k",    "type":"Integer",                       "description":"Number of centroids"},
+		{"name":"$runs", "type":"Integer", "default":"10",       "description":"Number of runs (with different initial centroids)"},
+		{"name":"$maxi", "type":"Integer", "default":"1000",     "description":"Maximum number of iterations per run"},
+		{"name":"$tol",  "type":"Double",  "default":"0.000001", "description":"Tolerance (epsilon) for WCSS change ratio"},
+		{"name":"$samp", "type":"Integer", "default":"50",       "description":"Average number of records per centroid in data samples"},
+		{"name":"$isY",  "type":"Integer", "default":"0",        "description":"Whether or not to output Y", "options": [{"name":"0", "description":"No"}, {"name":"1", "description":"Yes"}]},
+		{"name":"$verb", "type":"Integer", "default":"0",        "description":"Whether or not to print per-iteration stats", "options": [{"name":"0", "description":"No"}, {"name":"1", "description":"Yes"}]},
+	],
+	"outputs": [
+		{"name":"C", "type":"Matrix", "description":"Output matrix with the centroids"},
+		{"name":"Y", "type":"Matrix", "description":"Mapping of records to centroids"}
+	],
+	"examples": [
+		{"example":"val dataGen = dmlFromFile(\"scripts/datagen/genRandData4Kmeans.dml\")\ndataGen.in(\"$nr\", 1000).in(\"$nf\", 100).in(\"$nc\", 10).in(\"$dc\", 10.0).in(\"$dr\", 1.0).in(\"$fbf\", 100.0).in(\"$cbf\", 100.0).out(\"X\", \"C\", \"Y\", \"Y_by_C\")\nval x = ml.execute(dataGen).getMatrix(\"X\")\nval kmeans = dmlFromFile(\"scripts/algorithms/Kmeans.dml\")\nkmeans.in(\"X\", x).in(\"$k\", 5).in(\"$isY\",1).in(\"$verb\", 1).out(\"C\", \"Y\")\nval kmeansResults = ml.execute(kmeans)\nval c = kmeansResults.getMatrix(\"C\").toDF().sort(\"__INDEX\")\nval y = kmeansResults.getMatrix(\"Y\").toDF().sort(\"__INDEX\")"}
+	]
+}
+END-SCRIPT-METADATA */
+
 fileX = $X;
 fileY = ifdef ($Y, "Y.mtx");
 fileC = ifdef ($C, "C.mtx");

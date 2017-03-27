@@ -1,0 +1,55 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Split Matrix X to Matrices Y and Z",
+	"description": "Split matrix X by column into Matrices Y and Z. For example, X(10x4) -> Y(10x1) and Z(10x3) when $index is 1.",
+	"inputs": [
+		{"name":"X",      "type":"Matrix",                 "description":"Input matrix X"},
+		{"name":"$index", "type":"Integer", "default":"1", "description":"Column index at which to split X into Y and Z. Must be between 1 and less than the number of columns in X"},
+	],
+	"outputs": [
+		{"name":"Y", "type":"Matrix", "description":"Output matrix Y"},
+		{"name":"Z", "type":"Matrix", "description":"Output matrix Z"},
+	],
+	"examples": [
+		{"example":"val x = sc.parallelize(Array(\"1,2,3,4\",\"5,6,7,8\",\"9,10,11,12\"))\nval split = dmlFromFile(\"scripts/utils/splitByColumnIndex.dml\")\nsplit.in(\"X\", x).out(\"Y\", \"Z\")\nval (y, z) = ml.execute(split).getTuple[Matrix, Matrix](\"Y\", \"Z\")\ny.to2DDoubleArray\nz.to2DDoubleArray"}
+	]
+}
+END-SCRIPT-METADATA */
+
+X = read($X);
+index = ifdef($index, 1);
+[Y, Z] = splitByColumnIndex(X, index);
+write(Y, "y");
+write(Z, "z");
+
+splitByColumnIndex = function(matrix[double] m, int index) return (matrix[double] out1, matrix[double] out2) {
+  if (index < 1) {
+    stop("Index can't be less than 1");
+  } else if (index >= ncol(m)) {
+    stop("Index can't be greater or equal to the number of columns in input matrix");
+  }
+  out1 = m[,1:index];
+  out2 = m[,index+1:ncol(m)];
+}
+

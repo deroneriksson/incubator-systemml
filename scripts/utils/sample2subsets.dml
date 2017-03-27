@@ -1,0 +1,67 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+
+X = read($X);
+firstFraction = ifdef($firstFraction, 0.5);
+[S1, S2] = subsets(X, firstFraction);
+write(S1, "s1");
+write(S2, "s2");
+
+subsets = function(matrix[double] m, double ff) return (matrix[double] out1, matrix[double] out2) {
+  sf = 1 - ff;
+  sv = matrix(0,rows=2,cols=1);
+  sv[1,1] = ff;
+  sv[2,1] = sf;
+  R = rand(rows=nrow(m), cols=1, min=0.0, max=1.0, pdf = "uniform");
+  svLowBnd = cumsum(sv) - sv;
+  svUpBnd = cumsum(sv);
+
+  T1 = R <= as.scalar(svUpBnd[1,1]);
+  T2 = R > as.scalar(svLowBnd[1,1]);
+  SM = T1 * T2;
+  P = removeEmpty(target=diag(SM), margin="rows");
+  out1 = P %*% m;
+
+  T1 = R <= as.scalar(svUpBnd[2,1]);
+  T2 = R > as.scalar(svLowBnd[2,1]);
+  SM = T1 * T2;
+  P = removeEmpty(target=diag(SM), margin="rows");
+  out2 = P %*% m;
+}
+
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Randomly Sample Data into two Subsets",
+	"description": "Randomly sample data without replacement into two disjoint subsets. For example, X(10x4) -> A1(5x4) and A2(5x4). A sampling rate ($firstFraction) such as 0.5 does not represent an exact rate but rather an approximation (~0.5).",
+	"inputs": [
+		{"name":"X",              "type":"Matrix",                  "description":"Input matrix X"},
+		{"name":"$firstFraction", "type":"Matrix", "default":"0.5", "description":"If supplied, $firstFraction specifies the sampling rate that should be returned for the first subset. The second subset sampling rate is 1 minus $firstFraction. If $firstFraction is not supplied, the subsets will be roughly equal in size ($firstFraction of 0.5)."},
+	],
+	"outputs": [
+		{"name":"S1", "type":"Matrix", "description":"Subset 1 matrix"},
+		{"name":"S2", "type":"Matrix", "description":"Subset 2 matrix"},
+	],
+	"examples": [
+		{"example":"val habermanUrl = \"http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data\"\nval habermanList = scala.io.Source.fromURL(habermanUrl).mkString.split(\"\\n\")\nval habermanRDD = sc.parallelize(habermanList)\nval subsets = dmlFromFile(\"scripts/utils/sample2subsets.dml\")\nsubsets.in(\"X\", habermanRDD).out(\"S1\", \"S2\")\nval (s1,s2) = ml.execute(subsets).getTuple[Matrix, Matrix](\"S1\", \"S2\")\ns1.toDF().show()\ns2.toDF().show()"},
+		{"example":"val habermanUrl = \"http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data\"\nval habermanList = scala.io.Source.fromURL(habermanUrl).mkString.split(\"\\n\")\nval habermanRDD = sc.parallelize(habermanList)\nval subsets = dmlFromFile(\"scripts/utils/sample2subsets.dml\")\nsubsets.in(\"X\", habermanRDD).in(\"$firstFraction\", 0.8).out(\"S1\", \"S2\", \"X\")\nval (s1,s2,x) = ml.execute(subsets).getTuple[Matrix, Matrix, Matrix](\"S1\", \"S2\", \"X\")\ns1.toDF().show()\ns2.toDF().show()\nx.toDF().show()"}
+	]
+}
+END-SCRIPT-METADATA */

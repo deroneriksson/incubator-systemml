@@ -40,6 +40,24 @@
 #    STATS=data/univarOut.mtx CONSOLE_OUTPUT=TRUE
 #
 
+/* BEGIN-SCRIPT-METADATA
+{
+	"name": "Univariate Statistics",
+	"description": "This script computes aunivariate statistics for all attributes in a given data set",
+	"inputs": [
+		{"name":"A",               "type":"Matrix",                     "description":"Input matrix X"},
+		{"name":"K",               "type":"Matrix",                     "description":"Input matrix that lists the types of the features (1 for scale, 2 for nominal, 3 for ordinal)"},
+		{"name":"$CONSOLE_OUTPUT", "type":"Boolean", "default":"FALSE", "description":"If TRUE, print summary statistics to console"},
+	],
+	"outputs": [
+		{"name":"baseStats", "type":"Matrix", "description":"Summary statistics computed for all features (17 statistics - 14 scale, 3 categorical)"},
+	],
+	"examples": [
+		{"example":"val habermanUrl = \"http://archive.ics.uci.edu/ml/machine-learning-databases/haberman/haberman.data\"\nval typesRDD = sc.parallelize(Array(\"1.0,1.0,1.0,2.0\"))\nval uni = dmlFromFile(\"scripts/algorithms/Univar-Stats.dml\").in(\"A\", new java.net.URL(habermanUrl)).in(\"K\", typesRDD).in(\"$CONSOLE_OUTPUT\", true).out(\"baseStats\")\nml.execute(uni)"}
+	]
+}
+END-SCRIPT-METADATA */
+
 consoleOutput = ifdef($CONSOLE_OUTPUT, FALSE);
 
 A = read($X); # data file

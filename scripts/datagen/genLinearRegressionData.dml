@@ -38,6 +38,7 @@
 # format          String  ---      Matrix output format
 # perc			  Double  0.8	   Percentage of training sample
 # percFile		  String  ---	   File to store the percentages
+# percFileOutput  Boolean TRUE     If TRUE, output percentage to percFile. If FALSE, don't output percFile.
 # --------------------------------------------------------------------------------------------
 # OUTPUT: Matrix of random data with appended label column
 # ---------------------------------------------------------------------------------------------

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.caching.CacheableData;
 import org.apache.sysml.runtime.instructions.cp.Data;
@@ -41,7 +42,10 @@ import scala.collection.JavaConversions;
  *
  */
 public class Script {
-
+	/**
+	 * Logger for Script
+	 */
+	public static Logger log = Logger.getLogger(Script.class);
 	/**
 	 * The type of script ({@code ScriptType.DML} or {@code ScriptType.PYDML}).
 	 */
@@ -86,6 +90,10 @@ public class Script {
 	 * The results of the execution of the script.
 	 */
 	private MLResults results;
+	/**
+	 * Optional script metadata, such as the name, description, inputs, outputs, etc.
+	 */
+	private ScriptMetadata scriptMetadata;
 
 	/**
 	 * Script constructor, which by default creates a DML script.
@@ -115,6 +123,9 @@ public class Script {
 	public Script(String scriptString) {
 		this.scriptString = scriptString;
 		this.scriptType = ScriptType.DML;
+		if (MLContextUtil.doesScriptContainMetadata(this)) {
+			scriptMetadata = new ScriptMetadata(this);
+		}
 	}
 
 	/**
@@ -129,6 +140,17 @@ public class Script {
 	public Script(String scriptString, ScriptType scriptType) {
 		this.scriptString = scriptString;
 		this.scriptType = scriptType;
+		try {
+			if (MLContextUtil.doesScriptContainMetadata(this)) {
+				scriptMetadata = new ScriptMetadata(this);
+			}
+		} catch (MLContextException e) {
+			log.warn(e.getMessage());
+			Throwable cause = e.getCause();
+			if (cause != null) {
+				log.warn(cause.getMessage());
+			}
+		}
 	}
 
 	/**
@@ -563,9 +585,28 @@ public class Script {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
+//		sb.append(MLContextUtil.displayScriptMetadata(this));
+		if (name != null) {
+			sb.append(name);
+		}
+		if ((name != null) && (scriptMetadata != null)) {
+			sb.append(": ");
+		}
+		if (scriptMetadata != null) {
+			sb.append(scriptMetadata.name);
+		}
+		if ((name != null) || (scriptMetadata != null)) {
+			sb.append("\n\n");
+		}
 		sb.append(MLContextUtil.displayInputs("Inputs", inputs, symbolTable));
 		sb.append("\n");
 		sb.append(MLContextUtil.displayOutputs("Outputs", outputVariables, symbolTable));
+		return sb.toString();
+	}
+
+	public String describe() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(MLContextUtil.displayScriptMetadata(this));
 		return sb.toString();
 	}
 
@@ -675,6 +716,27 @@ public class Script {
 	 */
 	public Script setName(String name) {
 		this.name = name;
+		return this;
+	}
+
+	/**
+	 * Obtain the script metadata.
+	 * 
+	 * @return the script metadata
+	 */
+	public ScriptMetadata getScriptMetadata() {
+		return scriptMetadata;
+	}
+
+	/**
+	 * Set the script metadata.
+	 * 
+	 * @param scriptMetadata
+	 *            the script metadata
+	 * @return {@code this} Script object to allow chaining of methods
+	 */
+	public Script setScriptMetadata(ScriptMetadata scriptMetadata) {
+		this.scriptMetadata = scriptMetadata;
 		return this;
 	}
 
