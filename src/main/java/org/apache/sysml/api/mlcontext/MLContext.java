@@ -21,9 +21,6 @@ package org.apache.sysml.api.mlcontext;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -116,9 +113,6 @@ public class MLContext {
 	 * after execution.
 	 */
 	private boolean maintainSymbolTable = false;
-
-	private List<String> scriptHistoryStrings = new ArrayList<String>();
-	private Map<String, Script> scripts = new LinkedHashMap<String, Script>();
 
 	/**
 	 * The different explain levels supported by SystemML.
@@ -275,7 +269,6 @@ public class MLContext {
 		scriptExecutor.setGPU(gpu);
 		scriptExecutor.setStatistics(statistics);
 		scriptExecutor.setStatisticsMaxHeavyHitters(statisticsMaxHeavyHitters);
-		scriptExecutor.setInit(scriptHistoryStrings.isEmpty());
 		scriptExecutor.setMaintainSymbolTable(maintainSymbolTable);
 		return execute(script, scriptExecutor);
 	}
@@ -301,10 +294,6 @@ public class MLContext {
 			}
 
 			MLResults results = scriptExecutor.execute(script);
-
-			String history = MLContextUtil.createHistoryForScript(script, time);
-			scriptHistoryStrings.add(history);
-			scripts.put(script.getName(), script);
 
 			return results;
 		} catch (RuntimeException e) {
@@ -578,39 +567,6 @@ public class MLContext {
 	}
 
 	/**
-	 * Obtain a map of the scripts that have executed.
-	 *
-	 * @return a map of the scripts that have executed
-	 */
-	public Map<String, Script> getScripts() {
-		return scripts;
-	}
-
-	/**
-	 * Obtain a script that has executed by name.
-	 *
-	 * @param name
-	 *            the name of the script
-	 * @return the script corresponding to the name
-	 */
-	public Script getScriptByName(String name) {
-		Script script = scripts.get(name);
-		if (script == null) {
-			throw new MLContextException("Script with name '" + name + "' not found.");
-		}
-		return script;
-	}
-
-	/**
-	 * Display the history of scripts that have executed.
-	 *
-	 * @return the history of scripts that have executed
-	 */
-	public String history() {
-		return MLContextUtil.displayScriptHistory(scriptHistoryStrings);
-	}
-
-	/**
 	 * Closes the mlcontext, which includes the cleanup of static and local
 	 * state as well as scratch space and buffer pool cleanup. Note that the
 	 * spark context is not explicitly closed to allow external reuse.
@@ -630,10 +586,7 @@ public class MLContext {
 
 		// clear local status, but do not stop sc as it
 		// may be used or stopped externally
-		for (Script script : scripts.values())
-			script.clearAll();
-		scripts.clear();
-		scriptHistoryStrings.clear();
+		executingScript.clearAll();
 		resetConfig();
 		spark = null;
 	}
