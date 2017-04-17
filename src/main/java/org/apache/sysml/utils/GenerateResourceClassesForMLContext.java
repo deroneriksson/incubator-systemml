@@ -518,10 +518,9 @@ public class GenerateResourceClassesForMLContext {
 	 *            the javassist compile-time class representation of a script
 	 */
 	public static void addFunctionMethods(String scriptFilePath, CtClass ctNewScript) {
-		// if
-		// (!"scripts/nn/examples/mnist_lenet-predict.dml".equalsIgnoreCase(scriptFilePath))
-		// {
-		// return;
+		// if (("scripts/a.dml".equalsIgnoreCase(scriptFilePath)) ||
+		// ("scripts/c.dml".equalsIgnoreCase(scriptFilePath))){
+		// System.out.println("HOWDY");
 		// }
 		try {
 			DMLProgram dmlProgram = dmlProgramFromScriptFilePath(scriptFilePath);
@@ -744,6 +743,9 @@ public class GenerateResourceClassesForMLContext {
 		sb.append("source('" + scriptFilePath + "') as mlcontextns;");
 
 		ArrayList<DataIdentifier> outputParams = fs.getOutputParams();
+		if (outputParams.size() == 0) {
+			sb.append("mlcontextns::");
+		}
 		if (outputParams.size() == 1) {
 			DataIdentifier outputParam = outputParams.get(0);
 			sb.append(outputParam.getName());
