@@ -52,16 +52,26 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+/**
+ * Experimental.
+ * 
+ * Automatically generate classes and methods for interaction with DML scripts
+ * and functions through the MLContext API.
+ * 
+ */
 public class GenerateResourceClassesForMLContext {
 
 	public static final String SOURCE = "scripts";
-
-	public static String source = SOURCE;
-	public static String destination = "target/classes";
-
+	public static final String DESTINATION = "target/classes";
 	public static final String BASE_DEST_PACKAGE = "org.apache.sysml.api.mlcontext.resources";
 	public static final String CONVENIENCE_BASE_DEST_PACKAGE = "org.apache.sysml.api.mlcontext.convenience";
+	public static final String PATH_TO_MLCONTEXT_CLASS = "org/apache/sysml/api/mlcontext/MLContext.class";
+	public static final String PATH_TO_MLRESULTS_CLASS = "org/apache/sysml/api/mlcontext/MLResults.class";
+	public static final String PATH_TO_SCRIPT_CLASS = "org/apache/sysml/api/mlcontext/Script.class";
+	public static final String PATH_TO_SCRIPTTYPE_CLASS = "org/apache/sysml/api/mlcontext/ScriptType.class";
 
+	public static String source = SOURCE;
+	public static String destination = DESTINATION;
 	public static boolean skipStaging = true;
 	public static boolean skipPerfTest = true;
 	public static boolean skipObsolete = true;
@@ -75,37 +85,46 @@ public class GenerateResourceClassesForMLContext {
 		}
 		try {
 			DMLScript.VALIDATOR_IGNORE_ISSUES = true;
-			System.out.println("**********************************************");
-			System.out.println("**** MLContext Javassist Class Generation ****");
-			System.out.println("**********************************************");
+			System.out.println("************************************");
+			System.out.println("**** MLContext Class Generation ****");
+			System.out.println("************************************");
 			System.out.println("Source: " + source);
 			System.out.println("Destination: " + destination);
 			recurseDirectoriesForClassGeneration(source);
 			String fullDirClassName = recurseDirectoriesForConvenienceClassGeneration(source);
-			addConvenienceMethodToMLContext(source, fullDirClassName);
+			addConvenienceMethodsToMLContext(source, fullDirClassName);
 		} finally {
 			DMLScript.VALIDATOR_IGNORE_ISSUES = false;
 		}
 	}
 
-	public static void addConvenienceMethodToMLContext(String dirPath, String fullDirClassName) {
+	/**
+	 * Add methods to MLContext to allow tab-completion to folders/packages
+	 * (such as {@code ml.scripts()}).
+	 * 
+	 * @param source
+	 *            path to source directory (typically, the scripts directory)
+	 * @param fullDirClassName
+	 *            the full name of the class representing the source (scripts)
+	 *            directory
+	 */
+	public static void addConvenienceMethodsToMLContext(String source, String fullDirClassName) {
 		try {
-			File mlContextClassFile = new File(destination + "/org/apache/sysml/api/mlcontext/MLContext.class");
+			File mlContextClassFile = new File(destination + File.separator + PATH_TO_MLCONTEXT_CLASS);
 			InputStream is = new FileInputStream(mlContextClassFile);
 			ClassPool pool = ClassPool.getDefault();
 			CtClass ctMLContext = pool.makeClass(is);
 
 			CtClass dirClass = pool.get(fullDirClassName);
-			String methodName = methodNameForMLContext(fullDirClassName);
-			System.out.println("Adding method " + methodName + "() to " + ctMLContext.getName());
+			String methodName = convertFullClassNameToConvenienceMethodName(fullDirClassName);
+			System.out.println("Adding " + methodName + "() to " + ctMLContext.getName());
 
 			String methodBody = "{ " + fullDirClassName + " z = new " + fullDirClassName + "(); return z; }";
-			// System.out.println("BODY" + methodBody);
 			CtMethod ctMethod = CtNewMethod.make(Modifier.PUBLIC, dirClass, methodName, null, null, methodBody,
 					ctMLContext);
 			ctMLContext.addMethod(ctMethod);
 
-			addPackageConvenienceMethodsToMLContext(dirPath, ctMLContext);
+			addPackageConvenienceMethodsToMLContext(source, ctMLContext);
 
 			ctMLContext.writeFile(destination);
 		} catch (FileNotFoundException e) {
@@ -121,6 +140,15 @@ public class GenerateResourceClassesForMLContext {
 		}
 	}
 
+	/**
+	 * Add methods to MLContext to allow tab-completion to packages contained
+	 * within the source directory.
+	 *
+	 * @param dirPath
+	 *            path to source directory (typically, the scripts directory)
+	 * @param ctMLContext
+	 *            javassist compile-time class representation of MLContext
+	 */
 	public static void addPackageConvenienceMethodsToMLContext(String dirPath, CtClass ctMLContext) {
 
 		try {
@@ -136,7 +164,7 @@ public class GenerateResourceClassesForMLContext {
 			});
 			for (File subdir : subdirs) {
 				String subDirPath = dirPath + File.separator + subdir.getName();
-				if (skipDir(subdir)) {
+				if (skipDir(subdir, false)) {
 					continue;
 				}
 
@@ -148,7 +176,7 @@ public class GenerateResourceClassesForMLContext {
 				subDirName = subDirName.replaceAll("-", "_");
 				subDirName = subDirName.toLowerCase();
 
-				System.out.println("Adding method " + subDirName + "() to " + ctMLContext.getName());
+				System.out.println("Adding " + subDirName + "() to " + ctMLContext.getName());
 
 				String methodBody = "{ " + fullSubDirClassName + " z = new " + fullSubDirClassName + "(); return z; }";
 				CtMethod ctMethod = CtNewMethod.make(Modifier.PUBLIC, subDirClass, subDirName, null, null, methodBody,
@@ -164,16 +192,31 @@ public class GenerateResourceClassesForMLContext {
 
 	}
 
-	public static String methodNameForMLContext(String fullDirClassName) {
+	/**
+	 * Convert the full name of a class representing a directory to a method
+	 * name.
+	 * 
+	 * @param fullDirClassName
+	 *            the full name of the class representing a directory
+	 * @return method name
+	 */
+	public static String convertFullClassNameToConvenienceMethodName(String fullDirClassName) {
 		String m = fullDirClassName;
 		m = m.substring(m.lastIndexOf(".") + 1);
 		m = m.toLowerCase();
 		return m;
 	}
 
+	/**
+	 * Generate convenience classes recursively. This allows for code such as
+	 * {@code ml.script.algorithms...}
+	 * 
+	 * @param dirPath
+	 *            path to directory
+	 * @return the full name of the class representing the dirPath directory
+	 */
 	public static String recurseDirectoriesForConvenienceClassGeneration(String dirPath) {
 		try {
-			// System.out.println("Directory:" + dirPath);
 			File dir = new File(dirPath);
 
 			String fullDirClassName = dirPathToFullDirClassName(dirPath);
@@ -190,18 +233,17 @@ public class GenerateResourceClassesForMLContext {
 			});
 			for (File subdir : subdirs) {
 				String subDirPath = dirPath + File.separator + subdir.getName();
-				if (skipDir(subdir)) {
+				if (skipDir(subdir, false)) {
 					continue;
 				}
 				String fullSubDirClassName = recurseDirectoriesForConvenienceClassGeneration(subDirPath);
 
 				CtClass subDirClass = pool.get(fullSubDirClassName);
 				String subDirName = subdir.getName();
-
 				subDirName = subDirName.replaceAll("-", "_");
 				subDirName = subDirName.toLowerCase();
 
-				System.out.println("Adding method " + subDirName + "() to " + fullDirClassName);
+				System.out.println("Adding " + subDirName + "() to " + fullDirClassName);
 
 				String methodBody = "{ " + fullSubDirClassName + " z = new " + fullSubDirClassName + "(); return z; }";
 				CtMethod ctMethod = CtNewMethod.make(Modifier.PUBLIC, subDirClass, subDirName, null, null, methodBody,
@@ -244,6 +286,13 @@ public class GenerateResourceClassesForMLContext {
 		return null;
 	}
 
+	/**
+	 * Convert a directory path to a full class name for a convenience class.
+	 * 
+	 * @param dirPath
+	 *            path to directory
+	 * @return the full name of the class representing the dirPath directory
+	 */
 	public static String dirPathToFullDirClassName(String dirPath) {
 		if (!dirPath.contains(File.separator)) {
 			String c = dirPath;
@@ -267,24 +316,47 @@ public class GenerateResourceClassesForMLContext {
 		return CONVENIENCE_BASE_DEST_PACKAGE + "." + p + "." + c;
 	}
 
-	public static boolean skipDir(File subdir) {
-		if ("staging".equalsIgnoreCase(subdir.getName()) && skipStaging) {
-			System.out.println("Skipping staging directory: " + subdir.getPath());
+	/**
+	 * Whether or not the directory (and subdirectories of the directory) should
+	 * be skipped.
+	 * 
+	 * @param dir
+	 *            path to directory to check
+	 * @param displayMessage
+	 *            if {@code true}, display skip information to standard output
+	 * @return {@code true} if the directory should be skipped, {@code false}
+	 *         otherwise
+	 */
+	public static boolean skipDir(File dir, boolean displayMessage) {
+		if ("staging".equalsIgnoreCase(dir.getName()) && skipStaging) {
+			if (displayMessage) {
+				System.out.println("Skipping staging directory: " + dir.getPath());
+			}
 			return true;
 		}
-		if ("perftest".equalsIgnoreCase(subdir.getName()) && skipPerfTest) {
-			System.out.println("Skipping perftest directory: " + subdir.getPath());
+		if ("perftest".equalsIgnoreCase(dir.getName()) && skipPerfTest) {
+			if (displayMessage) {
+				System.out.println("Skipping perftest directory: " + dir.getPath());
+			}
 			return true;
 		}
-		if ("obsolete".equalsIgnoreCase(subdir.getName()) && skipObsolete) {
-			System.out.println("Skipping obsolete directory: " + subdir.getPath());
+		if ("obsolete".equalsIgnoreCase(dir.getName()) && skipObsolete) {
+			if (displayMessage) {
+				System.out.println("Skipping obsolete directory: " + dir.getPath());
+			}
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Recursively traverse the directories to create classes representing the
+	 * script files.
+	 * 
+	 * @param dirPath
+	 *            path to directory
+	 */
 	public static void recurseDirectoriesForClassGeneration(String dirPath) {
-		// System.out.println("Directory: " + dirPath);
 		File dir = new File(dirPath);
 
 		iterateScriptFilesInDirectory(dir);
@@ -297,13 +369,20 @@ public class GenerateResourceClassesForMLContext {
 		});
 		for (File subdir : subdirs) {
 			String subdirpath = dirPath + File.separator + subdir.getName();
-			if (skipDir(subdir)) {
+			if (skipDir(subdir, true)) {
 				continue;
 			}
 			recurseDirectoriesForClassGeneration(subdirpath);
 		}
 	}
 
+	/**
+	 * Iterate through the script files in a directory and create a class for
+	 * each script file.
+	 * 
+	 * @param dir
+	 *            the directory to iterate through
+	 */
 	public static void iterateScriptFilesInDirectory(File dir) {
 		File[] scriptFiles = dir.listFiles(new FilenameFilter() {
 			@Override
@@ -313,13 +392,19 @@ public class GenerateResourceClassesForMLContext {
 		});
 		for (File scriptFile : scriptFiles) {
 			String scriptFilePath = scriptFile.getPath();
-			// System.out.println(" Script:" + scriptFilePath);
-			// System.out.println(" Class:" +
-			// scriptFilePathToFullClassNameNoBase(scriptFilePath));
 			createScriptClass(scriptFilePath);
 		}
 	}
 
+	/**
+	 * Obtain the relative package for a script file. For example,
+	 * {@code scripts/algorithms/LinearRegCG.dml} resolves to
+	 * {@code scripts.algorithms}.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @return the relative package for a script file
+	 */
 	public static String scriptFilePathToPackageNoBase(String scriptFilePath) {
 		String p = scriptFilePath;
 		p = p.substring(0, p.lastIndexOf(File.separator));
@@ -329,6 +414,14 @@ public class GenerateResourceClassesForMLContext {
 		return p;
 	}
 
+	/**
+	 * Obtain the simple class name for a script file. For example,
+	 * {@code scripts/algorithms/LinearRegCG} resolves to {@code LinearRegCG}.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @return the simple class name for a script file
+	 */
 	public static String scriptFilePathToSimpleClassName(String scriptFilePath) {
 		String c = scriptFilePath;
 		c = c.substring(c.lastIndexOf(File.separator) + 1);
@@ -338,12 +431,28 @@ public class GenerateResourceClassesForMLContext {
 		return c;
 	}
 
+	/**
+	 * Obtain the relative full class name for a script file. For example,
+	 * {@code scripts/algorithms/LinearRegCG.dml} resolves to
+	 * {@code scripts.algorithms.LinearRegCG}.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @return the relative full class name for a script file
+	 */
 	public static String scriptFilePathToFullClassNameNoBase(String scriptFilePath) {
 		String p = scriptFilePathToPackageNoBase(scriptFilePath);
 		String c = scriptFilePathToSimpleClassName(scriptFilePath);
 		return p + "." + c;
 	}
 
+	/**
+	 * Convert a script file to a Java class that extends the MLContext API's
+	 * Script class.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 */
 	public static void createScriptClass(String scriptFilePath) {
 		try {
 			String fullScriptClassName = BASE_DEST_PACKAGE + "." + scriptFilePathToFullClassNameNoBase(scriptFilePath);
@@ -351,11 +460,10 @@ public class GenerateResourceClassesForMLContext {
 			ClassPool pool = ClassPool.getDefault();
 			CtClass ctNewScript = pool.makeClass(fullScriptClassName);
 
-			File scriptClassFile = new File(destination + "/org/apache/sysml/api/mlcontext/Script.class");
+			File scriptClassFile = new File(destination + File.separator + PATH_TO_SCRIPT_CLASS);
 			InputStream is = new FileInputStream(scriptClassFile);
 			CtClass ctScript = pool.makeClass(is);
-			pool.makeClass(
-					new FileInputStream(new File(destination + "/org/apache/sysml/api/mlcontext/ScriptType.class")));
+			pool.makeClass(new FileInputStream(new File(destination + File.separator + PATH_TO_SCRIPTTYPE_CLASS)));
 
 			ctNewScript.setSuperclass(ctScript);
 
@@ -378,6 +486,13 @@ public class GenerateResourceClassesForMLContext {
 
 	}
 
+	/**
+	 * Create a DMLProgram from a script file.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @return the DMLProgram generated by the script file
+	 */
 	public static DMLProgram dmlProgramFromScriptFilePath(String scriptFilePath) {
 		String scriptString = fileToString(scriptFilePath);
 		Script script = new Script(scriptString);
@@ -393,6 +508,15 @@ public class GenerateResourceClassesForMLContext {
 		return dmlProgram;
 	}
 
+	/**
+	 * Add methods to a derived script class to allow invocation of script
+	 * functions.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param ctNewScript
+	 *            the javassist compile-time class representation of a script
+	 */
 	public static void addFunctionMethods(String scriptFilePath, CtClass ctNewScript) {
 		// if
 		// (!"scripts/nn/examples/mnist_lenet-predict.dml".equalsIgnoreCase(scriptFilePath))
@@ -421,14 +545,14 @@ public class GenerateResourceClassesForMLContext {
 					String functionCallMethod = generateFunctionCallMethod(scriptFilePath, fs, dmlFunctionCall);
 
 					ClassPool pool = ClassPool.getDefault();
-					pool.makeClass(new FileInputStream(
-							new File(destination + "/org/apache/sysml/api/mlcontext/MLResults.class")));
+					pool.makeClass(
+							new FileInputStream(new File(destination + File.separator + PATH_TO_MLRESULTS_CLASS)));
 
 					CtMethod m = CtNewMethod.make(functionCallMethod, ctNewScript);
 					ctNewScript.addMethod(m);
 
-					addFunctionDocsMethod(fs, scriptFilePath, ctNewScript, false);
-					addFunctionDocsMethod(fs, scriptFilePath, ctNewScript, true);
+					addDescriptionFunctionCallMethod(fs, scriptFilePath, ctNewScript, false);
+					addDescriptionFunctionCallMethod(fs, scriptFilePath, ctNewScript, true);
 				}
 			}
 		} catch (LanguageException e) {
@@ -444,12 +568,32 @@ public class GenerateResourceClassesForMLContext {
 		}
 	}
 
-	public static void addFunctionDocsMethod(FunctionStatement fs, String scriptFilePath, CtClass ctNewScript,
-			boolean full) {
+	/**
+	 * If a function has arguments, create a no-arguments method on a derived
+	 * script class to return either: (1) the full function body, or (2) the
+	 * function body, up to the end of the documentation comment for the
+	 * function. If (1) is generated, the method name will be followed by an
+	 * underscore. If (2), the method will not be generated if the function does
+	 * not have any input parameters, since the method already exists on the
+	 * derived script class.
+	 * 
+	 * @param fs
+	 *            a SystemML function statement
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param ctNewScript
+	 *            the javassist compile-time class representation of a script
+	 * @param full
+	 *            if {@code true}, create method to return full function body;
+	 *            if {@code false}, create method to return the function body up
+	 *            to the end of the documentation comment
+	 */
+	public static void addDescriptionFunctionCallMethod(FunctionStatement fs, String scriptFilePath,
+			CtClass ctNewScript, boolean full) {
 
 		try {
 
-			if (fs.getInputParams().size() == 0) {
+			if ((fs.getInputParams().size() == 0) && (full == false)) {
 				return;
 			}
 
@@ -471,16 +615,14 @@ public class GenerateResourceClassesForMLContext {
 			List<String> sub = lines.subList(bl - 1, end);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < sub.size(); i++) {
-				// System.out.println("#" + i + ":" + sub.get(i));
 				String line = sub.get(i);
 				String escapeLine = StringEscapeUtils.escapeJava(line);
 				sb.append(escapeLine);
 				sb.append("\\n");
 			}
 
-			String docString = sb.toString();
-			String docFunctionCallMethod = generateDocFunctionCallMethod(fs, docString, full);
-			// System.out.println(docFunctionCallMethod);
+			String functionString = sb.toString();
+			String docFunctionCallMethod = generateDescriptionFunctionCallMethod(fs, functionString, full);
 			CtMethod m = CtNewMethod.make(docFunctionCallMethod, ctNewScript);
 			ctNewScript.addMethod(m);
 
@@ -492,7 +634,24 @@ public class GenerateResourceClassesForMLContext {
 
 	}
 
-	public static String generateDocFunctionCallMethod(FunctionStatement fs, String docString, boolean full) {
+	/**
+	 * Obtain method for returning (1) the full function body, or (2) the
+	 * function body up to the end of the documentation comment. (1) will have
+	 * "_" appended to the end of the function name.
+	 * 
+	 * @param fs
+	 *            a SystemML function statement
+	 * @param functionString
+	 *            either the full function body or the function body up to the
+	 *            end of the documentation comment
+	 * @param full
+	 *            if {@code true}, append "_" to the end of the function name if
+	 *            {@code false}, don't append "_" to the end of the function
+	 *            name
+	 * @return string representation of the function description method
+	 */
+	public static String generateDescriptionFunctionCallMethod(FunctionStatement fs, String functionString,
+			boolean full) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("public String ");
 		sb.append(fs.getName());
@@ -500,12 +659,23 @@ public class GenerateResourceClassesForMLContext {
 			sb.append("_");
 		}
 		sb.append("() {\n");
-		sb.append("String docString = \"" + docString + "\";\n");
+		sb.append("String docString = \"" + functionString + "\";\n");
 		sb.append("return docString;\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
 
+	/**
+	 * Obtain method for invoking a script function.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param fs
+	 *            a SystemML function statement
+	 * @param dmlFunctionCall
+	 *            a string representing the invocation of a script function
+	 * @return string representation of a method that performs a function call
+	 */
 	public static String generateFunctionCallMethod(String scriptFilePath, FunctionStatement fs,
 			String dmlFunctionCall) {
 		StringBuilder sb = new StringBuilder();
@@ -520,23 +690,14 @@ public class GenerateResourceClassesForMLContext {
 				sb.append(", ");
 			}
 			DataIdentifier inputParam = inputParams.get(i);
-			// DataType dataType = inputParam.getDataType();
-			// ValueType valueType = inputParam.getValueType();
-			// if ((dataType == DataType.SCALAR) && (valueType ==
-			// ValueType.INT)) {
-			// sb.append("Integer ");
-			// } else if ((dataType == DataType.SCALAR) && (valueType ==
-			// ValueType.DOUBLE)) {
-			// sb.append("Double ");
-			// } else if ((dataType == DataType.SCALAR) && (valueType ==
-			// ValueType.BOOLEAN)) {
-			// sb.append("Boolean ");
-			// } else if ((dataType == DataType.SCALAR) && (valueType ==
-			// ValueType.STRING)) {
-			// sb.append("String ");
-			// } else {
+			/*
+			 * Note: Using Object is currently preferrable to using
+			 * datatype/valuetype to explicitly set the input type to
+			 * Integer/Double/Boolean/String since Object allows the automatic
+			 * handling of things such as automatic conversions from longs to
+			 * ints.
+			 */
 			sb.append("Object ");
-			// }
 			sb.append(inputParam.getName());
 		}
 
@@ -569,6 +730,15 @@ public class GenerateResourceClassesForMLContext {
 		return sb.toString();
 	}
 
+	/**
+	 * Obtain the DML representing a function invocation.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param fs
+	 *            a SystemML function statement
+	 * @return string representation of a DML function invocation
+	 */
 	public static String generateDmlFunctionCall(String scriptFilePath, FunctionStatement fs) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("source('" + scriptFilePath + "') as mlcontextns;");
@@ -602,6 +772,13 @@ public class GenerateResourceClassesForMLContext {
 		return sb.toString();
 	}
 
+	/**
+	 * Obtain the content of a file as a string.
+	 * 
+	 * @param filePath
+	 *            the path to a file
+	 * @return the file content as a string
+	 */
 	public static String fileToString(String filePath) {
 		try {
 			File f = new File(filePath);
@@ -622,6 +799,15 @@ public class GenerateResourceClassesForMLContext {
 		return null;
 	}
 
+	/**
+	 * Obtain a constructor body for a Script subclass that sets the
+	 * scriptString based on the content of a script file.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @return constructor body for a Script subclass that sets the scriptString
+	 *         based on the content of a script file
+	 */
 	public static String scriptConstructorBody(String scriptFilePath) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
