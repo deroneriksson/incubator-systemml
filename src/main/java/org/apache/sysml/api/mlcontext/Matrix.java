@@ -26,6 +26,7 @@ import org.apache.spark.sql.Row;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.instructions.spark.utils.RDDConverterUtils;
+import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 
 /**
  * Matrix encapsulates a SystemML matrix. It allows for easy conversion to
@@ -165,6 +166,11 @@ public class Matrix {
 
 	@Override
 	public String toString() {
-		return matrixObject.toString();
+		MatrixCharacteristics mc = matrixObject.getMatrixCharacteristics();
+		if (mc != null) {
+			return "[" + mc.getRows() + " x " + mc.getCols() + ", nnz=" + mc.getNonZeros() + "]";
+		} else {
+			return matrixObject.toString();
+		}
 	}
 }
