@@ -107,6 +107,9 @@ public class GenerateResourceClassesForMLContext {
 		}
 	}
 
+	/**
+	 * Create compile-time classes required for later class generation.
+	 */
 	public static void makeCtClasses() {
 		try {
 			ClassPool pool = ClassPool.getDefault();
@@ -127,7 +130,7 @@ public class GenerateResourceClassesForMLContext {
 
 	/**
 	 * Add methods to MLContext to allow tab-completion to folders/packages
-	 * (such as {@code ml.scripts()}).
+	 * (such as {@code ml.scripts()} and {@code ml.nn()}).
 	 * 
 	 * @param source
 	 *            path to source directory (typically, the scripts directory)
@@ -167,7 +170,7 @@ public class GenerateResourceClassesForMLContext {
 
 	/**
 	 * Add methods to MLContext to allow tab-completion to packages contained
-	 * within the source directory.
+	 * within the source directory (such as {@code ml.nn()}).
 	 *
 	 * @param dirPath
 	 *            path to source directory (typically, the scripts directory)
@@ -234,7 +237,7 @@ public class GenerateResourceClassesForMLContext {
 
 	/**
 	 * Generate convenience classes recursively. This allows for code such as
-	 * {@code ml.script.algorithms...}
+	 * {@code ml.script.algorithms...}.
 	 * 
 	 * @param dirPath
 	 *            path to directory
@@ -542,10 +545,6 @@ public class GenerateResourceClassesForMLContext {
 	 *            the javassist compile-time class representation of a script
 	 */
 	public static void addFunctionMethods(String scriptFilePath, CtClass ctNewScript) {
-		// if (("scripts/a.dml".equalsIgnoreCase(scriptFilePath)) ||
-		// ("scripts/c.dml".equalsIgnoreCase(scriptFilePath))){
-		// System.out.println("HOWDY");
-		// }
 		try {
 			DMLProgram dmlProgram = dmlProgramFromScriptFilePath(scriptFilePath);
 			if (dmlProgram == null) {
@@ -565,7 +564,7 @@ public class GenerateResourceClassesForMLContext {
 					FunctionStatement fs = (FunctionStatement) st;
 
 					String dmlFunctionCall = generateDmlFunctionCall(scriptFilePath, fs);
-					String functionCallMethod = generateFunctionCallMethodNew(scriptFilePath, fs, dmlFunctionCall);
+					String functionCallMethod = generateFunctionCallMethod(scriptFilePath, fs, dmlFunctionCall);
 
 					CtMethod m = CtNewMethod.make(functionCallMethod, ctNewScript);
 					ctNewScript.addMethod(m);
@@ -584,13 +583,12 @@ public class GenerateResourceClassesForMLContext {
 	}
 
 	/**
-	 * If a function has arguments, create a no-arguments method on a derived
-	 * script class to return either: (1) the full function body, or (2) the
-	 * function body, up to the end of the documentation comment for the
-	 * function. If (1) is generated, the method name will be followed by an
-	 * underscore. If (2), the method will not be generated if the function does
-	 * not have any input parameters, since the method already exists on the
-	 * derived script class.
+	 * Create a method that returns either: (1) the full function body, or (2)
+	 * the function body up to the end of the documentation comment for the
+	 * function. If (1) is generated, the method name will be followed by two
+	 * underscores. If (2) is generated, the method name will be followed by one
+	 * underscore. If (2) is generated but no end of documentation comment is
+	 * detected, the full function body will be displayed.
 	 * 
 	 * @param fs
 	 *            a SystemML function statement
@@ -607,11 +605,6 @@ public class GenerateResourceClassesForMLContext {
 			CtClass ctNewScript, boolean full) {
 
 		try {
-
-			// if ((fs.getInputParams().size() == 0) && (full == false)) {
-			// return;
-			// }
-
 			int bl = fs.getBeginLine();
 			int el = fs.getEndLine();
 			File f = new File(scriptFilePath);
@@ -650,9 +643,10 @@ public class GenerateResourceClassesForMLContext {
 	}
 
 	/**
-	 * Obtain method for returning (1) the full function body, or (2) the
+	 * Generate method for returning (1) the full function body, or (2) the
 	 * function body up to the end of the documentation comment. (1) will have
-	 * "_" appended to the end of the function name.
+	 * "__" appended to the end of the function name. (2) will have "_" appended
+	 * to the end of the function name.
 	 * 
 	 * @param fs
 	 *            a SystemML function statement
@@ -660,9 +654,8 @@ public class GenerateResourceClassesForMLContext {
 	 *            either the full function body or the function body up to the
 	 *            end of the documentation comment
 	 * @param full
-	 *            if {@code true}, append "_" to the end of the function name if
-	 *            {@code false}, don't append "_" to the end of the function
-	 *            name
+	 *            if {@code true}, append "__" to the end of the function name;
+	 *            if {@code false}, append "_" to the end of the function name
 	 * @return string representation of the function description method
 	 */
 	public static String generateDescriptionFunctionCallMethod(FunctionStatement fs, String functionString,
@@ -682,6 +675,14 @@ public class GenerateResourceClassesForMLContext {
 		return sb.toString();
 	}
 
+	/**
+	 * Obtain a string representation of a parameter type, where a Matrix or
+	 * Frame is represented by its full class name.
+	 * 
+	 * @param param
+	 *            the function parameter
+	 * @return string representation of a parameter type
+	 */
 	public static String getParamTypeAsString(DataIdentifier param) {
 		DataType dt = param.getDataType();
 		ValueType vt = param.getValueType();
@@ -701,6 +702,14 @@ public class GenerateResourceClassesForMLContext {
 		return null;
 	}
 
+	/**
+	 * Obtain a string representation of a parameter type, where a Matrix or
+	 * Frame is represented by its simple class name.
+	 * 
+	 * @param param
+	 *            the function parameter
+	 * @return string representation of a parameter type
+	 */
 	public static String getSimpleParamTypeAsString(DataIdentifier param) {
 		DataType dt = param.getDataType();
 		ValueType vt = param.getValueType();
@@ -720,6 +729,17 @@ public class GenerateResourceClassesForMLContext {
 		return null;
 	}
 
+	/**
+	 * Obtain the full class name for a class that encapsulates the outputs of a
+	 * function
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param fs
+	 *            a SystemML function statement
+	 * @return the full class name for a class that encapsulates the outputs of
+	 *         a function
+	 */
 	public static String getFullFunctionOutputClassName(String scriptFilePath, FunctionStatement fs) {
 		String p = scriptFilePath;
 		p = p.replace("-", "_");
@@ -735,10 +755,20 @@ public class GenerateResourceClassesForMLContext {
 		return functionOutputClassName;
 	}
 
+	/**
+	 * Create a class that encapsulates the outputs of a function.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param fs
+	 *            a SystemML function statement
+	 */
 	public static void createFunctionOutputClass(String scriptFilePath, FunctionStatement fs) {
 
 		try {
 			ArrayList<DataIdentifier> oparams = fs.getOutputParams();
+			// Note: if a function returns 1 output, simply output it rather
+			// than encapsulating it in a function output class
 			if ((oparams.size() == 0) || (oparams.size() == 1)) {
 				return;
 			}
@@ -783,6 +813,7 @@ public class GenerateResourceClassesForMLContext {
 			CtConstructor ctCon = CtNewConstructor.make(cstring, ctFuncOut);
 			ctFuncOut.addConstructor(ctCon);
 
+			// add toString
 			StringBuilder s = new StringBuilder();
 			s.append("public String toString(){\n");
 			s.append("StringBuilder sb = new StringBuilder();\n");
@@ -809,7 +840,18 @@ public class GenerateResourceClassesForMLContext {
 		}
 	}
 
-	public static String generateFunctionCallMethodNew(String scriptFilePath, FunctionStatement fs,
+	/**
+	 * Obtain method for invoking a script function.
+	 * 
+	 * @param scriptFilePath
+	 *            the path to a script file
+	 * @param fs
+	 *            a SystemML function statement
+	 * @param dmlFunctionCall
+	 *            a string representing the invocation of a script function
+	 * @return string representation of a method that performs a function call
+	 */
+	public static String generateFunctionCallMethod(String scriptFilePath, FunctionStatement fs,
 			String dmlFunctionCall) {
 
 		createFunctionOutputClass(scriptFilePath, fs);
@@ -822,11 +864,12 @@ public class GenerateResourceClassesForMLContext {
 		if (oparams.size() == 0) {
 			sb.append("void");
 		} else if (oparams.size() == 1) {
+			// if 1 output, no need to encapsulate it, so return the output
+			// directly
 			DataIdentifier oparam = oparams.get(0);
 			String type = getParamTypeAsString(oparam);
 			sb.append(type);
 		} else {
-			// sb.append("org.apache.sysml.api.mlcontext.MLResults");
 			String fullFunctionOutputClassName = getFullFunctionOutputClassName(scriptFilePath, fs);
 			sb.append(fullFunctionOutputClassName);
 		}
@@ -858,7 +901,6 @@ public class GenerateResourceClassesForMLContext {
 		sb.append(
 				"org.apache.sysml.api.mlcontext.Script script = new org.apache.sysml.api.mlcontext.Script(scriptString);\n");
 
-		// ArrayList<DataIdentifier> outputParams = fs.getOutputParams();
 		if ((inputParams.size() > 0) || (oparams.size() > 0)) {
 			sb.append("script");
 		}
@@ -877,7 +919,6 @@ public class GenerateResourceClassesForMLContext {
 		}
 
 		sb.append("org.apache.sysml.api.mlcontext.MLResults results = script.execute();\n");
-		// sb.append("return results;\n");
 
 		if (oparams.size() == 0) {
 			sb.append("return;\n");
@@ -901,13 +942,11 @@ public class GenerateResourceClassesForMLContext {
 						+ "\");\nreturn res;\n");
 			}
 		} else {
-			// sb.append("return results;\n");
 
 			for (int i = 0; i < oparams.size(); i++) {
 				DataIdentifier outputParam = oparams.get(i);
 				String name = outputParam.getName().toLowerCase();
 				String type = getParamTypeAsString(outputParam);
-				// DataIdentifier o = oparams.get(0);
 				DataType dt = outputParam.getDataType();
 				ValueType vt = outputParam.getValueType();
 				if ((dt == DataType.SCALAR) && (vt == ValueType.INT)) {
@@ -942,7 +981,8 @@ public class GenerateResourceClassesForMLContext {
 	}
 
 	/**
-	 * Obtain method for invoking a script function.
+	 * Obtain method for invoking a script function and returning the results as
+	 * an MLResults object. Currently this method is not used.
 	 * 
 	 * @param scriptFilePath
 	 *            the path to a script file
@@ -952,7 +992,7 @@ public class GenerateResourceClassesForMLContext {
 	 *            a string representing the invocation of a script function
 	 * @return string representation of a method that performs a function call
 	 */
-	public static String generateFunctionCallMethod(String scriptFilePath, FunctionStatement fs,
+	public static String generateFunctionCallMethodMLResults(String scriptFilePath, FunctionStatement fs,
 			String dmlFunctionCall) {
 		StringBuilder sb = new StringBuilder();
 
