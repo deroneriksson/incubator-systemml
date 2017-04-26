@@ -407,6 +407,7 @@ public class ScriptExecutor {
 	protected void initializeCachingAndScratchSpace() {
 		if( !init ) return;
 		
+		MLContextUtil.initializeCachingAndScratchSpace(config);
 		try {
 			DMLScript.initHadoopExecution(config);
 		} catch (ParseException e) {
@@ -634,7 +635,7 @@ public class ScriptExecutor {
 
 	/**
 	 * Whether or not to initialize the scratch_space, bufferpool, etc. Note that any 
-	 * redundant initialize (e.g., multiple scripts from one MLContext) clears existing 
+	 * redundant initialize clears existing 
 	 * files from the scratch space and buffer pool.
 	 *  
 	 * @param init {@code true} if should initialize, {@code false} otherwise

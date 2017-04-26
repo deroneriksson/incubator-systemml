@@ -21,9 +21,6 @@ package org.apache.sysml.api.mlcontext;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -112,13 +109,16 @@ public class MLContext {
 	private ExplainLevel explainLevel = null;
 
 	/**
-	 * Whether or not all values should be maintained in the symbol table
-	 * after execution.
+	 * Whether or not all values should be maintained in the symbol table after
+	 * execution.
 	 */
 	private boolean maintainSymbolTable = false;
 
-	private List<String> scriptHistoryStrings = new ArrayList<String>();
-	private Map<String, Script> scripts = new LinkedHashMap<String, Script>();
+//	/**
+//	 * Whether or not initializations should be performed, such as creating
+//	 * scratch space and cleaning directories.
+//	 */
+//	private boolean initializeCachingAndScratchSpace = true;
 
 	/**
 	 * The different explain levels supported by SystemML.
@@ -168,7 +168,8 @@ public class MLContext {
 	 * Create an MLContext based on a SparkSession for interaction with SystemML
 	 * on Spark.
 	 * 
-	 * @param spark SparkSession
+	 * @param spark
+	 *            SparkSession
 	 */
 	public MLContext(SparkSession spark) {
 		initMLContext(spark);
@@ -210,13 +211,16 @@ public class MLContext {
 			MLContextUtil.verifySparkVersionSupported(spark);
 		} catch (MLContextException e) {
 			if (info() != null) {
-				log.warn("Apache Spark " + this.info().minimumRecommendedSparkVersion() + " or above is recommended for SystemML " + this.info().version());
+				log.warn("Apache Spark " + this.info().minimumRecommendedSparkVersion()
+						+ " or above is recommended for SystemML " + this.info().version());
 			} else {
 				try {
 					String minSparkVersion = MLContextUtil.getMinimumRecommendedSparkVersionFromPom();
-					log.warn("Apache Spark " + minSparkVersion + " or above is recommended for this version of SystemML.");
+					log.warn("Apache Spark " + minSparkVersion
+							+ " or above is recommended for this version of SystemML.");
 				} catch (MLContextException e1) {
-					log.error("Minimum recommended Spark version could not be determined from SystemML jar file manifest or pom.xml");
+					log.error(
+							"Minimum recommended Spark version could not be determined from SystemML jar file manifest or pom.xml");
 				}
 			}
 		}
@@ -234,6 +238,7 @@ public class MLContext {
 
 		MLContextUtil.setDefaultConfig();
 		MLContextUtil.setCompilerConfig();
+		MLContextUtil.initializeCachingAndScratchSpace(ConfigurationManager.getDMLConfig());
 	}
 
 	/**
@@ -260,7 +265,7 @@ public class MLContext {
 			throw new MLContextException(e);
 		}
 	}
-	
+
 	/**
 	 * Execute a DML or PYDML Script.
 	 *
@@ -275,7 +280,6 @@ public class MLContext {
 		scriptExecutor.setGPU(gpu);
 		scriptExecutor.setStatistics(statistics);
 		scriptExecutor.setStatisticsMaxHeavyHitters(statisticsMaxHeavyHitters);
-		scriptExecutor.setInit(scriptHistoryStrings.isEmpty());
 		scriptExecutor.setMaintainSymbolTable(maintainSymbolTable);
 		return execute(script, scriptExecutor);
 	}
@@ -295,17 +299,17 @@ public class MLContext {
 		try {
 			executingScript = script;
 
+//			if (initializeCachingAndScratchSpace) {
+//				MLContextUtil.initializeCachingAndScratchSpace(ConfigurationManager.getDMLConfig());
+//				initializeCachingAndScratchSpace = false;
+//			}
+
 			Long time = new Long((new Date()).getTime());
 			if ((script.getName() == null) || (script.getName().equals(""))) {
 				script.setName(time.toString());
 			}
 
 			MLResults results = scriptExecutor.execute(script);
-
-			String history = MLContextUtil.createHistoryForScript(script, time);
-			scriptHistoryStrings.add(history);
-			scripts.put(script.getName(), script);
-
 			return results;
 		} catch (RuntimeException e) {
 			throw new MLContextException("Exception when executing script", e);
@@ -353,7 +357,6 @@ public class MLContext {
 	public void setExplain(boolean explain) {
 		this.explain = explain;
 	}
-
 
 	/**
 	 * Obtain whether or not all values should be maintained in the symbol table
@@ -411,10 +414,12 @@ public class MLContext {
 	}
 
 	/**
-	 * Whether or not to use (an available) GPU on the driver node.
-	 * If a GPU is not available, and the GPU mode is set, SystemML will crash when the program is run.
+	 * Whether or not to use (an available) GPU on the driver node. If a GPU is
+	 * not available, and the GPU mode is set, SystemML will crash when the
+	 * program is run.
+	 * 
 	 * @param enable
-	 * 					true if needs to be enabled, false otherwise
+	 *            true if needs to be enabled, false otherwise
 	 */
 	public void setGPU(boolean enable) {
 		this.gpu = enable;
@@ -422,12 +427,12 @@ public class MLContext {
 
 	/**
 	 * Whether or not the GPU mode is enabled.
+	 * 
 	 * @return true if enabled, false otherwise
 	 */
 	public boolean isGPU() {
 		return this.gpu;
 	}
-
 
 	/**
 	 * Used internally by MLContextProxy.
@@ -578,39 +583,6 @@ public class MLContext {
 	}
 
 	/**
-	 * Obtain a map of the scripts that have executed.
-	 *
-	 * @return a map of the scripts that have executed
-	 */
-	public Map<String, Script> getScripts() {
-		return scripts;
-	}
-
-	/**
-	 * Obtain a script that has executed by name.
-	 *
-	 * @param name
-	 *            the name of the script
-	 * @return the script corresponding to the name
-	 */
-	public Script getScriptByName(String name) {
-		Script script = scripts.get(name);
-		if (script == null) {
-			throw new MLContextException("Script with name '" + name + "' not found.");
-		}
-		return script;
-	}
-
-	/**
-	 * Display the history of scripts that have executed.
-	 *
-	 * @return the history of scripts that have executed
-	 */
-	public String history() {
-		return MLContextUtil.displayScriptHistory(scriptHistoryStrings);
-	}
-
-	/**
 	 * Closes the mlcontext, which includes the cleanup of static and local
 	 * state as well as scratch space and buffer pool cleanup. Note that the
 	 * spark context is not explicitly closed to allow external reuse.
@@ -628,12 +600,7 @@ public class MLContext {
 			throw new MLContextException("Failed to cleanup working directories.", ex);
 		}
 
-		// clear local status, but do not stop sc as it
-		// may be used or stopped externally
-		for (Script script : scripts.values())
-			script.clearAll();
-		scripts.clear();
-		scriptHistoryStrings.clear();
+		executingScript.clearAll();
 		resetConfig();
 		spark = null;
 	}
@@ -677,5 +644,20 @@ public class MLContext {
 		}
 		return info().buildTime();
 	}
+
+	public void initializeCachingAndScratchSpace() {
+		MLContextUtil.initializeCachingAndScratchSpace(ConfigurationManager.getDMLConfig());
+	}
+//	/**
+//	 * Whether or not the caching and scratch space will be 
+//	 * @return
+//	 */
+//	public boolean isInitializeCachingAndScratchSpace() {
+//		return initializeCachingAndScratchSpace;
+//	}
+//
+//	public void setInitializeCachingAndScratchSpace(boolean initializeCachingAndScratchSpace) {
+//		this.initializeCachingAndScratchSpace = initializeCachingAndScratchSpace;
+//	}
 
 }

@@ -21,13 +21,10 @@ package org.apache.sysml.api.mlcontext;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -52,6 +49,7 @@ import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.MLContextProxy;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
@@ -59,6 +57,7 @@ import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.parser.ParseException;
 import org.apache.sysml.parser.Statement;
+import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ForProgramBlock;
 import org.apache.sysml.runtime.controlprogram.FunctionProgramBlock;
 import org.apache.sysml.runtime.controlprogram.IfProgramBlock;
@@ -980,48 +979,6 @@ public final class MLContextUtil {
 	}
 
 	/**
-	 * Generate a String history entry for a script.
-	 * 
-	 * @param script
-	 *            the script
-	 * @param when
-	 *            when the script was executed
-	 * @return a script history entry as a String
-	 */
-	public static String createHistoryForScript(Script script, long when) {
-		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
-		StringBuilder sb = new StringBuilder();
-		sb.append("Script Name: " + script.getName() + "\n");
-		sb.append("When: " + dateFormat.format(new Date(when)) + "\n");
-		sb.append(script.displayInputs());
-		sb.append(script.displayOutputs());
-		sb.append(script.displaySymbolTable());
-		return sb.toString();
-	}
-
-	/**
-	 * Generate a String listing of the script execution history.
-	 * 
-	 * @param scriptHistory
-	 *            the list of script history entries
-	 * @return the listing of the script execution history as a String
-	 */
-	public static String displayScriptHistory(List<String> scriptHistory) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("MLContext Script History:\n");
-		if (scriptHistory.isEmpty()) {
-			sb.append("None");
-		}
-		int i = 1;
-		for (String history : scriptHistory) {
-			sb.append("--------------------------------------------\n");
-			sb.append("#" + (i++) + ":\n");
-			sb.append(history);
-		}
-		return sb.toString();
-	}
-
-	/**
 	 * Obtain the Spark Context
 	 * 
 	 * @param mlContext
@@ -1170,6 +1127,24 @@ public final class MLContextUtil {
 				instructions.remove(varinst);
 				i--;
 			}
+		}
+	}
+
+	/**
+	 * Check security, create scratch space, cleanup working directories,
+	 * initialize caching, and reset statistics.
+	 * 
+	 * @param config DMLConfig object
+	 */
+	public static void initializeCachingAndScratchSpace(DMLConfig config) {
+		try {
+			DMLScript.initHadoopExecution(config);
+		} catch (ParseException e) {
+			throw new MLContextException("Exception occurred initializing caching and scratch space", e);
+		} catch (DMLRuntimeException e) {
+			throw new MLContextException("Exception occurred initializing caching and scratch space", e);
+		} catch (IOException e) {
+			throw new MLContextException("Exception occurred initializing caching and scratch space", e);
 		}
 	}
 }
