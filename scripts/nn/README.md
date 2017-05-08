@@ -19,11 +19,14 @@ limitations under the License.
 
 # SystemML-NN
 
-### A deep learning library for [Apache SystemML](https://github.com/apache/incubator-systemml).
+A deep learning library for [Apache SystemML](https://github.com/apache/incubator-systemml).
 
-## Examples:
-#### Please see the [`examples`](examples) folder for more detailed examples, or view the following two quick examples.
-### Neural net for regression with vanilla SGD:
+## Examples
+
+Please see the [`examples`](https://github.com/apache/incubator-systemml/tree/master/scripts/nn/examples) folder for more detailed examples, or view the following two quick examples.
+
+### Neural net for regression with vanilla SGD
+
 ```python
 # Imports
 source("nn/layers/affine.dml") as affine
@@ -86,7 +89,8 @@ for (e in 1:epochs) {
 }
 ```
 
-### Neural net for multi-class classification with dropout and SGD w/ Nesterov momentum:
+### Neural net for multi-class classification with dropout and SGD with Nesterov momentum
+
 ```python
 # Imports
 source("nn/layers/affine.dml") as affine

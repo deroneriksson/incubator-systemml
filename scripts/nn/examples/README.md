@@ -19,11 +19,10 @@ limitations under the License.
 
 # SystemML-NN Examples
 
-#### This folder contains scripts and PySpark Jupyter notebooks serving as examples of using the *SystemML-NN* (`nn`) deep learning library.
+This folder contains scripts and PySpark Jupyter notebooks serving as examples of using the *SystemML-NN* (`nn`) deep learning library.
 
----
+## Examples
 
-# Examples
 ### MNIST Softmax Classifier
 
 * This example trains a softmax classifier, which is essentially a multi-class logistic regression model, on the MNIST data.  The model will be trained on the *training* images, validated on the *validation* images, and tested for final performance metrics on the *test* images.
@@ -40,10 +39,10 @@ limitations under the License.
 * Training script: `mnist_lenet-train.dml`
 * Prediction script: `mnist_lenet-predict.dml`
 
----
+## Setup
 
-# Setup
-## Code
+### Code
+
 * To run the examples, please first download and unzip the project via GitHub using the "Clone or download" button on the [homepage of the project](https://github.com/dusenberrymw/systemml-nn), *or* via the following commands:
 
   ```
@@ -55,13 +54,15 @@ limitations under the License.
   cd systemml-nn
   ```
 
-## Data
+### Data
+
 * These examples use the classic [MNIST](http://yann.lecun.com/exdb/mnist/) dataset, which contains labeled 28x28 pixel images of handwritten digits in the range of 0-9.  There are 60,000 training images, and 10,000 testing images.  Of the 60,000 training images, 5,000 will be used as validation images.
 * **Download**:
   * **Notebooks**: The data will be automatically downloaded as a step in either of the example notebooks.
   * **Training scripts**: Please run `get_mnist_data.sh` to download the data separately.
 
-## Execution
+### Execution
+
 * These examples contain scripts written in SystemML's R-like language (`*.dml`), as well as PySpark Jupyter notebooks (`*.ipynb`).  The scripts contain the math for the algorithms, enclosed in functions, and the notebooks serve as full, end-to-end examples of reading in data, training models using the functions within the scripts, and evaluating final performance.
 * **Notebooks**: To run the notebook examples, please install the SystemML Python package with `pip install systemml`, and then startup Jupyter in the following manner from this directory (or for more information, please see [this great blog post](http://spark.tc/0-to-life-changing-application-with-apache-systemml/)):
 
