@@ -38,6 +38,7 @@ import java.util.HashMap;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.lops.Lop;
@@ -315,7 +316,7 @@ public class LocalFileUtils
 	{
 		//create local tmp dir if not existing
 		String dirRoot = null;
-		DMLConfig conf = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig conf = ConfigurationManager.getDMLConfig();
 		if( conf != null ) 
 			dirRoot = conf.getTextValue(DMLConfig.LOCAL_TMP_DIR);
 		else 

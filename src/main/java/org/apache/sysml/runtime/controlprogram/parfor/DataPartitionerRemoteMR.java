@@ -26,8 +26,8 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PartitionFormat;
@@ -174,7 +174,7 @@ public class DataPartitionerRemoteMR extends DataPartitioner
 			job.setInt(MRConfigurationNames.DFS_REPLICATION, _replication);
 			
 			//set up map/reduce memory configurations (if in AM context)
-			DMLConfig config = ConfigurationManager.getDMLConfig();
+			BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 			DMLAppMasterUtils.setupMRJobRemoteMaxMemory(job, config);
 			
 			//set up custom map/reduce configurations 

@@ -28,8 +28,8 @@ import org.apache.hadoop.mapred.Counters.Group;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
 import org.apache.sysml.runtime.instructions.MRInstructionParser;
 import org.apache.sysml.runtime.instructions.MRJobInstruction;
@@ -210,7 +210,7 @@ public class MMCJMR
 			MRJobConfiguration.addBinaryBlockSerializationFramework( job );
 		
 		//set up map/reduce memory configurations (if in AM context)
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		DMLAppMasterUtils.setupMRJobRemoteMaxMemory(job, config);
 
 		//set up custom map/reduce configurations 

@@ -25,10 +25,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.ScriptExecutorUtils;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.DMLScript.DMLOptions;
+import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.api.mlcontext.MLContext.ExplainLevel;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.HopsException;
@@ -109,7 +111,7 @@ import org.apache.sysml.utils.Statistics;
  */
 public class ScriptExecutor {
 
-	protected DMLConfig config;
+	protected BasicDMLConfig config;
 	protected DMLProgram dmlProgram;
 	protected DMLTranslator dmlTranslator;
 	protected Program runtimeProgram;
@@ -349,7 +351,7 @@ public class ScriptExecutor {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
-		DMLScript.SCRIPT_TYPE = script.getScriptType();
+		RuntimePlatform.scriptType = script.getScriptType();
 		setGlobalFlags();
 		if (statistics) {
 			Statistics.reset();
@@ -704,7 +706,7 @@ public class ScriptExecutor {
 	 *
 	 * @return the configuration properties
 	 */
-	public DMLConfig getConfig() {
+	public BasicDMLConfig getConfig() {
 		return config;
 	}
 }

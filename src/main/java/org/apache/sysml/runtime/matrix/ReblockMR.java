@@ -28,6 +28,7 @@ import org.apache.hadoop.mapred.Counters.Group;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
@@ -114,7 +115,7 @@ public class ReblockMR
 			MRJobConfiguration.addBinaryBlockSerializationFramework( job );
 		
 		//set up custom map/reduce configurations 
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		MRJobConfiguration.setupCustomMRConfigurations(job, config);
 		
 		//enable jvm reuse (based on SystemML configuration)

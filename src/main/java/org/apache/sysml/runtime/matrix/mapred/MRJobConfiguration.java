@@ -43,8 +43,8 @@ import org.apache.hadoop.mapred.lib.CombineSequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.MultipleOutputs;
 import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -1806,7 +1806,7 @@ public class MRJobConfiguration
 	 * @param job job configuration
 	 * @param config dml configuration
 	 */
-	public static void setupCustomMRConfigurations( JobConf job, DMLConfig config ) {
+	public static void setupCustomMRConfigurations( JobConf job, BasicDMLConfig config ) {
 		Map<String,String> map = config.getCustomMRConfig();
 		for( Entry<String,String> e : map.entrySet() ) {
 			job.set(e.getKey(), e.getValue());

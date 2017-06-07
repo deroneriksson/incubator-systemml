@@ -57,6 +57,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -171,7 +172,7 @@ public class DMLScript
 	 * for DML/PYDML-specific tasks, such as outputting booleans in the correct
 	 * case (TRUE/FALSE for DML and True/False for PYDML).
 	 */
-	public static ScriptType        SCRIPT_TYPE         = DMLOptions.defaultOptions.scriptType;
+//	public static ScriptType        SCRIPT_TYPE         = DMLOptions.defaultOptions.scriptType;
 	public static boolean           USE_ACCELERATOR     = DMLOptions.defaultOptions.gpu;
 	public static boolean           FORCE_ACCELERATOR   = DMLOptions.defaultOptions.forceGPU;
 
@@ -463,7 +464,7 @@ public class DMLScript
 			FORCE_ACCELERATOR = dmlOptions.forceGPU;
 			EXPLAIN           = dmlOptions.explainType;
 			ENABLE_DEBUG_MODE = dmlOptions.debug;
-			SCRIPT_TYPE       = dmlOptions.scriptType;
+			RuntimePlatform.scriptType = dmlOptions.scriptType;
 			RuntimePlatform.rtplatform = dmlOptions.execMode;
 
 			String fnameOptConfig = dmlOptions.configFile;
@@ -489,7 +490,7 @@ public class DMLScript
 		
 			//Step 2: prepare script invocation
 			if (isFile && StringUtils.endsWithIgnoreCase(fileOrScript, ".pydml")) {
-				SCRIPT_TYPE = ScriptType.PYDML;
+				RuntimePlatform.scriptType = ScriptType.PYDML;
 			}
 
 			String dmlScriptStr = readDMLScript(isFile, fileOrScript);
@@ -501,10 +502,10 @@ public class DMLScript
 			printInvocationInfo(fileOrScript, fnameOptConfig, argVals);
 			if (ENABLE_DEBUG_MODE) {
 				// inner try loop is just to isolate the debug exception, which will allow to manage the bugs from debugger v/s runtime
-				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, SCRIPT_TYPE);
+				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, RuntimePlatform.scriptType);
 			}
 			else {
-				execute(dmlScriptStr, fnameOptConfig, argVals, args, SCRIPT_TYPE);
+				execute(dmlScriptStr, fnameOptConfig, argVals, args, RuntimePlatform.scriptType);
 			}
 
 		}
@@ -727,7 +728,7 @@ public class DMLScript
 	private static void execute(String dmlScriptStr, String fnameOptConfig, Map<String,String> argVals, String[] allArgs, ScriptType scriptType)
 		throws ParseException, IOException, DMLRuntimeException, LanguageException, HopsException, LopsException 
 	{	
-		SCRIPT_TYPE = scriptType;
+		RuntimePlatform.scriptType = scriptType;
 
 		//print basic time and environment info
 		printStartExecInfo( dmlScriptStr );
@@ -898,7 +899,7 @@ public class DMLScript
 		}
 	}
 
-	public static void initHadoopExecution( DMLConfig config ) 
+	public static void initHadoopExecution( BasicDMLConfig config ) 
 		throws IOException, ParseException, DMLRuntimeException
 	{
 		//check security aspects
@@ -923,7 +924,7 @@ public class DMLScript
 		}
 	}
 	
-	private static void checkSecuritySetup(DMLConfig config) 
+	private static void checkSecuritySetup(BasicDMLConfig config) 
 		throws IOException, DMLRuntimeException
 	{
 		//analyze local configuration
@@ -968,7 +969,7 @@ public class DMLScript
 		}
 	}
 	
-	public static void cleanupHadoopExecution( DMLConfig config ) 
+	public static void cleanupHadoopExecution( BasicDMLConfig config ) 
 		throws IOException, ParseException
 	{
 		//create dml-script-specific suffix

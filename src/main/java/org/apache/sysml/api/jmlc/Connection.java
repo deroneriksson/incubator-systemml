@@ -28,14 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.sysml.api.DMLException;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
+import org.apache.sysml.conf.BasicConfigurationManager;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.rewrite.ProgramRewriter;
 import org.apache.sysml.hops.rewrite.RewriteRemovePersistentReadWrite;
 import org.apache.sysml.parser.DMLProgram;
@@ -90,7 +90,7 @@ import org.apache.wink.json4j.JSONObject;
  */
 public class Connection implements Closeable
 {
-	private DMLConfig _dmlconf = null;
+	private BasicDMLConfig _dmlconf = null;
 
 	/**
 	 * Connection constructor, the starting point for any other JMLC API calls.
@@ -115,14 +115,14 @@ public class Connection implements Closeable
 		cconf.set(ConfigType.ALLOW_DYN_RECOMPILATION, false);
 		cconf.set(ConfigType.ALLOW_INDIVIDUAL_SB_SPECIFIC_OPS, false);
 		cconf.set(ConfigType.ALLOW_CSE_PERSISTENT_READS, false);
-		ConfigurationManager.setLocalConfig(cconf);
+		BasicConfigurationManager.setLocalConfig(cconf);
 
 		//disable caching globally
 		CacheableData.disableCaching();
 
 		//create thread-local default configuration
-		_dmlconf = new DMLConfig();
-		ConfigurationManager.setLocalConfig(_dmlconf);
+		_dmlconf = new BasicDMLConfig();
+		BasicConfigurationManager.setLocalConfig(_dmlconf);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class Connection implements Closeable
 	public PreparedScript prepareScript( String script, Map<String, String> args, String[] inputs, String[] outputs, boolean parsePyDML)
 		throws DMLException
 	{
-		DMLScript.SCRIPT_TYPE = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
+		RuntimePlatform.scriptType = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
 
 		//prepare arguments
 

@@ -20,6 +20,7 @@
 package org.apache.sysml.api;
 
 import org.apache.sysml.api.mlcontext.ScriptExecutor;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.codegen.SpoofCompiler;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -48,7 +49,7 @@ public class ScriptExecutorUtils {
 	public static void executeRuntimeProgram(ScriptExecutor se, int statisticsMaxHeavyHitters) throws DMLRuntimeException {
 		Program prog = se.getRuntimeProgram();
 		ExecutionContext ec = se.getExecutionContext();
-		DMLConfig config = se.getConfig();
+		BasicDMLConfig config = se.getConfig();
 		executeRuntimeProgram(prog, ec, config, statisticsMaxHeavyHitters);
 	}
 
@@ -68,7 +69,7 @@ public class ScriptExecutorUtils {
 	 * @throws DMLRuntimeException
 	 *             if error occurs
 	 */
-	public static void executeRuntimeProgram(Program rtprog, ExecutionContext ec, DMLConfig dmlconf, int statisticsMaxHeavyHitters)
+	public static void executeRuntimeProgram(Program rtprog, ExecutionContext ec, BasicDMLConfig dmlconf, int statisticsMaxHeavyHitters)
 			throws DMLRuntimeException {
 		// Whether extra statistics useful for developers and others interested
 		// in digging into performance problems are recorded and displayed

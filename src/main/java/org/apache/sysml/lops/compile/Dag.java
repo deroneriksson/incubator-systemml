@@ -33,6 +33,7 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.AggBinaryOp;
@@ -246,7 +247,7 @@ public class Dag<N extends Lop>
 	 * @throws IOException if IOException occurs
 	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
-	public ArrayList<Instruction> getJobs(StatementBlock sb, DMLConfig config)
+	public ArrayList<Instruction> getJobs(StatementBlock sb, BasicDMLConfig config)
 			throws LopsException, IOException, DMLRuntimeException {
 		
 		if (config != null) 

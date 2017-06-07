@@ -37,20 +37,18 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.sysml.api.DMLException;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
 import org.apache.sysml.parser.ParseException;
 import org.apache.sysml.runtime.DMLRuntimeException;
-import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
-public class DMLConfig extends BasicDMLConfig
+public class BasicDMLConfig
 {
 
 	public static final String DEFAULT_SYSTEMML_CONFIG_FILEPATH = "./SystemML-config.xml";
@@ -126,18 +124,18 @@ public class DMLConfig extends BasicDMLConfig
 		_defaultVals.put(MAX_GPUS_PER_PROCESS,	"-1");
 	}
 	
-	public DMLConfig()
+	public BasicDMLConfig()
 	{
 		
 	}
 	
-	public DMLConfig(String fileName) 
+	public BasicDMLConfig(String fileName) 
 		throws ParseException, FileNotFoundException
 	{
 		this( fileName, false );
 	}
 	
-	public DMLConfig(String fileName, boolean silent) 
+	public BasicDMLConfig(String fileName, boolean silent) 
 		throws ParseException, FileNotFoundException
 	{
 		_fileName = fileName;
@@ -156,7 +154,7 @@ public class DMLConfig extends BasicDMLConfig
 		LOCAL_MR_MODE_STAGING_DIR = getTextValue(LOCAL_TMP_DIR) + "/hadoop/mapred/staging";
 	}
 	
-	public DMLConfig( Element root )
+	public BasicDMLConfig( Element root )
 	{
 		_xmlRoot = root;
 	}
@@ -166,8 +164,9 @@ public class DMLConfig extends BasicDMLConfig
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
+	 * @throws DMLException 
 	 */
-	protected void parseConfig () throws ParserConfigurationException, SAXException, IOException 
+	protected void parseConfig () throws ParserConfigurationException, SAXException, IOException, DMLException 
 	{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setIgnoringComments(true); //ignore XML comments
@@ -176,9 +175,7 @@ public class DMLConfig extends BasicDMLConfig
 		if (_fileName.startsWith("hdfs:") ||
 		    _fileName.startsWith("gpfs:") )  // config file from DFS
 		{
-			Path configFilePath = new Path(_fileName);
-			FileSystem DFS = IOUtilFunctions.getFileSystem(configFilePath);
-            domTree = builder.parse(DFS.open(configFilePath));  
+			throw new DMLException("Please use DMLConfig to parse HDFS and GPFS config files");
 		}
 		else  // config from local file system
 		{
@@ -265,7 +262,7 @@ public class DMLConfig extends BasicDMLConfig
 	 */
 	public void setTextValue(String paramName, String paramValue) throws DMLRuntimeException {
 		if(_xmlRoot != null)
-			DMLConfig.setTextValue(_xmlRoot, paramName, paramValue);
+			BasicDMLConfig.setTextValue(_xmlRoot, paramName, paramValue);
 		else {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setIgnoringComments(true); //ignore XML comments
@@ -333,10 +330,10 @@ public class DMLConfig extends BasicDMLConfig
 		return ret;
 	}
 	
-	public static DMLConfig parseDMLConfig( String content ) 
+	public static BasicDMLConfig parseDMLConfig( String content ) 
 		throws DMLRuntimeException
 	{
-		DMLConfig ret = null;
+		BasicDMLConfig ret = null;
 		try
 		{
 			//System.out.println(content);
@@ -344,7 +341,7 @@ public class DMLConfig extends BasicDMLConfig
 			Document domTree = null;
 			domTree = builder.parse( new ByteArrayInputStream(content.getBytes("utf-8")) );
 			Element root = domTree.getDocumentElement();
-			ret = new DMLConfig( root );
+			ret = new BasicDMLConfig( root );
 		}
 		catch(Exception ex)
 		{
@@ -365,17 +362,17 @@ public class DMLConfig extends BasicDMLConfig
 	 * @throws ParseException if ParseException occurs
 	 * @throws FileNotFoundException if FileNotFoundException occurs
 	 */
-	public static DMLConfig readConfigurationFile(String configPath)
+	public static BasicDMLConfig readConfigurationFile(String configPath)
 		throws ParseException, FileNotFoundException
 	{
 		// Always start with the internal defaults
-		DMLConfig config = new DMLConfig();
+		BasicDMLConfig config = new BasicDMLConfig();
 
 		// Merge in any specified or default configs if available
 		if (configPath != null) {
 			// specified
 			try {
-				config = new DMLConfig(configPath, false);
+				config = new BasicDMLConfig(configPath, false);
 			} catch (FileNotFoundException fnfe) {
 				LOG.error("Custom config file " + configPath + " not found.");
 				throw fnfe;
@@ -385,7 +382,7 @@ public class DMLConfig extends BasicDMLConfig
 		} else {
 			// default
 			try {
-				config = new DMLConfig(DEFAULT_SYSTEMML_CONFIG_FILEPATH, false);
+				config = new BasicDMLConfig(DEFAULT_SYSTEMML_CONFIG_FILEPATH, false);
 			} catch (FileNotFoundException fnfe) {
 				LOG.info("Using internal default configuration settings.  If you wish to " +
 						 "customize any settings, please supply a `SystemML-config.xml` file.");
@@ -442,8 +439,8 @@ public class DMLConfig extends BasicDMLConfig
 		return _defaultVals.get( key );
 	}
 	
-	public DMLConfig clone() {
-		DMLConfig conf = new DMLConfig();
+	public BasicDMLConfig clone() {
+		BasicDMLConfig conf = new BasicDMLConfig();
 		conf._fileName = _fileName;
 		conf._xmlRoot = (Element) _xmlRoot.cloneNode(true);
 		

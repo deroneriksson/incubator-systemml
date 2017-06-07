@@ -25,11 +25,11 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.compile.Dag;
 import org.apache.sysml.parser.Expression.DataType;
@@ -183,7 +183,7 @@ public class DMLProgram
 	}
 	
 	
-	public Program getRuntimeProgram(DMLConfig config) throws IOException, LanguageException, DMLRuntimeException, LopsException {
+	public Program getRuntimeProgram(BasicDMLConfig config) throws IOException, LanguageException, DMLRuntimeException, LopsException {
 		
 		// constructor resets the set of registered functions
 		Program rtprog = new Program();
@@ -211,8 +211,8 @@ public class DMLProgram
 		
 		return rtprog ;
 	}
-	
-	public ProgramBlock createRuntimeProgramBlock(Program prog, StatementBlock sb, DMLConfig config) 
+
+	public ProgramBlock createRuntimeProgramBlock(Program prog, StatementBlock sb, BasicDMLConfig config) 
 		throws IOException, LopsException, DMLRuntimeException 
 	{
 		Dag<Lop> dag = null; 

@@ -31,8 +31,8 @@ import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.jmlc.JMLCUtils;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.parser.DataExpression;
 import org.apache.sysml.parser.Expression;
 import org.apache.sysml.parser.IntIdentifier;
@@ -263,7 +263,7 @@ public class MLContext {
 	 *            property value
 	 */
 	public void setConfigProperty(String propertyName, String propertyValue) {
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		try {
 			config.setTextValue(propertyName, propertyValue);
 		} catch (DMLRuntimeException e) {

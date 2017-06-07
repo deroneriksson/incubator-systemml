@@ -40,12 +40,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.wink.json4j.JSONArray;
-import org.apache.wink.json4j.JSONException;
-import org.apache.wink.json4j.JSONObject;
-
-import scala.Tuple2;
-
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.lops.CSVReBlock;
@@ -82,6 +77,11 @@ import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
 import org.apache.sysml.utils.JSONHelper;
+import org.apache.wink.json4j.JSONArray;
+import org.apache.wink.json4j.JSONException;
+import org.apache.wink.json4j.JSONObject;
+
+import scala.Tuple2;
 
 public class DataTransform 
 {
@@ -787,7 +787,7 @@ public class DataTransform
 			
 			if(isBB)
 			{
-				DMLConfig conf = ConfigurationManager.getDMLConfig();
+				BasicDMLConfig conf = ConfigurationManager.getDMLConfig();
 				int blockSize = conf.getIntValue(DMLConfig.DEFAULT_BLOCK_SIZE);
 				CSVReblockInstruction rblk = prepDummyReblockInstruction(oprnds.inputCSVProperties, blockSize);
 				
@@ -823,7 +823,7 @@ public class DataTransform
 			
 			if (isCSV) 
 			{
-				DMLConfig conf = ConfigurationManager.getDMLConfig();
+				BasicDMLConfig conf = ConfigurationManager.getDMLConfig();
 				int blockSize = conf.getIntValue(DMLConfig.DEFAULT_BLOCK_SIZE);
 				CSVReblockInstruction rblk = prepDummyReblockInstruction(oprnds.inputCSVProperties, blockSize);
 				

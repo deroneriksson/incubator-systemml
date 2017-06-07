@@ -32,8 +32,8 @@ import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -283,7 +283,7 @@ public class ResultMergeRemoteMR extends ResultMerge
 				MRJobConfiguration.addBinaryBlockSerializationFramework( job );
 			
 			//set up custom map/reduce configurations 
-			DMLConfig config = ConfigurationManager.getDMLConfig();
+			BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 			MRJobConfiguration.setupCustomMRConfigurations(job, config);
 			
 			//enables the reuse of JVMs (multiple tasks per MR task)

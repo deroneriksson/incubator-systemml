@@ -34,8 +34,8 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.instructions.MRJobInstruction;
 import org.apache.sysml.runtime.instructions.mr.CombineBinaryInstruction;
 import org.apache.sysml.runtime.instructions.mr.CombineTernaryInstruction;
@@ -332,7 +332,7 @@ public class CombineMR
 		job.setInt(MRConfigurationNames.DFS_REPLICATION, replication);
 
 		//set up custom map/reduce configurations 
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		MRJobConfiguration.setupCustomMRConfigurations(job, config);
 		
 		//set up what matrices are needed to pass from the mapper to reducer

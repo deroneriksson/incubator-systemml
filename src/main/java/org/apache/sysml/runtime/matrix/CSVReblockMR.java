@@ -40,6 +40,7 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.instructions.MRJobInstruction;
@@ -316,7 +317,7 @@ public class CSVReblockMR
 		job.setInt(MRConfigurationNames.DFS_REPLICATION, replication);
 
 		//set up custom map/reduce configurations 
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		MRJobConfiguration.setupCustomMRConfigurations(job, config);
 		
 		//set up the number of reducers
@@ -412,7 +413,7 @@ public class CSVReblockMR
 			MRJobConfiguration.addBinaryBlockSerializationFramework( job );
 
 		//set up custom map/reduce configurations 
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		MRJobConfiguration.setupCustomMRConfigurations(job, config);
 		
 		//set up what matrices are needed to pass from the mapper to reducer

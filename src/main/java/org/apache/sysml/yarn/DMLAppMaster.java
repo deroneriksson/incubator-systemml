@@ -38,10 +38,9 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.DMLScriptException;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 
@@ -131,7 +130,7 @@ public class DMLAppMaster
 	private void writeMessageToHDFSWorkingDir(String msg)
 	{
 		//construct working directory (consistent with client)
-		DMLConfig conf = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig conf = ConfigurationManager.getDMLConfig();
 		String hdfsWD = DMLAppMasterUtils.constructHDFSWorkingDir(conf, _appId);
 		Path msgPath = new Path(hdfsWD, DMLYarnClient.DML_STOPMSG_NAME);
 		

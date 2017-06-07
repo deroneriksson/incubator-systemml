@@ -22,8 +22,8 @@ package org.apache.sysml.runtime.controlprogram.parfor.opt;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.IndexingOp;
@@ -61,7 +61,7 @@ public class ProgramRecompiler
 		throws LopsException, DMLRuntimeException, IOException, HopsException
 	{
 		ArrayList<ProgramBlock> ret = new ArrayList<ProgramBlock>();
-		DMLConfig config = ConfigurationManager.getDMLConfig();
+		BasicDMLConfig config = ConfigurationManager.getDMLConfig();
 		
 		//construct lops from hops if not existing
 		DMLTranslator dmlt = new DMLTranslator(sbs.get(0).getDMLProg());

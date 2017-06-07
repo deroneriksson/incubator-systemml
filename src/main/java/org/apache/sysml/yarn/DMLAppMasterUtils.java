@@ -26,6 +26,7 @@ import java.util.HashMap;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -49,7 +50,7 @@ public class DMLAppMasterUtils
 	private static ResourceConfig _rc = null;
 	private static HashMap<ProgramBlock, Long> _rcMap = null;
 	
-	public static String constructHDFSWorkingDir(DMLConfig conf, ApplicationId appId)
+	public static String constructHDFSWorkingDir(BasicDMLConfig conf, ApplicationId appId)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append( conf.getTextValue(DMLConfig.SCRATCH_SPACE) );
@@ -126,9 +127,9 @@ public class DMLAppMasterUtils
 		}	
 	}
 
-	public static void setupMRJobRemoteMaxMemory(JobConf job, DMLConfig conf)
+	public static void setupMRJobRemoteMaxMemory(JobConf job, BasicDMLConfig conf)
 	{
-		if( DMLScript.isActiveAM() && conf.getBooleanValue(DMLConfig.YARN_APPMASTER) )
+		if( DMLScript.isActiveAM() && conf.getBooleanValue(BasicDMLConfig.YARN_APPMASTER) )
 		{
 			int memMB = -1;
 			

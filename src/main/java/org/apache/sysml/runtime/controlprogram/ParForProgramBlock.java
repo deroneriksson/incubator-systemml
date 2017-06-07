@@ -36,9 +36,9 @@ import org.apache.log4j.Level;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.recompile.Recompiler;
 import org.apache.sysml.lops.Lop;
@@ -544,8 +544,8 @@ public class ParForProgramBlock extends ForProgramBlock
 		return _hasFunctions;
 	}
 
-	public static void initInternalConfigurations( DMLConfig conf ) {
-		ALLOW_REUSE_MR_JVMS = conf.getBooleanValue(DMLConfig.JVM_REUSE);
+	public static void initInternalConfigurations( BasicDMLConfig conf ) {
+		ALLOW_REUSE_MR_JVMS = conf.getBooleanValue(BasicDMLConfig.JVM_REUSE);
 		ALLOW_REUSE_MR_PAR_WORKER = ALLOW_REUSE_MR_JVMS;
 	}
 	

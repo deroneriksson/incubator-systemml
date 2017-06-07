@@ -19,20 +19,19 @@
 
 package org.apache.sysml.utils;
 
+import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.HashMap;
-import java.util.Vector;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.File;
+import java.util.HashMap;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.sysml.conf.BasicDMLConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -67,7 +66,7 @@ public class NativeHelper {
 		// attemptedLoading variable ensures that we don't try to load SystemML and other dependencies 
 		// again and again especially in the parfor (hence the double-checking with synchronized).
 		if(!attemptedLoading) {
-			DMLConfig dmlConfig = ConfigurationManager.getDMLConfig();
+			BasicDMLConfig dmlConfig = ConfigurationManager.getDMLConfig();
 			// -------------------------------------------------------------------------------------
 			// We allow BLAS to be enabled or disabled or explicitly selected in one of the two ways:
 			// 1. DML Configuration: native.blas (boolean flag)
