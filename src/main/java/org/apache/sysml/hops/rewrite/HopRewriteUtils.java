@@ -24,20 +24,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.AggUnaryOp;
 import org.apache.sysml.hops.BinaryOp;
+import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.Hop.AggOp;
 import org.apache.sysml.hops.Hop.DataGenMethod;
-import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.Hop.DataOpTypes;
 import org.apache.sysml.hops.Hop.Direction;
 import org.apache.sysml.hops.Hop.FileFormatTypes;
+import org.apache.sysml.hops.Hop.OpOp1;
 import org.apache.sysml.hops.Hop.OpOp2;
 import org.apache.sysml.hops.Hop.OpOp3;
 import org.apache.sysml.hops.Hop.ParamBuiltinOp;
@@ -51,12 +52,11 @@ import org.apache.sysml.hops.ParameterizedBuiltinOp;
 import org.apache.sysml.hops.ReorgOp;
 import org.apache.sysml.hops.TernaryOp;
 import org.apache.sysml.hops.UnaryOp;
-import org.apache.sysml.hops.Hop.OpOp1;
 import org.apache.sysml.parser.DataExpression;
 import org.apache.sysml.parser.DataIdentifier;
-import org.apache.sysml.parser.Statement;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
+import org.apache.sysml.parser.Statement;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.instructions.cp.ScalarObjectFactory;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
@@ -686,7 +686,7 @@ public class HopRewriteUtils
 	{
 		//awareness of forced exec single node (e.g., standalone), where we can 
 		//guarantee a single block independent of the size because always in CP.
-		if( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE ) {
+		if( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE ) {
 			return true;
 		}
 		

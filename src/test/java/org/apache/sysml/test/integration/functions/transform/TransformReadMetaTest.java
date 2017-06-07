@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.io.FrameReader;
@@ -67,78 +67,78 @@ public class TransformReadMetaTest extends AutomatedTestBase
 	
 	@Test
 	public void runTestCsvCP() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", ",");
+		runTransformReadMetaTest(ExecutionMode.SINGLE_NODE, "csv", ",");
 	}
 	
 	@Test
 	public void runTestCsvHadoop() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.HADOOP, "csv", ",");
+		runTransformReadMetaTest(ExecutionMode.HADOOP, "csv", ",");
 	}
 
 	@Test
 	public void runTestCsvSpark() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SPARK, "csv", ",");
+		runTransformReadMetaTest(ExecutionMode.SPARK, "csv", ",");
 	}
 	
 	@Test
 	public void runTestCsvTabCP() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", "\t");
+		runTransformReadMetaTest(ExecutionMode.SINGLE_NODE, "csv", "\t");
 	}
 	
 	@Test
 	public void runTestCsvTabHadoop() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.HADOOP, "csv", "\t");
+		runTransformReadMetaTest(ExecutionMode.HADOOP, "csv", "\t");
 	}
 
 	@Test
 	public void runTestCsvTabSpark() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SPARK, "csv", "\t");
+		runTransformReadMetaTest(ExecutionMode.SPARK, "csv", "\t");
 	}
 	
 	@Test
 	public void runTestCsvColonCP() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", ":");
+		runTransformReadMetaTest(ExecutionMode.SINGLE_NODE, "csv", ":");
 	}
 	
 	@Test
 	public void runTestCsvColonHadoop() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.HADOOP, "csv", ":");
+		runTransformReadMetaTest(ExecutionMode.HADOOP, "csv", ":");
 	}
 
 	@Test
 	public void runTestCsvColonSpark() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SPARK, "csv", ":");
+		runTransformReadMetaTest(ExecutionMode.SPARK, "csv", ":");
 	}
 	
 	
 	@Test
 	public void runTestTextCP() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SINGLE_NODE, "text", ",");
+		runTransformReadMetaTest(ExecutionMode.SINGLE_NODE, "text", ",");
 	}
 	
 	@Test
 	public void runTestTextHadoop() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.HADOOP, "text", ",");
+		runTransformReadMetaTest(ExecutionMode.HADOOP, "text", ",");
 	}
 
 	@Test
 	public void runTestTextSpark() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SPARK, "text", ",");
+		runTransformReadMetaTest(ExecutionMode.SPARK, "text", ",");
 	}
 
 	@Test
 	public void runTestBinaryCP() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SINGLE_NODE, "binary", ",");
+		runTransformReadMetaTest(ExecutionMode.SINGLE_NODE, "binary", ",");
 	}
 	
 	@Test
 	public void runTestBinaryHadoop() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.HADOOP, "binary", ",");
+		runTransformReadMetaTest(ExecutionMode.HADOOP, "binary", ",");
 	}
 
 	@Test
 	public void runTestBinarySpark() throws DMLRuntimeException, IOException {
-		runTransformReadMetaTest(RUNTIME_PLATFORM.SPARK, "binary", ",");
+		runTransformReadMetaTest(ExecutionMode.SPARK, "binary", ",");
 	}
 
 	
@@ -150,13 +150,13 @@ public class TransformReadMetaTest extends AutomatedTestBase
 	 * @throws IOException 
 	 * @throws DMLRuntimeException 
 	 */
-	private void runTransformReadMetaTest( RUNTIME_PLATFORM rt, String ofmt, String delim) throws IOException, DMLRuntimeException
+	private void runTransformReadMetaTest( ExecutionMode rt, String ofmt, String delim) throws IOException, DMLRuntimeException
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		rtplatform = rt;
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK  || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK  || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		try

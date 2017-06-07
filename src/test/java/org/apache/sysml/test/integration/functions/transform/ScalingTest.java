@@ -31,7 +31,7 @@ import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONObject;
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
@@ -72,25 +72,25 @@ public class ScalingTest extends AutomatedTestBase
 	@Test
 	public void testTransformScalingHybridCSV() throws IOException, DMLRuntimeException, Exception
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HYBRID, "csv");
+		runScalingTest(rows1, cols1, ExecutionMode.HYBRID, "csv");
 	}
 	
 	@Test
 	public void testTransformScalingSPHybridCSV() throws IOException, DMLRuntimeException, Exception
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HYBRID_SPARK, "csv");
+		runScalingTest(rows1, cols1, ExecutionMode.HYBRID_SPARK, "csv");
 	}
 	
 	@Test
 	public void testTransformScalingHadoopCSV() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HADOOP, "csv");
+		runScalingTest(rows1, cols1, ExecutionMode.HADOOP, "csv");
 	}
 	
 	@Test
 	public void testTransformScalingSparkCSV() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.SPARK, "csv");
+		runScalingTest(rows1, cols1, ExecutionMode.SPARK, "csv");
 	}
 	
 	// ---- Scaling BinaryBlock ---- 
@@ -98,25 +98,25 @@ public class ScalingTest extends AutomatedTestBase
 	@Test
 	public void testTransformScalingHybridBinary() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HYBRID, "binary");
+		runScalingTest(rows1, cols1, ExecutionMode.HYBRID, "binary");
 	}
 	
 	@Test
 	public void testTransformScalingSPHybridBinary() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HYBRID_SPARK, "binary");
+		runScalingTest(rows1, cols1, ExecutionMode.HYBRID_SPARK, "binary");
 	}
 	
 	@Test
 	public void testTransformScalingHadoopBinary() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.HADOOP, "binary");
+		runScalingTest(rows1, cols1, ExecutionMode.HADOOP, "binary");
 	}
 	
 	@Test
 	public void testTransformScalingSparkBinary() throws IOException, DMLRuntimeException, Exception 
 	{
-		runScalingTest(rows1, cols1, RUNTIME_PLATFORM.SPARK, "binary");
+		runScalingTest(rows1, cols1, ExecutionMode.SPARK, "binary");
 	}
 	
 	// ----------------------------
@@ -172,13 +172,13 @@ public class ScalingTest extends AutomatedTestBase
 	 * @throws IOException 
 	 * @throws DMLRuntimeException 
 	 */
-	private void runScalingTest( int rows, int cols, RUNTIME_PLATFORM rt, String ofmt) throws IOException, DMLRuntimeException, Exception
+	private void runScalingTest( int rows, int cols, ExecutionMode rt, String ofmt) throws IOException, DMLRuntimeException, Exception
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		rtplatform = rt;
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		try

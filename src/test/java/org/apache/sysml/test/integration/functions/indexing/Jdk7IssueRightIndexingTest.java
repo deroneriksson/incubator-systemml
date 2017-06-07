@@ -25,7 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
@@ -86,14 +86,14 @@ public class Jdk7IssueRightIndexingTest extends AutomatedTestBase
 	@Test
 	public void testIndexingDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
+		if(rtplatform == ExecutionMode.SPARK)
 			runIndexingTest(false, ExecType.SPARK);
 	}
 	
 	@Test
 	public void testIndexingSparseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
+		if(rtplatform == ExecutionMode.SPARK)
 			runIndexingTest(true, ExecType.SPARK);
 	}
 	
@@ -128,18 +128,18 @@ public class Jdk7IssueRightIndexingTest extends AutomatedTestBase
 	 */
 	public void runIndexingTest( boolean sparse, ExecType et ) 
 	{
-		RUNTIME_PLATFORM oldRTP = rtplatform;
+		ExecutionMode oldRTP = rtplatform;
 				
 		try
 		{
 		    TestConfiguration config = getTestConfiguration(TEST_NAME);
 		    
 		    if(et == ExecType.SPARK) {
-		    	rtplatform = RUNTIME_PLATFORM.SPARK;
+		    	rtplatform = ExecutionMode.SPARK;
 		    }
 		    else {
-		    	rtplatform = (et==null) ? RUNTIME_PLATFORM.HYBRID : 
-		    	         	(et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
+		    	rtplatform = (et==null) ? ExecutionMode.HYBRID : 
+		    	         	(et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
 		    }
 			
 		    config.addVariable("rows", rows);

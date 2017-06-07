@@ -55,6 +55,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -126,7 +127,7 @@ public class DMLScript
 		public boolean              stats         = false;            // Whether to record and print the statistics
 		public int                  statsCount    = 10;	              // Default statistics count
 		public Explain.ExplainType  explainType   = Explain.ExplainType.NONE;  // Whether to print the "Explain" and if so, what type
-		public DMLScript.RUNTIME_PLATFORM execMode = OptimizerUtils.getDefaultExecutionMode();  // Execution mode standalone, MR, Spark or a hybrid
+		public ExecutionMode        execMode      = RuntimePlatform.getDefaultExecutionMode();  // Execution mode standalone, MR, Spark or a hybrid
 		public boolean              gpu           = false;            // Whether to use the GPU
 		public boolean              forceGPU      = false;            // Whether to ignore memory & estimates and always use the GPU
 		public boolean              debug         = false;            // to go into debug mode to be able to step through a program
@@ -158,7 +159,7 @@ public class DMLScript
 		}
 	}
 
-	public static RUNTIME_PLATFORM  rtplatform          = DMLOptions.defaultOptions.execMode;    // the execution mode
+//	public static ExecutionMode     rtplatform          = DMLOptions.defaultOptions.execMode;    // the execution mode
 	public static boolean           STATISTICS          = DMLOptions.defaultOptions.stats;       // whether to print statistics
 	public static int               STATISTICS_COUNT    = DMLOptions.defaultOptions.statsCount;  // statistics maximum heavy hitter count
 	public static boolean           ENABLE_DEBUG_MODE   = DMLOptions.defaultOptions.debug;       // debug mode
@@ -269,11 +270,11 @@ public class DMLScript
 		if (line.hasOption("exec")){
 			String execMode = line.getOptionValue("exec");
 			if (execMode != null){
-				if (execMode.equalsIgnoreCase("hadoop")) dmlOptions.execMode = RUNTIME_PLATFORM.HADOOP;
-				else if (execMode.equalsIgnoreCase("singlenode")) dmlOptions.execMode = RUNTIME_PLATFORM.SINGLE_NODE;
-				else if (execMode.equalsIgnoreCase("hybrid")) dmlOptions.execMode = RUNTIME_PLATFORM.HYBRID;
-				else if (execMode.equalsIgnoreCase("hybrid_spark")) dmlOptions.execMode = RUNTIME_PLATFORM.HYBRID_SPARK;
-				else if (execMode.equalsIgnoreCase("spark")) dmlOptions.execMode = RUNTIME_PLATFORM.SPARK;
+				if (execMode.equalsIgnoreCase("hadoop")) dmlOptions.execMode = ExecutionMode.HADOOP;
+				else if (execMode.equalsIgnoreCase("singlenode")) dmlOptions.execMode = ExecutionMode.SINGLE_NODE;
+				else if (execMode.equalsIgnoreCase("hybrid")) dmlOptions.execMode = ExecutionMode.HYBRID;
+				else if (execMode.equalsIgnoreCase("hybrid_spark")) dmlOptions.execMode = ExecutionMode.HYBRID_SPARK;
+				else if (execMode.equalsIgnoreCase("spark")) dmlOptions.execMode = ExecutionMode.SPARK;
 				else throw new org.apache.commons.cli.ParseException("Invalid argument specified for -exec option, must be one of [hadoop, singlenode, hybrid, hybrid_spark, spark]");
 			}
 		}
@@ -445,7 +446,7 @@ public class DMLScript
 		throws DMLException
 	{
 		//parse arguments and set execution properties
-		RUNTIME_PLATFORM oldrtplatform  = rtplatform;  //keep old rtplatform
+		ExecutionMode oldrtplatform  = RuntimePlatform.rtplatform;  //keep old rtplatform
 		ExplainType oldexplain          = EXPLAIN;     //keep old explain
 
 		Options options = createCLIOptions();
@@ -463,7 +464,7 @@ public class DMLScript
 			EXPLAIN           = dmlOptions.explainType;
 			ENABLE_DEBUG_MODE = dmlOptions.debug;
 			SCRIPT_TYPE       = dmlOptions.scriptType;
-			rtplatform        = dmlOptions.execMode;
+			RuntimePlatform.rtplatform = dmlOptions.execMode;
 
 			String fnameOptConfig = dmlOptions.configFile;
 			boolean isFile = dmlOptions.filePath != null;
@@ -535,7 +536,7 @@ public class DMLScript
 		finally
 		{
 			//reset runtime platform and visualize flag
-			rtplatform = oldrtplatform;
+			RuntimePlatform.rtplatform = oldrtplatform;
 			EXPLAIN = oldexplain;
 		}
 		
@@ -1017,7 +1018,7 @@ public class DMLScript
 	private static void printInvocationInfo(String fnameScript, String fnameOptConfig, Map<String,String> argVals)
 	{		
 		LOG.debug("****** args to DML Script ******\n" + "UUID: " + getUUID() + "\n" + "SCRIPT PATH: " + fnameScript + "\n" 
-	                + "RUNTIME: " + rtplatform + "\n" + "BUILTIN CONFIG: " + DMLConfig.DEFAULT_SYSTEMML_CONFIG_FILEPATH + "\n"
+	                + "RUNTIME: " + RuntimePlatform.rtplatform + "\n" + "BUILTIN CONFIG: " + DMLConfig.DEFAULT_SYSTEMML_CONFIG_FILEPATH + "\n"
 	                + "OPTIONAL CONFIG: " + fnameOptConfig + "\n");
 
 		if( !argVals.isEmpty() ) {
@@ -1032,7 +1033,7 @@ public class DMLScript
 		LOG.info("BEGIN DML run " + getDateTime());
 		LOG.debug("DML script: \n" + dmlScriptString);
 		
-		if (rtplatform == RUNTIME_PLATFORM.HADOOP || rtplatform == RUNTIME_PLATFORM.HYBRID) {
+		if (RuntimePlatform.rtplatform == ExecutionMode.HADOOP || RuntimePlatform.rtplatform == ExecutionMode.HYBRID) {
 			String hadoop_home = System.getenv("HADOOP_HOME");
 			LOG.info("HADOOP_HOME: " + hadoop_home);
 		}

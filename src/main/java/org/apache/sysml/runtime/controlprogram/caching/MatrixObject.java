@@ -24,7 +24,8 @@ import java.lang.ref.SoftReference;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Lop;
@@ -545,7 +546,7 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 			
 			// when outputFormat is binaryblock, make sure that matrixCharacteristics has correct blocking dimensions
 			// note: this is only required if singlenode (due to binarycell default) 
-			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE &&
+			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE &&
 				(mc.getRowsPerBlock() != ConfigurationManager.getBlocksize() || mc.getColsPerBlock() != ConfigurationManager.getBlocksize()) ) 
 			{
 				DataConverter.writeMatrixToHDFS(_data, fname, oinfo, new MatrixCharacteristics(mc.getRows(), mc.getCols(), ConfigurationManager.getBlocksize(), ConfigurationManager.getBlocksize(), mc.getNonZeros()), rep, fprop);

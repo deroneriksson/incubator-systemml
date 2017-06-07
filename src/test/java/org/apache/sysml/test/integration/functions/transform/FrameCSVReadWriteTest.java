@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.transform;
 
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.io.FrameReader;
 import org.apache.sysml.runtime.io.FrameReaderFactory;
@@ -51,17 +51,17 @@ public class FrameCSVReadWriteTest extends AutomatedTestBase
 	
 	@Test
 	public void testCSVReadWriteSinglenode() {
-		runCSVQuotesReadWriteTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv");
+		runCSVQuotesReadWriteTest(ExecutionMode.SINGLE_NODE, "csv");
 	}
 	
 	@Test
 	public void testCSVReadWriteHybrid() {
-		runCSVQuotesReadWriteTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv");
+		runCSVQuotesReadWriteTest(ExecutionMode.HYBRID_SPARK, "csv");
 	}
 	
 	@Test
 	public void testCSVReadWriteSpark() {
-		runCSVQuotesReadWriteTest(RUNTIME_PLATFORM.SPARK, "csv");
+		runCSVQuotesReadWriteTest(ExecutionMode.SPARK, "csv");
 	}
 	
 	
@@ -71,15 +71,15 @@ public class FrameCSVReadWriteTest extends AutomatedTestBase
 	 * @param ofmt
 	 * @param dataset
 	 */
-	private void runCSVQuotesReadWriteTest( RUNTIME_PLATFORM rt, String ofmt )
+	private void runCSVQuotesReadWriteTest( ExecutionMode rt, String ofmt )
 	{
 		//set runtime platform
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		boolean csvReblockOld = OptimizerUtils.ALLOW_FRAME_CSV_REBLOCK;
 		rtplatform = rt;
 
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		if( !ofmt.equals("csv") )

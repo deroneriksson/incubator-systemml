@@ -22,10 +22,8 @@ package org.apache.sysml.lops.runtime;
 import java.io.IOException;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.wink.json4j.JSONException;
-
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -72,6 +70,7 @@ import org.apache.sysml.runtime.matrix.data.RandomMatrixGenerator;
 import org.apache.sysml.runtime.transform.DataTransform;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.utils.Statistics;
+import org.apache.wink.json4j.JSONException;
 
 
 public class RunMRJobs 
@@ -193,7 +192,7 @@ public class RunMRJobs
 			case DATAGEN:
 				if(    ConfigurationManager.isDynamicRecompilation()
 					&& OptimizerUtils.ALLOW_RAND_JOB_RECOMPILE
-					&& DMLScript.rtplatform != RUNTIME_PLATFORM.HADOOP 
+					&& RuntimePlatform.rtplatform != ExecutionMode.HADOOP 
 					&& Recompiler.checkCPDataGen( inst, rdInst ) ) 
 				{
 					ret = executeInMemoryDataGenOperations(inst, rdInst, outputMatrices);
@@ -228,7 +227,7 @@ public class RunMRJobs
 			case REBLOCK:
 			case CSV_REBLOCK:
 				if(    ConfigurationManager.isDynamicRecompilation() 
-					&& DMLScript.rtplatform != RUNTIME_PLATFORM.HADOOP 
+					&& RuntimePlatform.rtplatform != ExecutionMode.HADOOP 
 					&& Recompiler.checkCPReblock( inst, inputMatrices ) ) 
 				{
 					ret = executeInMemoryReblockOperations(inst, shuffleInst, inputMatrices, outputMatrices);
@@ -310,7 +309,7 @@ public class RunMRJobs
 				
 				if(    ConfigurationManager.isDynamicRecompilation()
 						&& OptimizerUtils.ALLOW_TRANSFORM_RECOMPILE
-						&& DMLScript.rtplatform != RUNTIME_PLATFORM.HADOOP 
+						&& RuntimePlatform.rtplatform != ExecutionMode.HADOOP 
 						&& Recompiler.checkCPTransform( inst, inputMatrices ) ) 
 					{
 						// transform the data and generate output in CSV format

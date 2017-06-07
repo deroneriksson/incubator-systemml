@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
@@ -295,18 +295,18 @@ public class ReplaceTest extends AutomatedTestBase
 	 */
 	private void runTestReplace( String test, double pattern, boolean sparse, ExecType etype )
 	{		
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
 		try
 		{
 			if(etype == ExecType.SPARK) {
-		    	rtplatform = RUNTIME_PLATFORM.SPARK;
+		    	rtplatform = ExecutionMode.SPARK;
 		    }
 		    else {
-		    	rtplatform = (etype==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		    	rtplatform = (etype==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		    }
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 			double sparsity = (sparse)? sparsity2 : sparsity1;

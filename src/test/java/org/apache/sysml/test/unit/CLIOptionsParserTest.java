@@ -26,6 +26,7 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.utils.Explain;
 import org.junit.Assert;
@@ -232,7 +233,7 @@ public class CLIOptionsParserTest {
     String[] args = cl.split(" ");
     Options options = DMLScript.createCLIOptions();
     DMLScript.DMLOptions o = DMLScript.parseCLArguments(args, options);
-    Assert.assertEquals(DMLScript.RUNTIME_PLATFORM.HADOOP, o.execMode);
+    Assert.assertEquals(ExecutionMode.HADOOP, o.execMode);
   }
 
   @Test
@@ -241,7 +242,7 @@ public class CLIOptionsParserTest {
     String[] args = cl.split(" ");
     Options options = DMLScript.createCLIOptions();
     DMLScript.DMLOptions o = DMLScript.parseCLArguments(args, options);
-    Assert.assertEquals(DMLScript.RUNTIME_PLATFORM.SPARK, o.execMode);
+    Assert.assertEquals(ExecutionMode.SPARK, o.execMode);
   }
 
   @Test
@@ -250,7 +251,7 @@ public class CLIOptionsParserTest {
     String[] args = cl.split(" ");
     Options options = DMLScript.createCLIOptions();
     DMLScript.DMLOptions o = DMLScript.parseCLArguments(args, options);
-    Assert.assertEquals(DMLScript.RUNTIME_PLATFORM.SINGLE_NODE, o.execMode);
+    Assert.assertEquals(ExecutionMode.SINGLE_NODE, o.execMode);
   }
 
   @Test
@@ -259,7 +260,7 @@ public class CLIOptionsParserTest {
     String[] args = cl.split(" ");
     Options options = DMLScript.createCLIOptions();
     DMLScript.DMLOptions o = DMLScript.parseCLArguments(args, options);
-    Assert.assertEquals(DMLScript.RUNTIME_PLATFORM.HYBRID, o.execMode);
+    Assert.assertEquals(ExecutionMode.HYBRID, o.execMode);
   }
 
   @Test
@@ -268,7 +269,7 @@ public class CLIOptionsParserTest {
     String[] args = cl.split(" ");
     Options options = DMLScript.createCLIOptions();
     DMLScript.DMLOptions o = DMLScript.parseCLArguments(args, options);
-    Assert.assertEquals(DMLScript.RUNTIME_PLATFORM.HYBRID_SPARK, o.execMode);
+    Assert.assertEquals(ExecutionMode.HYBRID_SPARK, o.execMode);
   }
 
   @Test(expected = ParseException.class)

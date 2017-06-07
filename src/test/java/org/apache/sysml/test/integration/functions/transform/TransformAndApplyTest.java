@@ -25,7 +25,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.io.MatrixWriter;
 import org.apache.sysml.runtime.io.MatrixWriterFactory;
@@ -61,17 +61,17 @@ public class TransformAndApplyTest extends AutomatedTestBase
 	
 	@Test
 	public void runTestCP() throws DMLRuntimeException, IOException {
-		runTransformAndApplyTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv");
+		runTransformAndApplyTest(ExecutionMode.SINGLE_NODE, "csv");
 	}
 	
 	@Test
 	public void runTestHadoop() throws DMLRuntimeException, IOException {
-		runTransformAndApplyTest(RUNTIME_PLATFORM.HADOOP, "csv");
+		runTransformAndApplyTest(ExecutionMode.HADOOP, "csv");
 	}
 
 	@Test
 	public void runTestSpark() throws DMLRuntimeException, IOException {
-		runTransformAndApplyTest(RUNTIME_PLATFORM.SPARK, "csv");
+		runTransformAndApplyTest(ExecutionMode.SPARK, "csv");
 	}
 	
 	/**
@@ -82,13 +82,13 @@ public class TransformAndApplyTest extends AutomatedTestBase
 	 * @throws IOException 
 	 * @throws DMLRuntimeException 
 	 */
-	private void runTransformAndApplyTest( RUNTIME_PLATFORM rt, String ofmt) throws IOException, DMLRuntimeException
+	private void runTransformAndApplyTest( ExecutionMode rt, String ofmt) throws IOException, DMLRuntimeException
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		rtplatform = rt;
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK  || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK  || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		try

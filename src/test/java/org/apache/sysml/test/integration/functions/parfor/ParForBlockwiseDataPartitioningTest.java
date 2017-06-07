@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitioner;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
@@ -180,13 +180,13 @@ public class ParForBlockwiseDataPartitioningTest extends AutomatedTestBase
 	
 	private void runParForDataPartitioningTest( String testname, PDataPartitioner partitioner, PExecMode mode, boolean sparse )
 	{
-		RUNTIME_PLATFORM oldRT = rtplatform;
+		ExecutionMode oldRT = rtplatform;
 		boolean oldUseSparkConfig = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		boolean oldDynRecompile = CompilerConfig.FLAG_DYN_RECOMPILE;
 		
 		//run always in spark execution mode
 		DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-		rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+		rtplatform = ExecutionMode.HYBRID_SPARK;
 		
 		try
 		{

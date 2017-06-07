@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.transform;
 
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.io.MatrixReader;
 import org.apache.sysml.runtime.io.MatrixReaderFactory;
@@ -67,52 +67,52 @@ public class TransformFrameApplyTest extends AutomatedTestBase
 	
 	@Test
 	public void testHomesRecodeSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", TransformType.RECODE);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", TransformType.RECODE);
 	}
 	
 	@Test
 	public void testHomesRecodeSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", TransformType.RECODE);
+		runTransformTest(ExecutionMode.SPARK, "csv", TransformType.RECODE);
 	}
 	
 	@Test
 	public void testHomesDummycodeSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", TransformType.DUMMY);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", TransformType.DUMMY);
 	}
 	
 	@Test
 	public void testHomesDummycodeSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", TransformType.DUMMY);
+		runTransformTest(ExecutionMode.SPARK, "csv", TransformType.DUMMY);
 	}
 	
 	@Test
 	public void testHomesBinningSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", TransformType.BIN);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", TransformType.BIN);
 	}
 	
 	@Test
 	public void testHomesBinningSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", TransformType.BIN);
+		runTransformTest(ExecutionMode.SPARK, "csv", TransformType.BIN);
 	}
 	
 	@Test
 	public void testHomesOmitSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", TransformType.OMIT);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", TransformType.OMIT);
 	}
 	
 	@Test
 	public void testHomesOmitSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", TransformType.OMIT);
+		runTransformTest(ExecutionMode.SPARK, "csv", TransformType.OMIT);
 	}
 	
 	@Test
 	public void testHomesImputeSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", TransformType.IMPUTE);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", TransformType.IMPUTE);
 	}
 	
 	@Test
 	public void testHomesImputeSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", TransformType.IMPUTE);
+		runTransformTest(ExecutionMode.SPARK, "csv", TransformType.IMPUTE);
 	}
 
 	/**
@@ -121,15 +121,15 @@ public class TransformFrameApplyTest extends AutomatedTestBase
 	 * @param ofmt
 	 * @param dataset
 	 */
-	private void runTransformTest( RUNTIME_PLATFORM rt, String ofmt, TransformType type )
+	private void runTransformTest( ExecutionMode rt, String ofmt, TransformType type )
 	{
 		//set runtime platform
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		boolean csvReblockOld = OptimizerUtils.ALLOW_FRAME_CSV_REBLOCK;
 		rtplatform = rt;
 
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		//set transform specification

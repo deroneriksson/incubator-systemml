@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.unary.matrix;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
@@ -83,31 +83,31 @@ public class QRSolverTest extends AutomatedTestBase
 	@Test
 	public void testQRSolveCP() 
 	{
-		runTestQRSolve( RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestQRSolve( ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testQRSolveSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-			runTestQRSolve( RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+			runTestQRSolve( ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testQRSolveMR() 
 	{
-		runTestQRSolve( RUNTIME_PLATFORM.HADOOP );
+		runTestQRSolve( ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testQRSolveHybrid() 
 	{
-		runTestQRSolve( RUNTIME_PLATFORM.HYBRID );
+		runTestQRSolve( ExecutionMode.HYBRID );
 	}
 	
-	private void runTestQRSolve( RUNTIME_PLATFORM rt)
+	private void runTestQRSolve( ExecutionMode rt)
 	{
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 		
 		boolean exceptionExpected = false;

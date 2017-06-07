@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.misc;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
@@ -81,11 +81,11 @@ public class NrowNcolUnknownCSVReadTest extends AutomatedTestBase
 	private void runNxxUnkownCSVTest( String testName ) 
 	{
 		String TEST_NAME = testName;
-		RUNTIME_PLATFORM oldplatform = rtplatform;
+		ExecutionMode oldplatform = rtplatform;
 		
 		try
 		{	
-			rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+			rtplatform = ExecutionMode.SINGLE_NODE;
 			
 			//test configuration
 			getAndLoadTestConfiguration(TEST_NAME);

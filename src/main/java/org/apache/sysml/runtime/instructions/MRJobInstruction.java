@@ -24,7 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.DataGen;
 import org.apache.sysml.lops.Lop;
@@ -1273,7 +1274,7 @@ public class MRJobInstruction extends Instruction
 	public void processInstruction(ExecutionContext ec)
 		throws DMLRuntimeException 
 	{
-		if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE)
+		if ( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE)
 			throw new DMLRuntimeException("MapReduce jobs cannot be executed when execution mode = singlenode");
 		
 		//execute MR job
