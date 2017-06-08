@@ -22,7 +22,7 @@ package org.apache.sysml.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.debug.DMLBreakpointManager;
 
  
@@ -144,7 +144,7 @@ public class PrintStatement extends Statement
 	@Override
 	public boolean controlStatement() {	 
 		// ensure that breakpoints end up in own statement block
-		if (DMLScript.ENABLE_DEBUG_MODE) {
+		if (RuntimePlatform.enableDebugMode) {
 			DMLBreakpointManager.insertBreakpoint(expressions.get(0).getBeginLine());
 			return true;
 		}

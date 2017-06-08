@@ -21,7 +21,7 @@ package org.apache.sysml.debug;
 
 import java.util.Stack;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 
@@ -61,7 +61,7 @@ public class DebugState
 	 * @throws DMLRuntimeException if DMLRuntimeException occurs
 	 */
 	public DMLProgramCounter getPC() throws DMLRuntimeException {
-		if(!DMLScript.ENABLE_DEBUG_MODE) {
+		if(!RuntimePlatform.enableDebugMode) {
 			System.err.println("Error: This functionality (getPC) is available only in debug mode");
 			//// Fatal error to avoid unintentional bugs 
 			throw new DMLRuntimeException("Error: This functionality (getPC) is available only in debug mode");

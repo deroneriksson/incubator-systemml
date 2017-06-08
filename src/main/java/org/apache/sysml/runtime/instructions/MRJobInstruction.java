@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -416,7 +415,7 @@ public class MRJobInstruction extends Instruction
 	 * @return Return true if found, otherwise return false 
 	 */
 	public boolean findMRInstructions(int lineNum) {
-		if (!DMLScript.ENABLE_DEBUG_MODE) {
+		if (!RuntimePlatform.enableDebugMode) {
 			System.err.println("Error: Expecting debug mode to be enabled for this functionality");
 			return false;
 		}
@@ -466,7 +465,7 @@ public class MRJobInstruction extends Instruction
 	 */
 	public String getMRString(boolean debug)
 	{
-		if (!DMLScript.ENABLE_DEBUG_MODE) {
+		if (!RuntimePlatform.enableDebugMode) {
 			System.err.println("Error: Expecting debug mode to be enabled for this functionality");
 			return "";
 		}

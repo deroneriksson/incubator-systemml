@@ -293,7 +293,7 @@ public class OptimizerUtils
 		// This overrides any optimization level that is present in the configuration file.
 		// Why ? This simplifies the calling logic: User doesnot have to maintain two config file or worse
 		// edit config file everytime he/she is trying to call the debugger.
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			optlevel = 5;
 		}
 		

@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.ReBlock;
@@ -53,13 +54,13 @@ import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
 import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
+import org.apache.sysml.udf.BinaryObject;
 import org.apache.sysml.udf.ExternalFunctionInvocationInstruction;
 import org.apache.sysml.udf.FunctionParameter;
+import org.apache.sysml.udf.FunctionParameter.FunctionParameterType;
 import org.apache.sysml.udf.Matrix;
 import org.apache.sysml.udf.PackageFunction;
 import org.apache.sysml.udf.Scalar;
-import org.apache.sysml.udf.FunctionParameter.FunctionParameterType;
-import org.apache.sysml.udf.BinaryObject;
 import org.apache.sysml.udf.Scalar.ScalarValueType;
 
 public class ExternalFunctionProgramBlock extends FunctionProgramBlock 
@@ -345,7 +346,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 			c2binst = new ArrayList<Instruction>();
 			MRJobInstruction reblkInst = new MRJobInstruction(JobType.REBLOCK);
 			TreeMap<Integer, ArrayList<String>> MRJobLineNumbers = null;
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				MRJobLineNumbers = new TreeMap<Integer, ArrayList<String>>();
 			}
 			
@@ -377,7 +378,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 									i + ReBlock.DATATYPE_PREFIX + matrices.get(i).getDataType() + ReBlock.VALUETYPE_PREFIX + matrices.get(i).getValueType() + ReBlock.OPERAND_DELIMITOR + 
 									ConfigurationManager.getBlocksize() + ReBlock.OPERAND_DELIMITOR + ConfigurationManager.getBlocksize() + ReBlock.OPERAND_DELIMITOR + "true";
 					
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						//Create a copy of reblock instruction but as a single instruction (FOR DEBUGGER)
 						reblockStr = "MR" + ReBlock.OPERAND_DELIMITOR + "rblk" + ReBlock.OPERAND_DELIMITOR + 
 										i + ReBlock.DATATYPE_PREFIX + matrices.get(i).getDataType() + ReBlock.VALUETYPE_PREFIX + matrices.get(i).getValueType() + ReBlock.OPERAND_DELIMITOR + 
@@ -466,7 +467,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 			b2cinst = new ArrayList<Instruction>();
 			MRJobInstruction gmrInst = new MRJobInstruction(JobType.GMR);
 			TreeMap<Integer, ArrayList<String>> MRJobLineNumbers = null;
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				MRJobLineNumbers = new TreeMap<Integer, ArrayList<String>>();
 			}
 			String gmrStr="";
@@ -491,7 +492,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 									_otherParams.get(ExternalFunctionStatement.CLASS_NAME) + _runID + "_" + i + "Input";
 					unBlockedFileNames.put(matrices.get(i).getName(), outputs[i]);
 	
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						//Create a dummy gmr instruction (FOR DEBUGGER)
 						gmrStr = "MR" + Lop.OPERAND_DELIMITOR + "gmr" + Lop.OPERAND_DELIMITOR + 
 										i + Lop.DATATYPE_PREFIX + matrices.get(i).getDataType() + Lop.VALUETYPE_PREFIX + matrices.get(i).getValueType() + Lop.OPERAND_DELIMITOR + 

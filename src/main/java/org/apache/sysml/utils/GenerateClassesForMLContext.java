@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.mlcontext.MLContext;
 import org.apache.sysml.api.mlcontext.MLResults;
 import org.apache.sysml.api.mlcontext.Script;
@@ -89,7 +89,7 @@ public class GenerateClassesForMLContext {
 			source = args[0];
 		}
 		try {
-			DMLScript.VALIDATOR_IGNORE_ISSUES = true;
+			RuntimePlatform.validatorIgnoreIssues = true;
 			System.out.println("************************************");
 			System.out.println("**** MLContext Class Generation ****");
 			System.out.println("************************************");
@@ -100,7 +100,7 @@ public class GenerateClassesForMLContext {
 			String fullDirClassName = recurseDirectoriesForConvenienceClassGeneration(source);
 			addConvenienceMethodsToMLContext(source, fullDirClassName);
 		} finally {
-			DMLScript.VALIDATOR_IGNORE_ISSUES = false;
+			RuntimePlatform.validatorIgnoreIssues = false;
 		}
 	}
 

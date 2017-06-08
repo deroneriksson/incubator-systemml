@@ -163,7 +163,7 @@ public class DMLScript
 //	public static ExecutionMode     rtplatform          = DMLOptions.defaultOptions.execMode;    // the execution mode
 	public static boolean           STATISTICS          = DMLOptions.defaultOptions.stats;       // whether to print statistics
 	public static int               STATISTICS_COUNT    = DMLOptions.defaultOptions.statsCount;  // statistics maximum heavy hitter count
-	public static boolean           ENABLE_DEBUG_MODE   = DMLOptions.defaultOptions.debug;       // debug mode
+//	public static boolean           ENABLE_DEBUG_MODE   = DMLOptions.defaultOptions.debug;       // debug mode
 	public static ExplainType       EXPLAIN             = DMLOptions.defaultOptions.explainType; // explain type
 	public static String            DML_FILE_PATH_ANTLR_PARSER = DMLOptions.defaultOptions.filePath; // filename of dml/pydml script
 
@@ -183,7 +183,7 @@ public class DMLScript
 	/**
 	 * If true, allow DMLProgram to be generated while not halting due to validation errors/warnings
 	 */
-	public static boolean VALIDATOR_IGNORE_ISSUES = false;
+//	public static boolean VALIDATOR_IGNORE_ISSUES = false;
 
 	public static String _uuid = IDHandler.createDistributedUniqueID();
 	private static final Log LOG = LogFactory.getLog(DMLScript.class.getName());
@@ -463,7 +463,7 @@ public class DMLScript
 			USE_ACCELERATOR   = dmlOptions.gpu;
 			FORCE_ACCELERATOR = dmlOptions.forceGPU;
 			EXPLAIN           = dmlOptions.explainType;
-			ENABLE_DEBUG_MODE = dmlOptions.debug;
+			RuntimePlatform.enableDebugMode = dmlOptions.debug;
 			RuntimePlatform.scriptType = dmlOptions.scriptType;
 			RuntimePlatform.rtplatform = dmlOptions.execMode;
 
@@ -485,7 +485,7 @@ public class DMLScript
 			}
 
 			//set log level
-			if (!ENABLE_DEBUG_MODE)
+			if (!RuntimePlatform.enableDebugMode)
 				setLoggingProperties( conf );
 		
 			//Step 2: prepare script invocation
@@ -500,7 +500,7 @@ public class DMLScript
 			
 			//Step 3: invoke dml script
 			printInvocationInfo(fileOrScript, fnameOptConfig, argVals);
-			if (ENABLE_DEBUG_MODE) {
+			if (RuntimePlatform.enableDebugMode) {
 				// inner try loop is just to isolate the debug exception, which will allow to manage the bugs from debugger v/s runtime
 				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, RuntimePlatform.scriptType);
 			}

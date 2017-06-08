@@ -25,9 +25,21 @@ public class RuntimePlatform {
 		return executionMode;
 	}
 
+	/**
+	 * Global variable indicating the script type (DML or PYDML). Can be used
+	 * for DML/PYDML-specific tasks, such as outputting booleans in the correct
+	 * case (TRUE/FALSE for DML and True/False for PYDML).
+	 */
 	public static ScriptType scriptType = getDefaultScriptType();
 
 	public static ScriptType getDefaultScriptType() {
 		return ScriptType.DML;
 	}
+
+	/**
+	 * If true, allow DMLProgram to be generated while not halting due to validation errors/warnings
+	 */
+	public static boolean validatorIgnoreIssues = false;
+	
+	public static boolean enableDebugMode = false;
 }
