@@ -24,12 +24,9 @@ import java.io.Closeable;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
@@ -61,6 +58,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.transform.TfUtils;
 import org.apache.sysml.runtime.transform.meta.TfMetaUtils;
 import org.apache.sysml.runtime.util.DataConverter;
+import org.apache.sysml.utils.HDFSUtils;
 import org.apache.wink.json4j.JSONObject;
 
 /**
@@ -233,9 +231,12 @@ public class Connection implements Closeable
 			if(    fname.startsWith("hdfs:") 
 				|| fname.startsWith("gpfs:") ) 
 			{ 
-				Path scriptPath = new Path(fname);
-				FileSystem fs = IOUtilFunctions.getFileSystem(scriptPath);
-				in = new BufferedReader(new InputStreamReader(fs.open(scriptPath)));
+				try {
+					Class.forName("org.apache.hadoop.fs.FileSystem");
+					in = HDFSUtils.hadoopPathToBufferedReader(fname);
+				} catch (ClassNotFoundException e) {
+					throw new IOException("HDFS/GPFS not available");
+				}
 			}
 			// from local file system
 			else { 
