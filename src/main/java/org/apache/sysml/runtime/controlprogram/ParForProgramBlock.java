@@ -34,7 +34,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -1939,7 +1940,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		long ret = -1;
 		
 		//if forced remote exec and single node
-		if(    DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE 
+		if(    RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE 
 			&& _execMode == PExecMode.REMOTE_MR
 			&& _optMode == POptMode.NONE      )
 		{

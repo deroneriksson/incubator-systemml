@@ -31,7 +31,8 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.AggBinaryOp;
@@ -701,7 +702,7 @@ public class Dag<N extends Lop>
 	 */
 	private static boolean sendWriteLopToMR(Lop node) 
 	{
-		if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
+		if ( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE )
 			return false;
 		Lop in = node.getInputs().get(0);
 		Format nodeFormat = node.getOutputParameters().getFormat();

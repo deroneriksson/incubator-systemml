@@ -25,7 +25,8 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
@@ -199,12 +200,12 @@ public class DataFrameRowFrameConversionTest extends AutomatedTestBase
 
 	private void testDataFrameConversion(ValueType vt, boolean singleColBlock, boolean dense, boolean unknownDims) {
 		boolean oldConfig = DMLScript.USE_LOCAL_SPARK_CONFIG; 
-		RUNTIME_PLATFORM oldPlatform = DMLScript.rtplatform;
+		ExecutionMode oldPlatform = RuntimePlatform.rtplatform;
 
 		try
 		{
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-			DMLScript.rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			RuntimePlatform.rtplatform = ExecutionMode.HYBRID_SPARK;
 			
 			//generate input data and setup metadata
 			int cols = singleColBlock ? cols1 : cols2;
@@ -238,7 +239,7 @@ public class DataFrameRowFrameConversionTest extends AutomatedTestBase
 		}
 		finally {
 			DMLScript.USE_LOCAL_SPARK_CONFIG = oldConfig;
-			DMLScript.rtplatform = oldPlatform;
+			RuntimePlatform.rtplatform = oldPlatform;
 		}
 	}
 

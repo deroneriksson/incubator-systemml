@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.transform;
 
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.io.FrameReader;
 import org.apache.sysml.runtime.io.FrameReaderTextCSV;
 import org.apache.sysml.runtime.io.FrameReaderTextCSVParallel;
@@ -50,62 +50,62 @@ public class TransformCSVFrameEncodeReadTest extends AutomatedTestBase
 	
 	@Test
 	public void testFrameReadMetaSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", false, false);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", false, false);
 	}
 	
 	@Test
 	public void testFrameReadMetaSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", false, false);
+		runTransformTest(ExecutionMode.SPARK, "csv", false, false);
 	}
 	
 	@Test
 	public void testFrameReadMetaHybridCSV() {
-		runTransformTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv", false, false);
+		runTransformTest(ExecutionMode.HYBRID_SPARK, "csv", false, false);
 	}
 	
 	@Test
 	public void testFrameParReadMetaSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", false, true);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", false, true);
 	}
 	
 	@Test
 	public void testFrameParReadMetaSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", false, true);
+		runTransformTest(ExecutionMode.SPARK, "csv", false, true);
 	}
 	
 	@Test
 	public void testFrameParReadMetaHybridCSV() {
-		runTransformTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv", false, true);
+		runTransformTest(ExecutionMode.HYBRID_SPARK, "csv", false, true);
 	}
 
 	@Test
 	public void testFrameReadSubMetaSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", true, false);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", true, false);
 	}
 	
 	@Test
 	public void testFrameReadSubMetaSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", true, false);
+		runTransformTest(ExecutionMode.SPARK, "csv", true, false);
 	}
 	
 	@Test
 	public void testFrameReadSubMetaHybridCSV() {
-		runTransformTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv", true, false);
+		runTransformTest(ExecutionMode.HYBRID_SPARK, "csv", true, false);
 	}
 	
 	@Test
 	public void testFrameParReadSubMetaSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv", true, true);
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv", true, true);
 	}
 	
 	@Test
 	public void testFrameParReadSubMetaSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv", true, true);
+		runTransformTest(ExecutionMode.SPARK, "csv", true, true);
 	}
 	
 	@Test
 	public void testFrameParReadSubMetaHybridCSV() {
-		runTransformTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv", true, true);
+		runTransformTest(ExecutionMode.HYBRID_SPARK, "csv", true, true);
 	}
 
 	
@@ -115,14 +115,14 @@ public class TransformCSVFrameEncodeReadTest extends AutomatedTestBase
 	 * @param ofmt
 	 * @param dataset
 	 */
-	private void runTransformTest( RUNTIME_PLATFORM rt, String ofmt, boolean subset, boolean parRead )
+	private void runTransformTest( ExecutionMode rt, String ofmt, boolean subset, boolean parRead )
 	{
 		//set runtime platform
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		if( !ofmt.equals("csv") )

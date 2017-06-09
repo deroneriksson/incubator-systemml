@@ -20,21 +20,22 @@
 package org.apache.sysml.hops;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
 import org.apache.sysml.lops.Binary;
 import org.apache.sysml.lops.DataPartition;
 import org.apache.sysml.lops.Group;
-import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.MMCJ;
+import org.apache.sysml.lops.MMCJ.MMCJType;
 import org.apache.sysml.lops.MMRJ;
 import org.apache.sysml.lops.MMTSJ;
-import org.apache.sysml.lops.MMCJ.MMCJType;
 import org.apache.sysml.lops.MMTSJ.MMTSJType;
 import org.apache.sysml.lops.MMZip;
 import org.apache.sysml.lops.MapMult;
@@ -1286,8 +1287,8 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 	{
 		//check for forced MR or Spark execution modes, which prevent the introduction of
 		//additional CP operations and hence the rewrite application
-		if(    DMLScript.rtplatform == RUNTIME_PLATFORM.HADOOP  //not hybrid_mr
-			|| DMLScript.rtplatform == RUNTIME_PLATFORM.SPARK ) //not hybrid_spark
+		if(    RuntimePlatform.rtplatform == ExecutionMode.HADOOP  //not hybrid_mr
+			|| RuntimePlatform.rtplatform == ExecutionMode.SPARK ) //not hybrid_spark
 		{
 			return false;
 		}

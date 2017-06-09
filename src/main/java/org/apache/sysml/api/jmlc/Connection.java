@@ -32,7 +32,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
@@ -100,7 +101,7 @@ public class Connection implements Closeable
 	 */
 	public Connection()
 	{
-		DMLScript.rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+		RuntimePlatform.rtplatform = ExecutionMode.SINGLE_NODE;
 		
 		//setup basic parameters for embedded execution
 		//(parser, compiler, and runtime parameters)

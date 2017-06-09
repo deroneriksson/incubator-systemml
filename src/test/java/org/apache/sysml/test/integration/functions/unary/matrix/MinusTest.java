@@ -25,7 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
@@ -86,14 +86,14 @@ public class MinusTest extends AutomatedTestBase
 	@Test
 	public void testMinusDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
+		if(rtplatform == ExecutionMode.SPARK)
 		runTestMinus( false, ExecType.SPARK );
 	}
 	
 	@Test
 	public void testMinusSparseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
+		if(rtplatform == ExecutionMode.SPARK)
 		runTestMinus( true, ExecType.SPARK );
 	}
 	
@@ -113,12 +113,12 @@ public class MinusTest extends AutomatedTestBase
 	private void runTestMinus( boolean sparse, ExecType et )
 	{		
 		//handle rows and cols
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		if(et == ExecType.SPARK) {
-	    	rtplatform = RUNTIME_PLATFORM.SPARK;
+	    	rtplatform = ExecutionMode.SPARK;
 	    }
 		else {
-	    	rtplatform = (et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
+	    	rtplatform = (et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
 	    }
 	
 		try

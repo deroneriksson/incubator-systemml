@@ -29,7 +29,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 
@@ -95,16 +95,16 @@ public class SampleTest extends AutomatedTestBase
 	
 	@Test
 	public void testSample() {
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		
 		try
 		{
-			rtplatform = RUNTIME_PLATFORM.HYBRID;
+			rtplatform = ExecutionMode.HYBRID;
 			runSampleTest();
-			rtplatform = RUNTIME_PLATFORM.SPARK;
+			rtplatform = ExecutionMode.SPARK;
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			runSampleTest();
-			rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			rtplatform = ExecutionMode.HYBRID_SPARK;
 			runSampleTest();
 			DMLScript.USE_LOCAL_SPARK_CONFIG = false;
 		}

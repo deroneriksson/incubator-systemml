@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
@@ -62,65 +62,65 @@ public class AppendChainTest extends AutomatedTestBase
 
 	@Test
 	public void testAppendChainVectorDenseCP() {
-		commonAppendTest(RUNTIME_PLATFORM.HYBRID, rows, cols1, cols2a, cols3a, false);
+		commonAppendTest(ExecutionMode.HYBRID, rows, cols1, cols2a, cols3a, false);
 	}
 	
 	@Test
 	public void testAppendChainMatrixDenseCP() {
-		commonAppendTest(RUNTIME_PLATFORM.HYBRID, rows, cols1, cols2b, cols3b, false);
+		commonAppendTest(ExecutionMode.HYBRID, rows, cols1, cols2b, cols3b, false);
 	}
 	
 	// ------------------------------------------------------
 	@Test
 	public void testAppendChainVectorDenseSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows, cols1, cols2a, cols3a, false);
+		commonAppendTest(ExecutionMode.SPARK, rows, cols1, cols2a, cols3a, false);
 	}
 	
 	@Test
 	public void testAppendChainMatrixDenseSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows, cols1, cols2b, cols3b, false);
+		commonAppendTest(ExecutionMode.SPARK, rows, cols1, cols2b, cols3b, false);
 	}
 	
 	@Test
 	public void testAppendChainVectorSparseSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows, cols1, cols2a, cols3a, true);
+		commonAppendTest(ExecutionMode.SPARK, rows, cols1, cols2a, cols3a, true);
 	}
 	
 	@Test
 	public void testAppendChainMatrixSparseSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows, cols1, cols2b, cols3b, true);
+		commonAppendTest(ExecutionMode.SPARK, rows, cols1, cols2b, cols3b, true);
 	}
 	
 	// ------------------------------------------------------
 	
 	@Test
 	public void testAppendChainVectorDenseMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows, cols1, cols2a, cols3a, false);
+		commonAppendTest(ExecutionMode.HADOOP, rows, cols1, cols2a, cols3a, false);
 	}
 	
 	@Test
 	public void testAppendChainMatrixDenseMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows, cols1, cols2b, cols3b, false);
+		commonAppendTest(ExecutionMode.HADOOP, rows, cols1, cols2b, cols3b, false);
 	}
 	
 	@Test
 	public void testAppendChainVectorSparseCP() {
-		commonAppendTest(RUNTIME_PLATFORM.HYBRID, rows, cols1, cols2a, cols3a, true);
+		commonAppendTest(ExecutionMode.HYBRID, rows, cols1, cols2a, cols3a, true);
 	}
 	
 	@Test
 	public void testAppendChainMatrixSparseCP() {
-		commonAppendTest(RUNTIME_PLATFORM.HYBRID, rows, cols1, cols2b, cols3b, true);
+		commonAppendTest(ExecutionMode.HYBRID, rows, cols1, cols2b, cols3b, true);
 	}
 	
 	@Test
 	public void testAppendChainVectorSparseMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows, cols1, cols2a, cols3a, true);
+		commonAppendTest(ExecutionMode.HADOOP, rows, cols1, cols2a, cols3a, true);
 	}
 	
 	@Test
 	public void testAppendChainMatrixSparseMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows, cols1, cols2b, cols3b, true);
+		commonAppendTest(ExecutionMode.HADOOP, rows, cols1, cols2b, cols3b, true);
 	}
 			
 	/**
@@ -131,17 +131,17 @@ public class AppendChainTest extends AutomatedTestBase
 	 * @param cols2
 	 * @param cols3
 	 */
-	public void commonAppendTest(RUNTIME_PLATFORM platform, int rows, int cols1, int cols2, int cols3, boolean sparse)
+	public void commonAppendTest(ExecutionMode platform, int rows, int cols1, int cols2, int cols3, boolean sparse)
 	{
 		TestConfiguration config = getAndLoadTestConfiguration(TEST_NAME);
 	    
-		RUNTIME_PLATFORM prevPlfm=rtplatform;
+		ExecutionMode prevPlfm=rtplatform;
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
 		try
 		{
 		    rtplatform = platform;
-		    if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		    if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 	        config.addVariable("rows", rows);
@@ -173,8 +173,8 @@ public class AppendChainTest extends AutomatedTestBase
 	        writeInputMatrix("B2", B2, true);
 	        
 	        boolean exceptionExpected = false;
-			int expectedCompiledMRJobs = (rtplatform==RUNTIME_PLATFORM.HADOOP)? 2+((cols3>1)?1:0) : 1;
-			int expectedExecutedMRJobs = (rtplatform==RUNTIME_PLATFORM.HADOOP)? 2+((cols3>1)?1:0) : 0; 
+			int expectedCompiledMRJobs = (rtplatform==ExecutionMode.HADOOP)? 2+((cols3>1)?1:0) : 1;
+			int expectedExecutedMRJobs = (rtplatform==ExecutionMode.HADOOP)? 2+((cols3>1)?1:0) : 0; 
 			runTest(true, exceptionExpected, null, expectedCompiledMRJobs);
 			runRScript(true);
 			Assert.assertEquals("Wrong number of executed MR jobs.",

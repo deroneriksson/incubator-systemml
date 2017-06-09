@@ -25,7 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.MMTSJ.MMTSJType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
@@ -221,8 +221,8 @@ public class FullMatrixMultiplicationTransposeSelfTest extends AutomatedTestBase
 		}
 
 		//rtplatform for MR
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = (instType==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = (instType==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 	
 		try
 		{
@@ -299,8 +299,8 @@ public class FullMatrixMultiplicationTransposeSelfTest extends AutomatedTestBase
 		}
 
 		//rtplatform for MR
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = (instType==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = (instType==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 	
 		try
 		{

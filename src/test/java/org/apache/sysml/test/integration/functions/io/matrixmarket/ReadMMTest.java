@@ -20,7 +20,7 @@
 package org.apache.sysml.test.integration.functions.io.matrixmarket;
 
 import org.junit.Test;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
@@ -44,52 +44,52 @@ public class ReadMMTest extends AutomatedTestBase
 	
 	@Test
 	public void testMatrixMarket1_Sequential_CP() {
-		runMMTest(1, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runMMTest(1, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testMatrixMarket1_Parallel_CP() {
-		runMMTest(1, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runMMTest(1, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testMatrixMarket1_MR() {
-		runMMTest(1, RUNTIME_PLATFORM.HADOOP, true);
+		runMMTest(1, ExecutionMode.HADOOP, true);
 	}
 	
 	@Test
 	public void testMatrixMarket2_Sequential_CP() {
-		runMMTest(2, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runMMTest(2, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testMatrixMarket2_ParallelCP() {
-		runMMTest(2, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runMMTest(2, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testMatrixMarket2_MR() {
-		runMMTest(2, RUNTIME_PLATFORM.HADOOP, true);
+		runMMTest(2, ExecutionMode.HADOOP, true);
 	}
 	
 	@Test
 	public void testMatrixMarket3_Sequential_CP() {
-		runMMTest(3, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runMMTest(3, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testMatrixMarket3_Parallel_CP() {
-		runMMTest(3, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runMMTest(3, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testMatrixMarket3_MR() {
-		runMMTest(3, RUNTIME_PLATFORM.HADOOP, true);
+		runMMTest(3, ExecutionMode.HADOOP, true);
 	}
 	
-	private void runMMTest(int testNumber, RUNTIME_PLATFORM platform, boolean parallel) {
+	private void runMMTest(int testNumber, ExecutionMode platform, boolean parallel) {
 		
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
+		ExecutionMode oldPlatform = rtplatform;
 		boolean oldpar = CompilerConfig.FLAG_PARREADWRITE_TEXT;
 		
 		try

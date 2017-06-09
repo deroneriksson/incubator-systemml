@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.io.FrameReader;
@@ -102,8 +102,8 @@ public class TransformEncodeDecodeTest extends AutomatedTestBase
 	 */
 	private void runTransformEncodeDecodeTest( ExecType et, boolean sparse, String fmt)
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HYBRID; //only CP supported
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = ExecutionMode.HYBRID; //only CP supported
 
 		try
 		{

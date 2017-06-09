@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
@@ -129,7 +129,7 @@ public class RewriteComplexMapMultChainTest extends AutomatedTestBase
 	private void runRewriteMapMultChain( String TEST_NAME, boolean singleCol, ExecType et ) 
 		throws DMLRuntimeException, IOException
 	{	
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		
 		try
 		{
@@ -144,7 +144,7 @@ public class RewriteComplexMapMultChainTest extends AutomatedTestBase
 			fullRScriptName = HOME + TEST_NAME + ".R";
 			rCmd = "Rscript" + " " + fullRScriptName + " " + inputDir() + " " + expectedDir();
 
-			rtplatform = (et==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+			rtplatform = (et==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 			
 			//generate input data
 			double[][] X = getRandomMatrix(rows, cols, 0, 1, sparsity, 7);

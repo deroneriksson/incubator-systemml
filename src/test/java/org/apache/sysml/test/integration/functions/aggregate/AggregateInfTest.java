@@ -21,14 +21,13 @@ package org.apache.sysml.test.integration.functions.aggregate;
 
 import java.util.HashMap;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.junit.Test;
 
 /**
  * 
@@ -112,8 +111,8 @@ public class AggregateInfTest extends AutomatedTestBase
 	private void runInfAggregateOperationTest( boolean pos, boolean sparse, ExecType instType)
 	{
 		//rtplatform for MR
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = (instType==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = (instType==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 	
 		try
 		{

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
@@ -137,8 +137,8 @@ public class ParForCorrelationTest extends AutomatedTestBase
 	private void runParForCorrelationTest( boolean parallel, PExecMode outer, PExecMode inner, ExecType instType, boolean profile, boolean debug, boolean statistics )
 	{
 		//inst exec type, influenced via rows
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
-		rtplatform = (instType==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode oldPlatform = rtplatform;
+		rtplatform = (instType==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		int cols = (instType==ExecType.MR)? cols2 : cols1;
 		
 		//script
