@@ -21,6 +21,7 @@ package org.apache.sysml.conf;
 
 import java.util.HashMap;
 
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.OptimizerUtils;
 
 /**
@@ -101,7 +102,7 @@ public class CompilerConfig
 		
 		_imap = new HashMap<CompilerConfig.ConfigType, Integer>();
 		_imap.put(ConfigType.BLOCK_SIZE, OptimizerUtils.DEFAULT_BLOCKSIZE);
-		_imap.put(ConfigType.OPT_LEVEL, OptimizerUtils.DEFAULT_OPTLEVEL.ordinal());
+		_imap.put(ConfigType.OPT_LEVEL, RuntimePlatform.getDefaultOptimizationLevel().ordinal());
 	}
 	
 	@SuppressWarnings("unchecked")

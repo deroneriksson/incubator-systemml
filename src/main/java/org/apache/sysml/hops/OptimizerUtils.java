@@ -75,10 +75,6 @@ public class OptimizerUtils
 	/** Default frame blocksize */
 	public static final int DEFAULT_FRAME_BLOCKSIZE = 1000;
 	
-	/** Default optimization level if unspecified */
-	public static final OptimizationLevel DEFAULT_OPTLEVEL = 
-			OptimizationLevel.O2_LOCAL_MEMORY_DEFAULT;
-	
 	/**
 	 * Default memory size, which is used if the actual estimate can not be computed 
 	 * e.g., when input/output dimensions are unknown. The default is set to a large 

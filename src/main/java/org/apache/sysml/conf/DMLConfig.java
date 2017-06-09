@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.parser.ParseException;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -102,7 +103,7 @@ public class DMLConfig
 		_defaultVals = new HashMap<String, String>();
 		_defaultVals.put(LOCAL_TMP_DIR,          "/tmp/systemml" );
 		_defaultVals.put(SCRATCH_SPACE,          "scratch_space" );
-		_defaultVals.put(OPTIMIZATION_LEVEL,     String.valueOf(OptimizerUtils.DEFAULT_OPTLEVEL.ordinal()) );
+		_defaultVals.put(OPTIMIZATION_LEVEL,     String.valueOf(RuntimePlatform.getDefaultOptimizationLevel().ordinal()) );
 		_defaultVals.put(NUM_REDUCERS,           "10" );
 		_defaultVals.put(JVM_REUSE,              "false" );
 		_defaultVals.put(DEFAULT_BLOCK_SIZE,     String.valueOf(OptimizerUtils.DEFAULT_BLOCKSIZE) );

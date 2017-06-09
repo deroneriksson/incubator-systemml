@@ -1,5 +1,7 @@
 package org.apache.sysml.api;
 
+import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
+
 public class RuntimePlatform {
 
 	// TODO rename these modes to names that self-document and are more
@@ -21,5 +23,9 @@ public class RuntimePlatform {
 		if (sparkenv != null && sparkenv.equals("1"))
 			executionMode = ExecutionMode.HYBRID_SPARK;
 		return executionMode;
+	}
+
+	public static OptimizationLevel getDefaultOptimizationLevel() {
+		return OptimizationLevel.O2_LOCAL_MEMORY_DEFAULT;
 	}
 }
