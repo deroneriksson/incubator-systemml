@@ -60,6 +60,7 @@ import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.debug.DMLDebugger;
 import org.apache.sysml.debug.DMLDebuggerException;
 import org.apache.sysml.debug.DMLDebuggerProgramInfo;
@@ -218,7 +219,7 @@ public class DMLScript
 	public static void main(String[] args)
 		throws IOException, DMLException
 	{
-		Configuration conf = new Configuration(ConfigurationManager.getCachedJobConf());
+		Configuration conf = new Configuration(HadoopConfigurationManager.getCachedJobConf());
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
 		try {
@@ -929,7 +930,7 @@ public class DMLScript
 		}catch(Exception ex){}
 		
 		//analyze hadoop configuration
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		boolean localMode     = InfrastructureAnalyzer.isLocalMode(job);
 		String taskController = job.get(MRConfigurationNames.MR_TASKTRACKER_TASKCONTROLLER, "org.apache.hadoop.mapred.DefaultTaskController");
 		String ttGroupName    = job.get(MRConfigurationNames.MR_TASKTRACKER_GROUP,"null");
@@ -975,7 +976,7 @@ public class DMLScript
 		
 		//2) cleanup hadoop working dirs (only required for LocalJobRunner (local job tracker), because
 		//this implementation does not create job specific sub directories)
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		if( InfrastructureAnalyzer.isLocalMode(job) ) {
 			try 
 			{

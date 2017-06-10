@@ -34,7 +34,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.matrix.data.FrameBlock;
@@ -57,7 +57,7 @@ public class FrameReaderTextCell extends FrameReader
 		FrameBlock ret = createOutputFrameBlock(lschema, lnames, rlen);
 		
 		//prepare file access
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());	
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());	
 		Path path = new Path( fname );
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		

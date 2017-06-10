@@ -27,7 +27,7 @@ import java.util.Iterator;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.matrix.data.CSVFileFormatProperties;
 import org.apache.sysml.runtime.matrix.data.FrameBlock;
@@ -55,7 +55,7 @@ public class FrameWriterTextCSV extends FrameWriter
 		throws IOException, DMLRuntimeException 
 	{
 		//prepare file access
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
 
 		//if the file already exists on HDFS, remove it.

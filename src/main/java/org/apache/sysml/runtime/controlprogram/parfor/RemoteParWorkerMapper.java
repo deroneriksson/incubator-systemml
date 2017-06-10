@@ -30,7 +30,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock;
 import org.apache.sysml.runtime.controlprogram.caching.CacheStatistics;
@@ -108,7 +108,7 @@ public class RemoteParWorkerMapper extends ParWorker  //MapReduceBase not requir
 		RemoteParForUtils.incrementParForMRCounters(reporter, 1, getExecutedIterations()-numIters);
 		
 		//print heaver hitter per task
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		if( DMLScript.STATISTICS && !InfrastructureAnalyzer.isLocalMode(job) )
 			LOG.info("\nSystemML Statistics:\nHeavy hitter instructions (name, time, count):\n" + Statistics.getHeavyHitters(DMLScript.STATISTICS_COUNT));
 	}
@@ -159,7 +159,7 @@ public class RemoteParWorkerMapper extends ParWorker  //MapReduceBase not requir
 				//which includes a core-default.xml configuration which hides the actual default cluster configuration
 				//in the context of mr jobs (for example this config points to local fs instead of hdfs by default). 
 				if( !InfrastructureAnalyzer.isLocalMode(job) ) {
-					ConfigurationManager.setCachedJobConf(job);
+					HadoopConfigurationManager.setCachedJobConf(job);
 				}
 				
 				//create local runtime program

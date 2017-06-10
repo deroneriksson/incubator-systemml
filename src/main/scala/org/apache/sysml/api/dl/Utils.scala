@@ -22,7 +22,7 @@ import caffe.Caffe.LayerParameter;
 import caffe.Caffe.NetParameter;
 import org.apache.sysml.parser.LanguageException;
 import com.google.protobuf.TextFormat;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -237,7 +237,7 @@ object Utils {
 		if(filePath == null)
 			throw new LanguageException("file path was not specified!");
 		if(filePath.startsWith("hdfs:")  || filePath.startsWith("gpfs:")) { 
-			val fs = FileSystem.get(ConfigurationManager.getCachedJobConf());
+			val fs = FileSystem.get(HadoopConfigurationManager.getCachedJobConf());
 			return new InputStreamReader(fs.open(new Path(filePath)));
 		}
 		else { 

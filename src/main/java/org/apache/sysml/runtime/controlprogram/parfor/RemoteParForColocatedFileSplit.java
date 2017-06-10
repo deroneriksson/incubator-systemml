@@ -35,8 +35,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.lib.NLineInputFormat;
-
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.controlprogram.parfor.Task.TaskType;
 import org.apache.sysml.runtime.instructions.cp.IntObject;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
@@ -80,7 +79,7 @@ public class RemoteParForColocatedFileSplit extends FileSplit
 		//Timing time = new Timing();
 		//time.start();
 		
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		FileSystem fs = IOUtilFunctions.getFileSystem(getPath(), job);
 		
 		//read task string

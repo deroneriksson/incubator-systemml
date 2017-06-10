@@ -31,11 +31,8 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-
-import scala.Tuple2;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
@@ -48,6 +45,8 @@ import org.apache.sysml.runtime.controlprogram.parfor.stat.Stat;
 import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.utils.Statistics;
+
+import scala.Tuple2;
 
 /**
  * Common functionalities for parfor workers in MR jobs. Used by worker wrappers in
@@ -65,7 +64,7 @@ public class RemoteParForUtils
 		if( deltaIterations>0 )
 			reporter.incrCounter(ParForProgramBlock.PARFOR_COUNTER_GROUP_NAME, Stat.PARFOR_NUMITERS.toString(), deltaIterations);
 		
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		if( DMLScript.STATISTICS  && !InfrastructureAnalyzer.isLocalMode(job) ) 
 		{
 			//report cache statistics
@@ -200,7 +199,7 @@ public class RemoteParForUtils
 		//this is important for robustness w/ misconfigured classpath which also contains
 		//core-default.xml and hence hides the actual cluster configuration; otherwise
 		//there is missing cleanup of working directories 
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		
 		if( !InfrastructureAnalyzer.isLocalMode(job) )
 		{
