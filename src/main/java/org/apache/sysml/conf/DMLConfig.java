@@ -37,13 +37,11 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.parser.ParseException;
 import org.apache.sysml.runtime.DMLRuntimeException;
-import org.apache.sysml.runtime.io.IOUtilFunctions;
+import org.apache.sysml.utils.HDFSUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -176,9 +174,12 @@ public class DMLConfig
 		if (_fileName.startsWith("hdfs:") ||
 		    _fileName.startsWith("gpfs:") )  // config file from DFS
 		{
-			Path configFilePath = new Path(_fileName);
-			FileSystem DFS = IOUtilFunctions.getFileSystem(configFilePath);
-            domTree = builder.parse(DFS.open(configFilePath));  
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+				domTree = HDFSUtils.hadoopPathToDocument(builder, _fileName);
+			} catch (ClassNotFoundException e) {
+				throw new IOException("HDFS/GPFS not available");
+			}
 		}
 		else  // config from local file system
 		{
