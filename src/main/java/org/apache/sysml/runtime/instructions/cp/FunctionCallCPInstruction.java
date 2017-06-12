@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.parser.DMLProgram;
 import org.apache.sysml.parser.DataIdentifier;
@@ -104,7 +105,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		Instruction tmp = super.preprocessInstruction(ec);
 		
 		//maintain debug state (function call stack) 
-		if( DMLScript.ENABLE_DEBUG_MODE ) {
+		if( RuntimePlatform.enableDebugMode ) {
 			ec.handleDebugFunctionEntry((FunctionCallCPInstruction) tmp);
 		}
 
@@ -237,7 +238,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		throws DMLRuntimeException 
 	{
 		//maintain debug state (function call stack) 
-		if (DMLScript.ENABLE_DEBUG_MODE ) {
+		if (RuntimePlatform.enableDebugMode ) {
 			ec.handleDebugFunctionExit( this );
 		}
 		

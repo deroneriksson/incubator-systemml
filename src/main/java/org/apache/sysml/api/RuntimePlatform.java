@@ -46,4 +46,6 @@ public class RuntimePlatform {
 	 * validation errors/warnings
 	 */
 	public static boolean validatorIgnoreIssues = false;
+	
+	public static boolean enableDebugMode = false;
 }

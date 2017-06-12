@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.debug.DMLFrame;
 import org.apache.sysml.debug.DMLProgramCounter;
 import org.apache.sysml.debug.DebugState;
@@ -82,7 +82,7 @@ public class ExecutionContext {
 		else
 			_variables = null;
 		_prog = prog;
-		if (DMLScript.ENABLE_DEBUG_MODE){
+		if (RuntimePlatform.enableDebugMode){
 			_dbState = DebugState.getInstance();
 		}
 	}
@@ -535,7 +535,7 @@ public class ExecutionContext {
 	
 	public void initDebugProgramCounters() 
 	{
-		if (DMLScript.ENABLE_DEBUG_MODE){
+		if (RuntimePlatform.enableDebugMode){
 			_dbState.pc = new DMLProgramCounter(DMLProgram.DEFAULT_NAMESPACE, "main", 0, 0); //initialize program counter (pc)
 			_dbState.prevPC = new DMLProgramCounter(DMLProgram.DEFAULT_NAMESPACE, "main", 0, 0); //initialize previous pc
 		}
@@ -543,14 +543,14 @@ public class ExecutionContext {
 
 	public void updateDebugState( int index ) throws DMLRuntimeException 
 	{
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			_dbState.getPC().setProgramBlockNumber(index);
 		}
 	}
 
 	public void updateDebugState( Instruction currInst ) throws DMLRuntimeException
 	{
-		if (DMLScript.ENABLE_DEBUG_MODE) {
+		if (RuntimePlatform.enableDebugMode) {
 			// New change so that shell doesnot seem like it is hanging while running MR job
 			// Since UI cannot accept instructions when user is submitting the program
 			_dbState.nextCommand = false;
@@ -565,7 +565,7 @@ public class ExecutionContext {
 
 	public void clearDebugProgramCounters()
 	{
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			_dbState.pc = null;
 		}
 	}
@@ -607,7 +607,7 @@ public class ExecutionContext {
 	 */
 	@SuppressWarnings("deprecation")
 	private void suspendIfAskedInDebugMode(Instruction currInst ) throws DMLRuntimeException {
-		if (!DMLScript.ENABLE_DEBUG_MODE) {
+		if (!RuntimePlatform.enableDebugMode) {
 			System.err.println("ERROR: The function suspendIfAskedInDebugMode should not be called in non-debug mode.");
 		}
 		//check for stepping options
