@@ -40,4 +40,10 @@ public class RuntimePlatform {
 	public static ScriptType getDefaultScriptType() {
 		return ScriptType.DML;
 	}
+
+	/**
+	 * If true, allow DMLProgram to be generated while not halting due to
+	 * validation errors/warnings
+	 */
+	public static boolean validatorIgnoreIssues = false;
 }

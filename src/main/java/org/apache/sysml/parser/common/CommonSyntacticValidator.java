@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.parser.AssignmentStatement;
 import org.apache.sysml.parser.BinaryExpression;
 import org.apache.sysml.parser.BooleanExpression;
@@ -89,7 +89,7 @@ public abstract class CommonSyntacticValidator {
 	}
 
 	protected void notifyErrorListeners(String message, Token op) {
-		if (!DMLScript.VALIDATOR_IGNORE_ISSUES) {
+		if (!RuntimePlatform.validatorIgnoreIssues) {
 			errorListener.validationError(op.getLine(), op.getCharPositionInLine(), message);
 		}
 	}
@@ -490,7 +490,7 @@ public abstract class CommonSyntacticValidator {
 
 	protected void setPrintStatement(ParserRuleContext ctx, String functionName,
 			ArrayList<ParameterExpression> paramExpression, StatementInfo thisinfo) {
-		if (DMLScript.VALIDATOR_IGNORE_ISSUES == true) { // create dummy print statement
+		if (RuntimePlatform.validatorIgnoreIssues == true) { // create dummy print statement
 			try {
 				int line = ctx.start.getLine();
 				int col = ctx.start.getCharPositionInLine();

@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -31,10 +30,9 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.sysml.parser.common.CustomErrorListener.ParseIssue;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
+import org.apache.sysml.utils.HDFSUtils;
 
 /**
  * Base class for all dml parsers in order to make the various compilation chains
@@ -98,9 +96,12 @@ public abstract class ParserWrapper {
 				|| script.startsWith("gpfs:") ) 
 			{
 				LOG.debug("Looking for the following file in HDFS or GPFS: " + script);
-				Path scriptPath = new Path(script);
-				FileSystem fs = IOUtilFunctions.getFileSystem(scriptPath);
-				in = new BufferedReader(new InputStreamReader(fs.open(scriptPath)));
+				try {
+					Class.forName("org.apache.hadoop.fs.FileSystem");
+					in = HDFSUtils.hadoopPathToBufferedReader(script);
+				} catch (ClassNotFoundException e) {
+					throw new IOException("HDFS/GPFS not available");
+				}
 			}
 			// from local file system
 			else 
