@@ -162,8 +162,14 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getRemoteMaxMemoryMap()
 	{
-		if( _remoteJVMMaxMemMap == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemMap == -1 ) {
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteJVMMaxMemMap;
 	}
@@ -180,8 +186,14 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getRemoteMaxMemoryReduce()
 	{
-		if( _remoteJVMMaxMemReduce == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemReduce == -1 ) {
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteJVMMaxMemReduce;
 	}
