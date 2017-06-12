@@ -1,5 +1,6 @@
 package org.apache.sysml.api;
 
+import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
 
 public class RuntimePlatform {
@@ -27,5 +28,16 @@ public class RuntimePlatform {
 
 	public static OptimizationLevel getDefaultOptimizationLevel() {
 		return OptimizationLevel.O2_LOCAL_MEMORY_DEFAULT;
+	}
+
+	/**
+	 * Global variable indicating the script type (DML or PYDML). Can be used
+	 * for DML/PYDML-specific tasks, such as outputting booleans in the correct
+	 * case (TRUE/FALSE for DML and True/False for PYDML).
+	 */
+	public static ScriptType scriptType = getDefaultScriptType();
+
+	public static ScriptType getDefaultScriptType() {
+		return ScriptType.DML;
 	}
 }

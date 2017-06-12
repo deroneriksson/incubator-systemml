@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.DMLScript.DMLOptions;
 import org.apache.sysml.api.jmlc.JMLCUtils;
@@ -349,7 +350,7 @@ public class ScriptExecutor {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
-		DMLScript.SCRIPT_TYPE = script.getScriptType();
+		RuntimePlatform.scriptType = script.getScriptType();
 		setGlobalFlags();
 		if (statistics) {
 			Statistics.reset();

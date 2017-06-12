@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.sysml.api.DMLException;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
@@ -156,7 +155,7 @@ public class Connection implements Closeable
 	public PreparedScript prepareScript( String script, Map<String, String> args, String[] inputs, String[] outputs, boolean parsePyDML) 
 		throws DMLException 
 	{
-		DMLScript.SCRIPT_TYPE = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
+		RuntimePlatform.scriptType = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
 
 		//prepare arguments
 		

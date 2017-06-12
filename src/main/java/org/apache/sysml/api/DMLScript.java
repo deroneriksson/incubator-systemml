@@ -158,12 +158,6 @@ public class DMLScript
 	public static ExplainType       EXPLAIN             = DMLOptions.defaultOptions.explainType; // explain type
 	public static String            DML_FILE_PATH_ANTLR_PARSER = DMLOptions.defaultOptions.filePath; // filename of dml/pydml script
 
-	/**
-	 * Global variable indicating the script type (DML or PYDML). Can be used
-	 * for DML/PYDML-specific tasks, such as outputting booleans in the correct
-	 * case (TRUE/FALSE for DML and True/False for PYDML).
-	 */
-	public static ScriptType        SCRIPT_TYPE         = DMLOptions.defaultOptions.scriptType;
 	public static boolean           USE_ACCELERATOR     = DMLOptions.defaultOptions.gpu;
 	public static boolean           FORCE_ACCELERATOR   = DMLOptions.defaultOptions.forceGPU;
 
@@ -455,7 +449,7 @@ public class DMLScript
 			FORCE_ACCELERATOR = dmlOptions.forceGPU;
 			EXPLAIN           = dmlOptions.explainType;
 			ENABLE_DEBUG_MODE = dmlOptions.debug;
-			SCRIPT_TYPE       = dmlOptions.scriptType;
+			RuntimePlatform.scriptType = dmlOptions.scriptType;
 			RuntimePlatform.rtplatform = dmlOptions.execMode;
 
 			String fnameOptConfig = dmlOptions.configFile;
@@ -481,7 +475,7 @@ public class DMLScript
 		
 			//Step 2: prepare script invocation
 			if (isFile && StringUtils.endsWithIgnoreCase(fileOrScript, ".pydml")) {
-				SCRIPT_TYPE = ScriptType.PYDML;
+				RuntimePlatform.scriptType = ScriptType.PYDML;
 			}
 
 			String dmlScriptStr = readDMLScript(isFile, fileOrScript);
@@ -493,10 +487,10 @@ public class DMLScript
 			printInvocationInfo(fileOrScript, fnameOptConfig, argVals);
 			if (ENABLE_DEBUG_MODE) {
 				// inner try loop is just to isolate the debug exception, which will allow to manage the bugs from debugger v/s runtime
-				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, SCRIPT_TYPE);
+				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, RuntimePlatform.scriptType);
 			}
 			else {
-				execute(dmlScriptStr, fnameOptConfig, argVals, args, SCRIPT_TYPE);
+				execute(dmlScriptStr, fnameOptConfig, argVals, args, RuntimePlatform.scriptType);
 			}
 
 		}
@@ -719,7 +713,7 @@ public class DMLScript
 	private static void execute(String dmlScriptStr, String fnameOptConfig, Map<String,String> argVals, String[] allArgs, ScriptType scriptType)
 		throws ParseException, IOException, DMLRuntimeException, LanguageException, HopsException, LopsException 
 	{	
-		SCRIPT_TYPE = scriptType;
+		RuntimePlatform.scriptType = scriptType;
 
 		//print basic time and environment info
 		printStartExecInfo( dmlScriptStr );
