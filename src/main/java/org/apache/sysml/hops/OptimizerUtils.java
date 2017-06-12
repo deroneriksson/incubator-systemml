@@ -91,8 +91,8 @@ public class OptimizerUtils
 
 	//constants for valid CP matrix dimension sizes / nnz (dense/sparse)
 	public static final long MAX_NUMCELLS_CP_DENSE = Integer.MAX_VALUE;
-	public static final long MAX_NNZ_CP_SPARSE = (MatrixBlock.DEFAULT_SPARSEBLOCK == 
-			SparseBlock.Type.MCSR) ? Long.MAX_VALUE : Integer.MAX_VALUE;
+	public static final long MAX_NNZ_CP_SPARSE = (SparseBlock.DEFAULT_SPARSEBLOCK == SparseBlock.Type.MCSR)
+			? Long.MAX_VALUE : Integer.MAX_VALUE;
 
 	/**
 	 * Enables common subexpression elimination in dags. There is however, a potential tradeoff

@@ -99,8 +99,6 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 	public static final double SPARSITY_TURN_POINT = 0.4;
 	//sparsity threshold for ultra-sparse matrix operations (40nnz in a 1kx1k block)
 	public static final double ULTRA_SPARSITY_TURN_POINT = 0.00004; 
-	//default sparse block type: modified compressed sparse rows, for efficient incremental construction
-	public static final SparseBlock.Type DEFAULT_SPARSEBLOCK = SparseBlock.Type.MCSR;
 	//default sparse block type for update in place: compressed sparse rows, to prevent serialization
 	public static final SparseBlock.Type DEFAULT_INPLACE_SPARSEBLOCK = SparseBlock.Type.CSR;
 	//allowed overhead for shallow serialize in terms of in-memory-size/x <= serialized-size 
@@ -379,7 +377,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 		//allocate block if non-existing or too small (guaranteed to be 0-initialized)
 		//but do not replace existing block even if not in default type
 		if( sparseBlock == null || sparseBlock.numRows()<rlen ) {
-			sparseBlock = SparseBlockFactory.createSparseBlock(DEFAULT_SPARSEBLOCK, rlen);
+			sparseBlock = SparseBlockFactory.createSparseBlock(SparseBlock.DEFAULT_SPARSEBLOCK, rlen);
 		}
 		
 		//clear nnz if necessary
@@ -2403,7 +2401,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 	}
 
 	public static long estimateSizeSparseInMemory(long nrows, long ncols, double sparsity) {
-		return estimateSizeSparseInMemory(nrows, ncols, sparsity, DEFAULT_SPARSEBLOCK);
+		return estimateSizeSparseInMemory(nrows, ncols, sparsity, SparseBlock.DEFAULT_SPARSEBLOCK);
 	}
 	
 	public static long estimateSizeSparseInMemory(long nrows, long ncols, double sparsity, SparseBlock.Type stype)
@@ -5777,7 +5775,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 	 */
 	public boolean isThreadSafe() {
 		return !sparse || ((sparseBlock != null) ? sparseBlock.isThreadSafe() : 
-			DEFAULT_SPARSEBLOCK == SparseBlock.Type.MCSR); //only MCSR thread-safe
+			SparseBlock.DEFAULT_SPARSEBLOCK == SparseBlock.Type.MCSR); //only MCSR thread-safe
 	}
 	
 	/**
@@ -5787,7 +5785,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 	 * @return true if ?
 	 */
 	public static boolean isThreadSafe(boolean sparse) {
-		return !sparse || DEFAULT_SPARSEBLOCK == SparseBlock.Type.MCSR; //only MCSR thread-safe	
+		return !sparse || SparseBlock.DEFAULT_SPARSEBLOCK == SparseBlock.Type.MCSR; //only MCSR thread-safe	
 	} 
 	
 	public void print()

@@ -37,7 +37,10 @@ import java.util.Iterator;
 public abstract class SparseBlock implements Serializable
 {
 	private static final long serialVersionUID = -5008747088111141395L;
-	
+
+	//default sparse block type: modified compressed sparse rows, for efficient incremental construction
+	public static final SparseBlock.Type DEFAULT_SPARSEBLOCK = SparseBlock.Type.MCSR;
+
 	//internal configuration parameters for all sparse blocks
 	protected static final int INIT_CAPACITY = 4;       //initial array capacity
 	protected static final double RESIZE_FACTOR1 = 2;   //factor until reaching est nnz

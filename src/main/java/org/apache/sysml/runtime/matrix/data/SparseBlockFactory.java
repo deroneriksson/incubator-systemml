@@ -24,7 +24,7 @@ public abstract class SparseBlockFactory
 {
 
 	public static SparseBlock createSparseBlock(int rlen) {
-		return createSparseBlock(MatrixBlock.DEFAULT_SPARSEBLOCK, rlen);
+		return createSparseBlock(SparseBlock.DEFAULT_SPARSEBLOCK, rlen);
 	}
 
 	public static SparseBlock createSparseBlock( SparseBlock.Type type, int rlen ) {
