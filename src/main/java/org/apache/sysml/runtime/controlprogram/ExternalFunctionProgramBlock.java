@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.lops.Lop;
@@ -365,7 +364,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 					inLabels.add(matrices.get(i).getName());
 					outLabels.add(matrices.get(i).getName() + "_extFnOutput");
 					outputs[i] = scratchSpaceLoc +
-					             Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID() + Lop.FILE_SEPARATOR + 
+					             Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid + Lop.FILE_SEPARATOR + 
 		                         _otherParams.get(ExternalFunctionStatement.CLASS_NAME) + _runID + "_" + i + "Output";
 					blockedFileNames.put(matrices.get(i).getName(), outputs[i]);
 					resultIndex[i] = (byte) i; // (matrices.size()+i);
@@ -488,7 +487,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 					resultIndex[i] = (byte) i; //(matrices.size()+i);
 	
 					outputs[i] = scratchSpaceLoc +
-									Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID() + Lop.FILE_SEPARATOR + 
+									Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid + Lop.FILE_SEPARATOR + 
 									_otherParams.get(ExternalFunctionStatement.CLASS_NAME) + _runID + "_" + i + "Input";
 					unBlockedFileNames.put(matrices.get(i).getName(), outputs[i]);
 	
@@ -552,7 +551,7 @@ public class ExternalFunctionProgramBlock extends FunctionProgramBlock
 			{
 				String scratchSpaceLoc = ConfigurationManager.getScratchSpace();
 				String filename = scratchSpaceLoc +
-							          Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID() + Lop.FILE_SEPARATOR + 
+							          Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid + Lop.FILE_SEPARATOR + 
 							           _otherParams.get(ExternalFunctionStatement.CLASS_NAME) + _runID + "_" + i + "Input";
 				unBlockedFileNames.put(matricesNoReblock.get(i).getName(), filename); 			
 			}

@@ -42,7 +42,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.lib.CombineSequenceFileInputFormat;
 import org.apache.hadoop.mapred.lib.MultipleOutputs;
 import org.apache.hadoop.mapred.lib.NullOutputFormat;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -345,7 +345,7 @@ public class MRJobConfiguration
 			StringBuilder tmp = new StringBuilder();
 			tmp.append( Lop.FILE_SEPARATOR );
 			tmp.append( Lop.PROCESS_PREFIX );
-			tmp.append( DMLScript.getUUID() );
+			tmp.append( RuntimePlatform.uuid );
 			tmp.append( Lop.FILE_SEPARATOR );
 			tmp.append( seq.getNextID() );
 			String uniqueSubdir = tmp.toString();
@@ -1727,7 +1727,7 @@ public class MRJobConfiguration
 		sb.append(ConfigurationManager.getScratchSpace());
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(Lop.FILE_SEPARATOR);
 		
 		sb.append("TmpOutput"+seq.getNextID());
@@ -1744,7 +1744,7 @@ public class MRJobConfiguration
 		sb.append(ConfigurationManager.getScratchSpace());
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(Lop.FILE_SEPARATOR);
 		
 		sb.append(SamplingSortMRInputFormat.PARTITION_FILENAME+seq.getNextID());

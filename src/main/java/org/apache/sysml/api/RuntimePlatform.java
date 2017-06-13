@@ -2,6 +2,7 @@ package org.apache.sysml.api;
 
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
+import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
 
 public class RuntimePlatform {
 
@@ -54,4 +55,10 @@ public class RuntimePlatform {
 	public static boolean statistics = false;
 
 	public static boolean suppressPrint2Stdout = false;
+	
+	public static boolean useAccelerator = false;
+	
+	public static boolean forceAccelerator = false;
+	
+	public static String uuid = IDHandler.createDistributedUniqueID();
 }

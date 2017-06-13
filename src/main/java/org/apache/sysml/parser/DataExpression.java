@@ -19,16 +19,10 @@
 
 package org.apache.sysml.parser;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -36,9 +30,9 @@ import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.parser.LanguageException.LanguageErrorCodes;
 import org.apache.sysml.parser.common.CustomErrorListener;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
-import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.HDFSUtils;
 import org.apache.sysml.utils.JSONHelper;
 import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONObject;
@@ -645,16 +639,24 @@ public class DataExpression extends DataIdentifier
 			
 			// check if file is matrix market format
 			if (formatTypeString == null && shouldReadMTD){
-				boolean isMatrixMarketFormat = checkHasMatrixMarketFormat(inputFileName, mtdFileName, conditional); 
-				if (isMatrixMarketFormat){
-					
-					formatTypeString = FORMAT_TYPE_VALUE_MATRIXMARKET;
-					addVarParam(FORMAT_TYPE,new StringIdentifier(FORMAT_TYPE_VALUE_MATRIXMARKET,
-							this.getFilename(), this.getBeginLine(), this.getBeginColumn(),
-							this.getBeginLine(), this.getBeginColumn()));
-					inferredFormatType = true;
-					shouldReadMTD = false;
+				
+				try {
+					Class.forName("org.apache.hadoop.fs.FileSystem");
+					boolean isMatrixMarketFormat = HDFSUtils.checkHasMatrixMarketFormat(inputFileName, mtdFileName, conditional, this); 
+					if (isMatrixMarketFormat){
+						
+						formatTypeString = FORMAT_TYPE_VALUE_MATRIXMARKET;
+						addVarParam(FORMAT_TYPE,new StringIdentifier(FORMAT_TYPE_VALUE_MATRIXMARKET,
+								this.getFilename(), this.getBeginLine(), this.getBeginColumn(),
+								this.getBeginLine(), this.getBeginColumn()));
+						inferredFormatType = true;
+						shouldReadMTD = false;
+					}
+				} catch (ClassNotFoundException e) {
+					throw new LanguageException("HDFS/GPFS not available");
 				}
+				
+
 			}
 			
 			// check if file is delimited format
@@ -696,7 +698,13 @@ public class DataExpression extends DataIdentifier
 				shouldReadMTD = false;
 				
 				// get metadata from MatrixMarket format file
-				String[] headerLines = readMatrixMarketFile(inputFileName, conditional);
+				String[] headerLines = null;
+				try {
+					Class.forName("org.apache.hadoop.fs.FileSystem");
+					headerLines = HDFSUtils.readMatrixMarketFile(inputFileName, conditional, this);
+				} catch (ClassNotFoundException e) {
+					throw new LanguageException("HDFS/GPFS not available");
+				}
 				
 				// process 1st line of MatrixMarket format -- must be identical to legal header
 				String legalHeaderMM = "%%MatrixMarket matrix coordinate real general";
@@ -764,15 +772,22 @@ public class DataExpression extends DataIdentifier
 			configObject = null;
 			
 			if (shouldReadMTD){
-				configObject = readMetadataFile(mtdFileName, conditional);
-		        		    
+				
+
+				try {
+					Class.forName("org.apache.hadoop.fs.FileSystem");
+					configObject = HDFSUtils.readMetadataFile(mtdFileName, conditional, this);
+				} catch (ClassNotFoundException e) {
+					throw new LanguageException("HDFS/GPFS not available");
+				}
+
 		        // if the MTD file exists, check the values specified in read statement match values in metadata MTD file
 		        if (configObject != null){
 		        	parseMetaDataFileParameters(mtdFileName, configObject, conditional);
 		        	inferredFormatType = true;
 		        }
 		        else {
-		        	LOG.warn("Metadata file: " + new Path(mtdFileName) + " not provided");
+		        	LOG.warn("Metadata file: " + mtdFileName + " not provided");
 		        }
 			} 
 	        
@@ -1893,150 +1908,18 @@ public class DataExpression extends DataIdentifier
 			}
     	}
 	}
-	
-	public JSONObject readMetadataFile(String filename, boolean conditional) 
-		throws LanguageException 
-	{
-		JSONObject retVal = null;
-		boolean exists = MapReduceTool.existsFileOnHDFS(filename);
-		boolean isDir = MapReduceTool.isDirectory(filename);
-		
-		// CASE: filename is a directory -- process as a directory
-		if( exists && isDir ) 
-		{
-			retVal = new JSONObject();
-			for(FileStatus stat : MapReduceTool.getDirectoryListing(filename)) {
-				Path childPath = stat.getPath(); // gives directory name
-				if( !childPath.getName().startsWith("part") )
-					continue;
-				BufferedReader br = null;
-				try {
-					FileSystem fs = IOUtilFunctions.getFileSystem(childPath);
-					br = new BufferedReader(new InputStreamReader(fs.open(childPath)));
-					JSONObject childObj = JSONHelper.parse(br);
-					for( Object obj : childObj.entrySet() ){
-						@SuppressWarnings("unchecked")
-						Entry<Object,Object> e = (Entry<Object, Object>) obj;
-			    		Object key = e.getKey();
-			    		Object val = e.getValue();
-			    		retVal.put(key, val);
-					}						
-				}
-				catch(Exception e){
-					raiseValidateError("for MTD file in directory, error parting part of MTD file with path " + childPath.toString() + ": " + e.getMessage(), conditional);
-				}
-				finally {
-					IOUtilFunctions.closeSilently(br);
-				}
-			} 
-		}
-		// CASE: filename points to a file
-		else if (exists) 
-		{
-			BufferedReader br = null;
-			try {
-				Path path = new Path(filename);
-				FileSystem fs = IOUtilFunctions.getFileSystem(path);
-				br = new BufferedReader(new InputStreamReader(fs.open(path)));
-				retVal = new JSONObject(br);
-			} 
-			catch (Exception e){
-				raiseValidateError("error parsing MTD file with path " + filename + ": " + e.getMessage(), conditional);
-			}
-			finally {
-				IOUtilFunctions.closeSilently(br);
-			}
-		}
-			
-		return retVal;
-	}
 
-	public String[] readMatrixMarketFile(String filename, boolean conditional) 
-		throws LanguageException 
-	{
-		String[] retVal = new String[2];
-		retVal[0] = new String("");
-		retVal[1] = new String("");
-		boolean exists = false;
-		
-		try 
-		{
-			Path path = new Path(filename);
-			FileSystem fs = IOUtilFunctions.getFileSystem(path);
-			exists = fs.exists(path);
-			boolean getFileStatusIsDir = fs.getFileStatus(path).isDirectory();
-			
-			if (exists && getFileStatusIsDir){
-				raiseValidateError("MatrixMarket files as directories not supported", conditional);
-			}
-			else if (exists) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(fs.open(path)));
-				try
-				{
-					retVal[0] = in.readLine();
-					// skip all commented lines
-					do {
-						retVal[1] = in.readLine();
-					} while ( retVal[1].charAt(0) == '%' );
-					
-					if ( !retVal[0].startsWith("%%") ) {
-						raiseValidateError("MatrixMarket files must begin with a header line.", conditional);
-					}
-				}
-				finally {
-					IOUtilFunctions.closeSilently(in);
-				}
-			}
-			else {
-				raiseValidateError("Could not find the file: " + filename, conditional);
-			}
-			
-		} catch (IOException e){
-			//LOG.error(this.printErrorLocation() + "Error reading MatrixMarket file: " + filename );
-			//throw new LanguageException(this.printErrorLocation() + "Error reading MatrixMarket file: " + filename );
-			throw new LanguageException(e);
-		}
-
-		return retVal;
-	}
-	
-	public boolean checkHasMatrixMarketFormat(String inputFileName, String mtdFileName, boolean conditional) 
-		throws LanguageException 
-	{
-		// Check the MTD file exists. if there is an MTD file, return false.
-		JSONObject mtdObject = readMetadataFile(mtdFileName, conditional);
-	    if (mtdObject != null)
-			return false;
-		
-		if( MapReduceTool.existsFileOnHDFS(inputFileName) 
-			&& !MapReduceTool.isDirectory(inputFileName)  )
-		{
-			BufferedReader in = null;
-			try {
-				Path path = new Path(inputFileName);
-				FileSystem fs = IOUtilFunctions.getFileSystem(path);
-				in = new BufferedReader(new InputStreamReader(fs.open(path)));
-				String headerLine = new String("");			
-				if (in.ready())
-					headerLine = in.readLine();
-				return (headerLine !=null && headerLine.startsWith("%%"));
-			}
-			catch(Exception ex) {
-				throw new LanguageException("Failed to read mtd file.", ex);
-			}
-			finally {
-				IOUtilFunctions.closeSilently(in);
-			}
-		}
-		
-		return false;
-	}
-	
 	public boolean checkHasDelimitedFormat(String filename, boolean conditional)
 		throws LanguageException 
 	{
 		// if the MTD file exists, check the format is not binary 
-		JSONObject mtdObject = readMetadataFile(filename + ".mtd", conditional);
+		JSONObject mtdObject = null;
+		try {
+			Class.forName("org.apache.hadoop.fs.FileSystem");
+			mtdObject = HDFSUtils.readMetadataFile(filename + ".mtd", conditional, this);
+		} catch (ClassNotFoundException e) {
+			throw new LanguageException("HDFS/GPFS not available");
+		}
 		if (mtdObject != null) {
 			String formatTypeString = (String)JSONHelper.get(mtdObject,FORMAT_TYPE);
 			return (formatTypeString != null ) && 

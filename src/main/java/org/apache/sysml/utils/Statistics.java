@@ -214,7 +214,7 @@ public class Statistics
 		numExecutedSPInst.reset();
 		numExecutedMRJobs.reset();
 		
-		if( DMLScript.USE_ACCELERATOR )
+		if( RuntimePlatform.useAccelerator )
 			GPUStatistics.setNoOfExecutedGPUInst(0);
 	}
 	
@@ -698,7 +698,7 @@ public class Statistics
 			sb.append("Number of executed MR Jobs:\t" + getNoOfExecutedMRJobs() + ".\n");	
 		}
 
-		if( DMLScript.USE_ACCELERATOR && RuntimePlatform.statistics)
+		if( RuntimePlatform.useAccelerator && RuntimePlatform.statistics)
 			sb.append(GPUStatistics.getStringForCudaTimers());
 		
 		//show extended caching/compilation statistics

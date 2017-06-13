@@ -89,7 +89,6 @@ import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
-import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.CleanupMR;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
@@ -156,33 +155,10 @@ public class DMLScript
 	public static ExplainType       EXPLAIN             = DMLOptions.defaultOptions.explainType; // explain type
 	public static String            DML_FILE_PATH_ANTLR_PARSER = DMLOptions.defaultOptions.filePath; // filename of dml/pydml script
 
-	public static boolean           USE_ACCELERATOR     = DMLOptions.defaultOptions.gpu;
-	public static boolean           FORCE_ACCELERATOR   = DMLOptions.defaultOptions.forceGPU;
-
 	public static boolean USE_LOCAL_SPARK_CONFIG = false; //set default local spark configuration - used for local testing
 
-	public static String _uuid = IDHandler.createDistributedUniqueID();
 	private static final Log LOG = LogFactory.getLog(DMLScript.class.getName());
 	
-	///////////////////////////////
-	// public external interface
-	////////
-	
-	public static String getUUID() {
-		return _uuid;
-	}
-
-	/**
-	 * Used to set master UUID on all nodes (in parfor remote_mr, where DMLScript passed) 
-	 * in order to simplify cleanup of scratch_space and local working dirs.
-	 * 
-	 * @param uuid master UUID to set on all nodes
-	 */
-	public static void setUUID(String uuid) 
-	{
-		_uuid = uuid;
-	}
-
 	/**
 	 *
 	 * @param args command-line arguments
@@ -424,8 +400,8 @@ public class DMLScript
 
 			RuntimePlatform.statistics = dmlOptions.stats;
 			STATISTICS_COUNT  = dmlOptions.statsCount;
-			USE_ACCELERATOR   = dmlOptions.gpu;
-			FORCE_ACCELERATOR = dmlOptions.forceGPU;
+			RuntimePlatform.useAccelerator = dmlOptions.gpu;
+			RuntimePlatform.forceAccelerator = dmlOptions.forceGPU;
 			EXPLAIN           = dmlOptions.explainType;
 			RuntimePlatform.enableDebugMode = dmlOptions.debug;
 			RuntimePlatform.scriptType = dmlOptions.scriptType;
@@ -940,7 +916,7 @@ public class DMLScript
 		StringBuilder sb = new StringBuilder();
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		String dirSuffix = sb.toString();
 		
 		//1) cleanup scratch space (everything for current uuid) 
@@ -982,7 +958,7 @@ public class DMLScript
 
 	private static void printInvocationInfo(String fnameScript, String fnameOptConfig, Map<String,String> argVals)
 	{		
-		LOG.debug("****** args to DML Script ******\n" + "UUID: " + getUUID() + "\n" + "SCRIPT PATH: " + fnameScript + "\n" 
+		LOG.debug("****** args to DML Script ******\n" + "UUID: " + RuntimePlatform.uuid + "\n" + "SCRIPT PATH: " + fnameScript + "\n" 
 	                + "RUNTIME: " + RuntimePlatform.rtplatform + "\n" + "BUILTIN CONFIG: " + DMLConfig.DEFAULT_SYSTEMML_CONFIG_FILEPATH + "\n"
 	                + "OPTIONAL CONFIG: " + fnameOptConfig + "\n");
 

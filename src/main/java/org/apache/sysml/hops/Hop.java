@@ -25,7 +25,6 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -776,7 +775,7 @@ public abstract class Hop
 	}
 	
 	protected ExecType findGPUExecTypeByMemEstimate(ExecType et) {
-		if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 			return ExecType.GPU;
 		}
 		return et;

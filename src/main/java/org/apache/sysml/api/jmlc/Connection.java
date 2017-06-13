@@ -239,7 +239,11 @@ public class Connection implements Closeable
 			}
 			// from local file system
 			else { 
-				in = new BufferedReader(new FileReader(fname));
+				try {
+					in = new BufferedReader(new FileReader(fname));
+				} catch (Exception e) {
+					throw new IOException(e);
+				}
 			}
 			
 			//core script reading
@@ -250,7 +254,15 @@ public class Connection implements Closeable
 			}
 		}
 		finally {
-			IOUtilFunctions.closeSilently(in);
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+				IOUtilFunctions.closeSilently(in);
+			} catch (ClassNotFoundException e) {
+				if (in != null) {
+					in.close();
+				}
+			}
+			
 		}
 		
 		return sb.toString();
@@ -272,9 +284,16 @@ public class Connection implements Closeable
 		throws IOException
 	{
 		try {
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+			} catch (ClassNotFoundException e) {
+				throw new IOException("HDFS/GPFS not available");
+			}
 			//read json meta data 
 			String fnamemtd = DataExpression.getMTDFileName(fname);
-			JSONObject jmtd = new DataExpression().readMetadataFile(fnamemtd, false);
+			JSONObject jmtd = HDFSUtils.readMetadataFile(fnamemtd, false, new DataExpression());
+			
+			
 			
 			//parse json meta data 
 			long rows = jmtd.getLong(DataExpression.READROWPARAM);
@@ -511,9 +530,14 @@ public class Connection implements Closeable
 		throws IOException
 	{
 		try {
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+			} catch (ClassNotFoundException e) {
+				throw new IOException("HDFS/GPFS not available");
+			}
 			//read json meta data 
 			String fnamemtd = DataExpression.getMTDFileName(fname);
-			JSONObject jmtd = new DataExpression().readMetadataFile(fnamemtd, false);
+			JSONObject jmtd = HDFSUtils.readMetadataFile(fnamemtd, false, new DataExpression());
 			
 			//parse json meta data 
 			long rows = jmtd.getLong(DataExpression.READROWPARAM);

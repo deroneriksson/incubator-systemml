@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
@@ -632,7 +631,7 @@ public class ParForProgramBlock extends ForProgramBlock
 			switch( _execMode )
 			{
 				case LOCAL: //create parworkers as local threads
-					if (DMLScript.USE_ACCELERATOR) {
+					if (RuntimePlatform.useAccelerator) {
 						GPUContextPool.returnToPool(ec.getGPUContext());
 						ec.setGPUContext(null);
 						setDegreeOfParallelism(GPUContextPool.getDeviceCount());
@@ -832,7 +831,7 @@ public class ParForProgramBlock extends ForProgramBlock
 
 			// Frees up the GPUContexts used in the threaded Parfor and sets
 			// the main thread to use the GPUContext
-			if (DMLScript.USE_ACCELERATOR) {
+			if (RuntimePlatform.useAccelerator) {
 				for (int i = 0; i < _numThreads; i++) {
 					GPUContext gCtx = workers[i].getExecutionContext().getGPUContext();
 					GPUContextPool.returnToPool(gCtx);
@@ -1422,7 +1421,7 @@ public class ParForProgramBlock extends ForProgramBlock
 
 			// If GPU mode is enabled, gets a GPUContext from the pool of GPUContexts
 			// and sets it in the ExecutionContext
-			if (DMLScript.USE_ACCELERATOR){
+			if (RuntimePlatform.useAccelerator){
 				cpEc.setGPUContext(GPUContextPool.getFromPool());
 			}
 			
@@ -1873,7 +1872,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(PARFOR_MR_TASKS_TMP_FNAME.replaceAll("%ID%", String.valueOf(_ID)));
 		
 		return sb.toString();   
@@ -1893,7 +1892,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(PARFOR_MR_RESULT_TMP_FNAME.replaceAll("%ID%", String.valueOf(_ID)));
 		
 		return sb.toString();   
@@ -1911,7 +1910,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(fname);
 		
 		return sb.toString();   		
@@ -1929,7 +1928,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(RuntimePlatform.uuid);
 		sb.append(fname);
 		
 		return sb.toString();   		

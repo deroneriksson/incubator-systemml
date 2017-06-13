@@ -23,7 +23,6 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
@@ -876,7 +875,7 @@ public class OptimizerUtils
 	 */
 	public static String getUniqueTempFileName() {
 		return ConfigurationManager.getScratchSpace()
-			+ Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID()
+			+ Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid
 			+ Lop.FILE_SEPARATOR + ProgramConverter.CP_ROOT_THREAD_ID + Lop.FILE_SEPARATOR 
 			+ Dag.getNextUniqueFilenameSuffix();
 	}

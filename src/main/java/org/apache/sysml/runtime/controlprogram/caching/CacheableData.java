@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -1305,7 +1304,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	public synchronized static void initCaching() 
 		throws IOException
 	{
-		initCaching(DMLScript.getUUID());
+		initCaching(RuntimePlatform.uuid);
 	}
 	
 	/**

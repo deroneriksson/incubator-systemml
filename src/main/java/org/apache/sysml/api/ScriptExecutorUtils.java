@@ -82,7 +82,7 @@ public class ScriptExecutorUtils {
 		GPUContext gCtx = null;
 		try {
 			// run execute (w/ exception handling to ensure proper shutdown)
-			if (DMLScript.USE_ACCELERATOR && ec != null) {
+			if (RuntimePlatform.useAccelerator && ec != null) {
 				gCtx = GPUContextPool.getFromPool();
 				if (gCtx == null) {
 					throw new DMLRuntimeException(
@@ -93,7 +93,7 @@ public class ScriptExecutorUtils {
 			}
 			rtprog.execute(ec);
 		} finally { // ensure cleanup/shutdown
-			if (DMLScript.USE_ACCELERATOR && ec.getGPUContext() != null) {
+			if (RuntimePlatform.useAccelerator && ec.getGPUContext() != null) {
 				ec.getGPUContext().clearTemporaryMemory();
 				GPUContextPool.returnToPool(ec.getGPUContext());
 			}

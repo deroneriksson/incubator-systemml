@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -197,7 +196,7 @@ public class Dag<N extends Lop>
 	private String getFilePath() {
 		if ( scratchFilePath == null ) {
 			scratchFilePath = scratch + Lop.FILE_SEPARATOR
-								+ Lop.PROCESS_PREFIX + DMLScript.getUUID()
+								+ Lop.PROCESS_PREFIX + RuntimePlatform.uuid
 								+ Lop.FILE_SEPARATOR + Lop.FILE_SEPARATOR
 								+ ProgramConverter.CP_ROOT_THREAD_ID + Lop.FILE_SEPARATOR;
 		}

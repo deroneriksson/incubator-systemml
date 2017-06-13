@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
@@ -744,7 +743,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle DMLScript UUID (propagate original uuid for writing to scratch space)
-		sb.append( DMLScript.getUUID() );
+		sb.append( RuntimePlatform.uuid );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );		
 		
@@ -1321,9 +1320,8 @@ public class ProgramConverter
 		tmpin = tmpin.substring(PARFORBODY_BEGIN.length(),tmpin.length()-PARFORBODY_END.length()); //remove start/end
 		HierarchyAwareStringTokenizer st = new HierarchyAwareStringTokenizer(tmpin, COMPONENTS_DELIM);
 		
-		//handle DMLScript UUID (NOTE: set directly in DMLScript)
 		//(master UUID is used for all nodes (in order to simply cleanup))
-		DMLScript.setUUID( st.nextToken() );
+		RuntimePlatform.uuid = st.nextToken();
 		
 		//handle DML config (NOTE: set directly in ConfigurationManager)
 		String confStr = st.nextToken();

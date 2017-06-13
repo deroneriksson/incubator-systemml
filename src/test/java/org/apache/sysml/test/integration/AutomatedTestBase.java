@@ -38,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.SparkSession.Builder;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -57,6 +58,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.HDFSUtils;
 import org.apache.sysml.utils.ParameterBuilder;
 import org.apache.sysml.utils.Statistics;
 import org.apache.wink.json4j.JSONObject;
@@ -768,7 +770,7 @@ public abstract class AutomatedTestBase
 	{
 		try {
 			String fname = baseDirectory + OUTPUT_DIR + fileName +".mtd";
-			JSONObject meta = new DataExpression().readMetadataFile(fname, false);
+			JSONObject meta = HDFSUtils.readMetadataFile(fname, false, new DataExpression());
 			long rlen = Long.parseLong(meta.get(DataExpression.READROWPARAM).toString());
 			long clen = Long.parseLong(meta.get(DataExpression.READCOLPARAM).toString());
 			return new MatrixCharacteristics(rlen, clen, -1, -1);
@@ -782,7 +784,7 @@ public abstract class AutomatedTestBase
 	{
 		try {
 			String fname = baseDirectory + OUTPUT_DIR + fileName +".mtd";
-			JSONObject meta = new DataExpression().readMetadataFile(fname, false);
+			JSONObject meta = HDFSUtils.readMetadataFile(fname, false, new DataExpression());
 			return ValueType.valueOf(meta.get(DataExpression.VALUETYPEPARAM).toString().toUpperCase());
 		}
 		catch(Exception ex) {
@@ -1280,7 +1282,7 @@ public abstract class AutomatedTestBase
 			sb.append(conf.getTextValue(DMLConfig.SCRATCH_SPACE));
 			sb.append(Lop.FILE_SEPARATOR);
 			sb.append(Lop.PROCESS_PREFIX);
-			sb.append(DMLScript.getUUID());
+			sb.append(RuntimePlatform.uuid);
 			String pLocalDir = sb.toString();
 
 			return MapReduceTool.existsFileOnHDFS(pLocalDir);

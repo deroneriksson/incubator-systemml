@@ -38,21 +38,23 @@
 			</includes>
 			<outputDirectory>META-INF</outputDirectory>
 		</fileSet>
-
-<!-- 		<fileSet>
-			<directory>${project.build.directory}/hadoop-test</directory>
-			<includes>
-				<include>**/*</include>
-			</includes>
-			<outputDirectory>.</outputDirectory>
-		</fileSet> -->
-
 	</fileSets>
-
-
 
 	<!--  Include all the libraries needed to run in in-memory (JMLC) mode. -->
 	<dependencySets>
+
+		<dependencySet>
+			<includes>
+				<include>*:hadoop-mapreduce-client-core*</include>
+			</includes>
+			<unpackOptions>
+				<includes>
+					<include>org/apache/hadoop/mapred/**</include>
+				</includes>
+			</unpackOptions>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
 
 		<dependencySet>
 			<includes>
@@ -60,17 +62,32 @@
 			</includes>
 			<unpackOptions>
 				<includes>
-					<include>org/apache/hadoop/io/Writable.class</include>
+<!-- 					<include>org/apache/hadoop/io/Writable.class</include>
 					<include>org/apache/hadoop/io/WritableComparable.class</include>
-					<include>org/apache/hadoop/io/DataInputBuffer.class</include>
+					<include>org/apache/hadoop/io/DataInputBuffer.class</include> -->
+					<include>org/apache/hadoop/io/**</include>
 				</includes>
 			</unpackOptions>
 			<scope>compile</scope>
 			<unpack>true</unpack>
 		</dependencySet>
-			
+
 		<dependencySet>
 			<includes>
+				<include>*:commons-lang</include>
+			</includes>
+			<unpackOptions>
+				<includes>
+					<include>org/apache/commons/lang/ArrayUtils.class</include>
+				</includes>
+			</unpackOptions>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
+
+		<dependencySet>
+			<includes>
+				<!-- <include>*:commons-lang</include> -->
 				<include>*:commons-logging*</include>
 				<include>*:systemml*</include>
 			</includes>

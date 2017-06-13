@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.parser.DMLProgram;
@@ -168,7 +167,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		// Create a symbol table under a new execution context for the function invocation,
 		// and copy the function arguments into the created table. 
 		ExecutionContext fn_ec = ExecutionContextFactory.createContext(false, ec.getProgram());
-		if (DMLScript.USE_ACCELERATOR) {
+		if (RuntimePlatform.useAccelerator) {
 			fn_ec.setGPUContext(ec.getGPUContext());
 			ec.setGPUContext(null);
 			fn_ec.getGPUContext().initializeThread();
@@ -206,7 +205,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		// Unpin the pinned variables
 		ec.unpinVariables(_boundInputParamNames, pinStatus);
 
-		if (DMLScript.USE_ACCELERATOR) {
+		if (RuntimePlatform.useAccelerator) {
 			ec.setGPUContext(fn_ec.getGPUContext());
 			fn_ec.setGPUContext(null);
 			ec.getGPUContext().initializeThread();

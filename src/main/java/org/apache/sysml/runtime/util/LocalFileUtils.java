@@ -37,7 +37,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 
 import org.apache.hadoop.io.Writable;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.lops.Lop;
@@ -307,7 +307,7 @@ public class LocalFileUtils
 	}
 
 	public static String createWorkingDirectory() throws DMLRuntimeException {
-		return createWorkingDirectoryWithUUID( DMLScript.getUUID() );
+		return createWorkingDirectoryWithUUID( RuntimePlatform.uuid );
 	}
 
 	public static String createWorkingDirectoryWithUUID( String uuid )

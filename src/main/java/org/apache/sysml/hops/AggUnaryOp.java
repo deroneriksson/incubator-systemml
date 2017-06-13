@@ -19,7 +19,7 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp.SparkAggType;
 import org.apache.sysml.hops.Hop.MultiThreadedHop;
@@ -29,13 +29,13 @@ import org.apache.sysml.lops.Aggregate.OperationTypes;
 import org.apache.sysml.lops.Binary;
 import org.apache.sysml.lops.Group;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.PartialAggregate;
 import org.apache.sysml.lops.PartialAggregate.DirectionTypes;
 import org.apache.sysml.lops.TernaryAggregate;
 import org.apache.sysml.lops.UAggOuterChain;
 import org.apache.sysml.lops.UnaryCP;
-import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
@@ -144,7 +144,7 @@ public class AggUnaryOp extends Hop implements MultiThreadedHop
 				}				
 				else { //general case		
 					int k = OptimizerUtils.getConstrainedNumThreads(_maxNumThreads);
-					if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+					if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 						// Only implemented methods for GPU
 						if (			 (_op == AggOp.SUM 			&& (_direction == Direction.RowCol || _direction == Direction.Row || _direction == Direction.Col))
 										|| (_op == AggOp.SUM_SQ 	&& (_direction == Direction.RowCol || _direction == Direction.Row || _direction == Direction.Col))

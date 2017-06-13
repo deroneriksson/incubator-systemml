@@ -258,10 +258,10 @@ public class ScriptExecutor {
 	protected void setGlobalFlags() {
 		oldStatistics = RuntimePlatform.statistics;
 		RuntimePlatform.statistics = statistics;
-		oldForceGPU = DMLScript.FORCE_ACCELERATOR;
-		DMLScript.FORCE_ACCELERATOR = forceGPU;
-		oldGPU = DMLScript.USE_ACCELERATOR;
-		DMLScript.USE_ACCELERATOR = gpu;
+		oldForceGPU = RuntimePlatform.forceAccelerator;
+		RuntimePlatform.forceAccelerator = forceGPU;
+		oldGPU = RuntimePlatform.useAccelerator;
+		RuntimePlatform.useAccelerator = gpu;
 		DMLScript.STATISTICS_COUNT = statisticsMaxHeavyHitters;
 	}
 
@@ -271,8 +271,8 @@ public class ScriptExecutor {
 	 */
 	protected void resetGlobalFlags() {
 		RuntimePlatform.statistics = oldStatistics;
-		DMLScript.FORCE_ACCELERATOR = oldForceGPU;
-		DMLScript.USE_ACCELERATOR = oldGPU;
+		RuntimePlatform.forceAccelerator = oldForceGPU;
+		RuntimePlatform.useAccelerator = oldGPU;
 		DMLScript.STATISTICS_COUNT = DMLOptions.defaultOptions.statsCount;
 	}
 
