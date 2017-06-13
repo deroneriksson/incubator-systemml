@@ -152,7 +152,6 @@ public class DMLScript
 		}
 	}
 
-	public static boolean           STATISTICS          = DMLOptions.defaultOptions.stats;       // whether to print statistics
 	public static int               STATISTICS_COUNT    = DMLOptions.defaultOptions.statsCount;  // statistics maximum heavy hitter count
 	public static ExplainType       EXPLAIN             = DMLOptions.defaultOptions.explainType; // explain type
 	public static String            DML_FILE_PATH_ANTLR_PARSER = DMLOptions.defaultOptions.filePath; // filename of dml/pydml script
@@ -160,10 +159,7 @@ public class DMLScript
 	public static boolean           USE_ACCELERATOR     = DMLOptions.defaultOptions.gpu;
 	public static boolean           FORCE_ACCELERATOR   = DMLOptions.defaultOptions.forceGPU;
 
-
-	public static boolean _suppressPrint2Stdout = false;  // flag that indicates whether or not to suppress any prints to stdout
 	public static boolean USE_LOCAL_SPARK_CONFIG = false; //set default local spark configuration - used for local testing
-	public static boolean _activeAM = false;
 
 	public static String _uuid = IDHandler.createDistributedUniqueID();
 	private static final Log LOG = LogFactory.getLog(DMLScript.class.getName());
@@ -185,18 +181,6 @@ public class DMLScript
 	public static void setUUID(String uuid) 
 	{
 		_uuid = uuid;
-	}
-	
-	public static boolean suppressPrint2Stdout() {
-		return _suppressPrint2Stdout;
-	}
-	
-	public static void setActiveAM(){
-		_activeAM = true;
-	}
-	
-	public static boolean isActiveAM(){
-		return _activeAM;
 	}
 
 	/**
@@ -438,7 +422,7 @@ public class DMLScript
 			// String[] scriptArgs = null; //optional script arguments
 			// boolean namedScriptArgs = false;
 
-			STATISTICS        = dmlOptions.stats;
+			RuntimePlatform.statistics = dmlOptions.stats;
 			STATISTICS_COUNT  = dmlOptions.statsCount;
 			USE_ACCELERATOR   = dmlOptions.gpu;
 			FORCE_ACCELERATOR = dmlOptions.forceGPU;
@@ -780,9 +764,9 @@ public class DMLScript
 		
 		//launch SystemML appmaster (if requested and not already in launched AM)
 		if( dmlconf.getBooleanValue(DMLConfig.YARN_APPMASTER) ){
-			if( !isActiveAM() && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlconf, allArgs, rtprog) )
+			if( !RuntimePlatform.activeAM && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlconf, allArgs, rtprog) )
 				return; //if AM launch unsuccessful, fall back to normal execute
-			if( isActiveAM() ) //in AM context (not failed AM launch)
+			if( RuntimePlatform.activeAM ) //in AM context (not failed AM launch)
 				DMLAppMasterUtils.setupProgramMappingRemoteMaxMemory(rtprog);
 		}
 		
@@ -808,7 +792,7 @@ public class DMLScript
 		ExecutionContext ec = null;
 		try {
 			ec = ExecutionContextFactory.createContext(rtprog);
-			ScriptExecutorUtils.executeRuntimeProgram(rtprog, ec, dmlconf, STATISTICS ? STATISTICS_COUNT : 0);
+			ScriptExecutorUtils.executeRuntimeProgram(rtprog, ec, dmlconf, RuntimePlatform.statistics ? STATISTICS_COUNT : 0);
 		}
 		finally {
 			if(ec != null && ec instanceof SparkExecutionContext)
@@ -898,7 +882,7 @@ public class DMLScript
 						
 		//reset statistics (required if multiple scripts executed in one JVM)
 		Statistics.resetNoOfExecutedJobs();
-		if( STATISTICS ) {
+		if( RuntimePlatform.statistics ) {
 			CacheStatistics.reset();
 			Statistics.reset();
 		}

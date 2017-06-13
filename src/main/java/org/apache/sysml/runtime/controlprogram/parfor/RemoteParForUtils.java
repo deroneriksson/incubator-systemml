@@ -31,7 +31,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -65,7 +65,7 @@ public class RemoteParForUtils
 			reporter.incrCounter(ParForProgramBlock.PARFOR_COUNTER_GROUP_NAME, Stat.PARFOR_NUMITERS.toString(), deltaIterations);
 		
 		JobConf job = HadoopConfigurationManager.getCachedJobConf();
-		if( DMLScript.STATISTICS  && !InfrastructureAnalyzer.isLocalMode(job) ) 
+		if( RuntimePlatform.statistics  && !InfrastructureAnalyzer.isLocalMode(job) ) 
 		{
 			//report cache statistics
 			reporter.incrCounter( ParForProgramBlock.PARFOR_COUNTER_GROUP_NAME, Stat.PARFOR_JITCOMPILE.toString(), Statistics.getJITCompileTime());

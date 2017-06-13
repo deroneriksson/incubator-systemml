@@ -769,7 +769,7 @@ public class ParForProgramBlock extends ForProgramBlock
 			
 			//maintain statistics
 			long tinit = (long) time.stop();
-			if( DMLScript.STATISTICS )
+			if( RuntimePlatform.statistics )
 				Statistics.incrementParForInitTime(tinit);
 			if( _monitor ) 
 				StatisticMonitor.putPFStat(_ID, Stat.PARFOR_INIT_PARWRK_T, tinit);
@@ -1779,7 +1779,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		if( numTasks != expTasks || numIters !=expIters ) //consistency check
 			throw new DMLRuntimeException("PARFOR: Number of executed tasks does not match the number of created tasks: tasks "+numTasks+"/"+expTasks+", iters "+numIters+"/"+expIters+".");
 	
-		if( DMLScript.STATISTICS )
+		if( RuntimePlatform.statistics )
 			Statistics.incrementParForMergeTime((long) time.stop());
 	}
 	

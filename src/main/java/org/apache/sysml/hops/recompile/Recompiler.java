@@ -19,22 +19,17 @@
 
 package org.apache.sysml.hops.recompile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.wink.json4j.JSONObject;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.FunctionOp;
@@ -94,16 +89,14 @@ import org.apache.sysml.runtime.instructions.cp.IntObject;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.instructions.mr.RandInstruction;
 import org.apache.sysml.runtime.instructions.mr.SeqInstruction;
-import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
 import org.apache.sysml.runtime.matrix.data.FrameBlock;
 import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
-import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.utils.Explain;
 import org.apache.sysml.utils.Explain.ExplainType;
-import org.apache.sysml.utils.JSONHelper;
+import org.apache.sysml.utils.HDFSUtils;
 
 /**
  * Dynamic recompilation of hop dags to runtime instructions, which includes the 
@@ -1536,8 +1529,14 @@ public class Recompiler
 				&& !ConfigurationManager.getCompilerConfigFlag(ConfigType.IGNORE_READ_WRITE_METADATA) )
 		{
 			//update hop with read meta data
-			DataOp dop = (DataOp) hop; 
-			tryReadMetaDataFileMatrixCharacteristics(dop);
+			DataOp dop = (DataOp) hop;
+
+			try {
+				Class.forName("org.apache.hadoop.fs.FileSystem");
+				HDFSUtils.tryReadMetaDataFileMatrixCharacteristics(dop);
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
 		}
 		//update size expression for rand/seq according to symbol table entries
 		else if ( hop instanceof DataGenOp )
@@ -1724,8 +1723,13 @@ public class Recompiler
 				// however, we do a conservative check with the CSV filesize
 				if ( rows == -1 || cols == -1 ) 
 				{
-					Path path = new Path(mo.getFileName());
-					long size = MapReduceTool.getFilesizeOnHDFS(path);
+					long size = -1;
+					try {
+						Class.forName("org.apache.hadoop.fs.FileSystem");
+						size = HDFSUtils.hadoopPathToFileSize(mo.getFileName());
+					} catch (ClassNotFoundException e) {
+						// hadoop not available
+					}
 					if( size > CP_CSV_REBLOCK_UNKNOWN_THRESHOLD_SIZE || CP_CSV_REBLOCK_UNKNOWN_THRESHOLD_SIZE > OptimizerUtils.getLocalMemBudget() )
 					{
 						ret = false;
@@ -1762,8 +1766,14 @@ public class Recompiler
 					&& !mo.isDirty() )
 				{
 					//get file size on hdfs (as indicator for estimated read time)
-					Path path = new Path(mo.getFileName());
-					long fileSize = MapReduceTool.getFilesizeOnHDFS(path);
+					long fileSize = -1;
+					try {
+						Class.forName("org.apache.hadoop.fs.FileSystem");
+						fileSize = HDFSUtils.hadoopPathToFileSize(mo.getFileName());
+					} catch (ClassNotFoundException e) {
+						// hadoop not available
+					}
+					
 					//compute cp reblock size threshold based on available parallelism
 					long cpThreshold = CP_REBLOCK_THRESHOLD_SIZE * 
 							           OptimizerUtils.getParallelTextReadParallelism();
@@ -1935,38 +1945,5 @@ public class Recompiler
 		out.release();
 		in.release();				
 	}
-	
-	private static void tryReadMetaDataFileMatrixCharacteristics( DataOp dop )
-		throws DMLRuntimeException
-	{
-		try
-		{
-			//get meta data filename
-			String mtdname = DataExpression.getMTDFileName(dop.getFileName());
-			Path path = new Path(mtdname);
-			FileSystem fs = IOUtilFunctions.getFileSystem(mtdname);
-			if( fs.exists(path) ){
-				BufferedReader br = null;
-				try
-				{
-					br = new BufferedReader(new InputStreamReader(fs.open(path)));
-					JSONObject mtd = JSONHelper.parse(br);
-					
-					DataType dt = DataType.valueOf(String.valueOf(mtd.get(DataExpression.DATATYPEPARAM)).toUpperCase());
-					dop.setDataType(dt);
-					if(dt != DataType.FRAME)
-						dop.setValueType(ValueType.valueOf(String.valueOf(mtd.get(DataExpression.VALUETYPEPARAM)).toUpperCase()));
-					dop.setDim1((dt==DataType.MATRIX||dt==DataType.FRAME)?Long.parseLong(mtd.get(DataExpression.READROWPARAM).toString()):0);
-					dop.setDim2((dt==DataType.MATRIX||dt==DataType.FRAME)?Long.parseLong(mtd.get(DataExpression.READCOLPARAM).toString()):0);
-				}
-				finally {
-					IOUtilFunctions.closeSilently(br);
-				}
-			}
-		}
-		catch(Exception ex)
-		{
-			throw new DMLRuntimeException(ex);
-		}
-	}
+
 }

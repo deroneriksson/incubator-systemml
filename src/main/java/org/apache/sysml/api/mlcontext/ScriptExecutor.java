@@ -256,8 +256,8 @@ public class ScriptExecutor {
 	 * Set the global flags (for example: statistics, gpu, etc).
 	 */
 	protected void setGlobalFlags() {
-		oldStatistics = DMLScript.STATISTICS;
-		DMLScript.STATISTICS = statistics;
+		oldStatistics = RuntimePlatform.statistics;
+		RuntimePlatform.statistics = statistics;
 		oldForceGPU = DMLScript.FORCE_ACCELERATOR;
 		DMLScript.FORCE_ACCELERATOR = forceGPU;
 		oldGPU = DMLScript.USE_ACCELERATOR;
@@ -270,7 +270,7 @@ public class ScriptExecutor {
 	 * post-execution.
 	 */
 	protected void resetGlobalFlags() {
-		DMLScript.STATISTICS = oldStatistics;
+		RuntimePlatform.statistics = oldStatistics;
 		DMLScript.FORCE_ACCELERATOR = oldForceGPU;
 		DMLScript.USE_ACCELERATOR = oldGPU;
 		DMLScript.STATISTICS_COUNT = DMLOptions.defaultOptions.statsCount;

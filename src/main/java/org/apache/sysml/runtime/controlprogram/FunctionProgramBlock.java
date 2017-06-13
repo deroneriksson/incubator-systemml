@@ -21,7 +21,7 @@ package org.apache.sysml.runtime.controlprogram;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.recompile.Recompiler;
 import org.apache.sysml.parser.DataIdentifier;
@@ -88,7 +88,7 @@ public class FunctionProgramBlock extends ProgramBlock
 				&& isRecompileOnce() 
 				&& ParForProgramBlock.RESET_RECOMPILATION_FLAGs )
 			{
-				long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+				long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 				
 				//note: it is important to reset the recompilation flags here
 				// (1) it is safe to reset recompilation flags because a 'recompile_once'
@@ -97,7 +97,7 @@ public class FunctionProgramBlock extends ProgramBlock
 				LocalVariableMap tmp = (LocalVariableMap) ec.getVariables().clone();
 				Recompiler.recompileProgramBlockHierarchy(_childBlocks, tmp, _tid, true);
 				
-				if( DMLScript.STATISTICS ){
+				if( RuntimePlatform.statistics ){
 					long t1 = System.nanoTime();
 					Statistics.incrementFunRecompileTime(t1-t0);
 					Statistics.incrementFunRecompiles();

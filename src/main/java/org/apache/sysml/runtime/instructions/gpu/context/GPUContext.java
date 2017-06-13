@@ -18,33 +18,6 @@
  */
 package org.apache.sysml.runtime.instructions.gpu.context;
 
-import jcuda.Pointer;
-import jcuda.jcublas.cublasHandle;
-import jcuda.jcudnn.cudnnHandle;
-import jcuda.jcusolver.cusolverDnHandle;
-import jcuda.jcusolver.cusolverSpHandle;
-import jcuda.jcusparse.cusparseHandle;
-import jcuda.runtime.JCuda;
-import jcuda.runtime.cudaDeviceProp;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.conf.ConfigurationManager;
-import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.runtime.DMLRuntimeException;
-import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
-import org.apache.sysml.runtime.instructions.gpu.GPUInstruction;
-import org.apache.sysml.utils.GPUStatistics;
-import org.apache.sysml.utils.LRUCacheMap;
-
 import static jcuda.jcublas.JCublas2.cublasCreate;
 import static jcuda.jcublas.JCublas2.cublasDestroy;
 import static jcuda.jcudnn.JCudnn.cudnnCreate;
@@ -63,6 +36,33 @@ import static jcuda.runtime.JCuda.cudaMemGetInfo;
 import static jcuda.runtime.JCuda.cudaMemset;
 import static jcuda.runtime.JCuda.cudaSetDevice;
 import static jcuda.runtime.JCuda.cudaSetDeviceFlags;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.DMLConfig;
+import org.apache.sysml.runtime.DMLRuntimeException;
+import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
+import org.apache.sysml.runtime.instructions.gpu.GPUInstruction;
+import org.apache.sysml.utils.GPUStatistics;
+import org.apache.sysml.utils.LRUCacheMap;
+
+import jcuda.Pointer;
+import jcuda.jcublas.cublasHandle;
+import jcuda.jcudnn.cudnnHandle;
+import jcuda.jcusolver.cusolverDnHandle;
+import jcuda.jcusolver.cusolverSpHandle;
+import jcuda.jcusparse.cusparseHandle;
+import jcuda.runtime.JCuda;
+import jcuda.runtime.cudaDeviceProp;
 
 /**
  * Represents a context per GPU accessible through the same JVM
@@ -227,24 +227,24 @@ public class GPUContext {
         GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_REUSE, System.nanoTime() - t0);
     } else {
       LOG.trace("GPU : in allocate from instruction " + instructionName + ", allocating new block of size " + (size / 1024.0) + " Kbytes on " + this);
-      if (DMLScript.STATISTICS) t0 = System.nanoTime();
+      if (RuntimePlatform.statistics) t0 = System.nanoTime();
       ensureFreeSpace(instructionName, size);
       A = new Pointer();
       cudaMalloc(A, size);
-      if (DMLScript.STATISTICS) GPUStatistics.cudaAllocTime.getAndAdd(System.nanoTime() - t0);
-      if (DMLScript.STATISTICS) GPUStatistics.cudaAllocCount.getAndAdd(statsCount);
+      if (RuntimePlatform.statistics) GPUStatistics.cudaAllocTime.getAndAdd(System.nanoTime() - t0);
+      if (RuntimePlatform.statistics) GPUStatistics.cudaAllocCount.getAndAdd(statsCount);
       if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
         GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_ALLOCATE, System.nanoTime() - t0);
     }
     // Set all elements to 0 since newly allocated space will contain garbage
-    if (DMLScript.STATISTICS) t1 = System.nanoTime();
+    if (RuntimePlatform.statistics) t1 = System.nanoTime();
     LOG.trace("GPU : in allocate from instruction " + instructionName + ", setting block of size " + (size / 1024.0) + " Kbytes to zero on " + this);
     cudaMemset(A, 0, size);
-    if (DMLScript.STATISTICS) end = System.nanoTime();
+    if (RuntimePlatform.statistics) end = System.nanoTime();
     if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
       GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_SET_ZERO, end - t1);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaMemSet0Time.getAndAdd(end - t1);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaMemSet0Count.getAndAdd(1);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaMemSet0Time.getAndAdd(end - t1);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaMemSet0Count.getAndAdd(1);
     cudaBlockSizeMap.put(A, size);
     return A;
 
@@ -295,11 +295,11 @@ public class GPUContext {
     long size = cudaBlockSizeMap.get(toFree);
     if (eager) {
       LOG.trace("GPU : eagerly freeing cuda memory [ " + toFree + " ] for instruction " + instructionName + " on " + this);
-      if (DMLScript.STATISTICS) t0 = System.nanoTime();
+      if (RuntimePlatform.statistics) t0 = System.nanoTime();
       cudaFree(toFree);
       cudaBlockSizeMap.remove(toFree);
-      if (DMLScript.STATISTICS) GPUStatistics.cudaDeAllocTime.addAndGet(System.nanoTime() - t0);
-      if (DMLScript.STATISTICS) GPUStatistics.cudaDeAllocCount.addAndGet(1);
+      if (RuntimePlatform.statistics) GPUStatistics.cudaDeAllocTime.addAndGet(System.nanoTime() - t0);
+      if (RuntimePlatform.statistics) GPUStatistics.cudaDeAllocCount.addAndGet(1);
       if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
         GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_CUDA_FREE, System.nanoTime() - t0);
     } else {

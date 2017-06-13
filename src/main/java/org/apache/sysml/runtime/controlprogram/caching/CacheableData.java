@@ -382,7 +382,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire read "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		if ( !isAvailableToRead() )
 			throw new CacheException ("MatrixObject not available to read.");
@@ -411,7 +411,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		{			
 			try
 			{
-				if( DMLScript.STATISTICS )
+				if( RuntimePlatform.statistics )
 					CacheStatistics.incrementHDFSHits();
 				
 				if( getRDDHandle()==null || getRDDHandle().allowsShortCircuitRead() )
@@ -445,7 +445,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			
 			_isAcquireFromEmpty = true;
 		}
-		else if( DMLScript.STATISTICS )
+		else if( RuntimePlatform.statistics )
 		{
 			if( _data!=null )
 				CacheStatistics.incrementMemHits();
@@ -455,7 +455,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		acquire( false, _data==null );	
 		updateStatusPinned(true);
 		
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireRTime(t1-t0);
 		}
@@ -479,7 +479,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire modify "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		if ( !isAvailableToModify() )
 			throw new CacheException("MatrixObject not available to modify.");
@@ -512,7 +512,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		setDirty(true);
 		_isAcquireFromEmpty = false;
 		
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireMTime(t1-t0);
 		}
@@ -537,7 +537,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire modify newdata "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		if (! isAvailableToModify ())
 			throw new CacheException ("CacheableData not available to modify.");
@@ -557,7 +557,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		_data = newData;
 		updateStatusPinned(true);
 		
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireMTime(t1-t0);
 		}
@@ -582,7 +582,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Release "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		boolean write = false;
 		if ( isModify() )
@@ -628,7 +628,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			LOG.trace("Var "+getVarName()+" not subject to caching, state="+getStatusAsString());
 		}
 
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementReleaseTime(t1-t0);
 		}
@@ -741,7 +741,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Export data "+getVarName()+" "+fName);
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		//prevent concurrent modifications
 		if ( !isAvailableToRead() )
@@ -858,7 +858,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			LOG.trace(this.getDebugName() + ": Skip export to hdfs since data already exists.");
 		}
 		  
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementExportTime(t1-t0);
 		}

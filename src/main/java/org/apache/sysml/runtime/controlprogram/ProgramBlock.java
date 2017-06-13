@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop;
@@ -138,10 +137,10 @@ public class ProgramBlock
 		//dynamically recompile instructions if enabled and required
 		try
 		{
-			if( DMLScript.isActiveAM() ) //set program block specific remote memory
+			if( RuntimePlatform.activeAM ) //set program block specific remote memory
 				DMLAppMasterUtils.setupProgramBlockRemoteMaxMemory(this);
 
-			long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+			long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 			if(    ConfigurationManager.isDynamicRecompilation()
 				&& _sb != null
 				&& _sb.requiresRecompilation() )
@@ -152,7 +151,7 @@ public class ProgramBlock
 				if( MLContextProxy.isActive() )
 					tmp = MLContextProxy.performCleanupAfterRecompilation(tmp);
 			}
-			if( DMLScript.STATISTICS ){
+			if( RuntimePlatform.statistics ){
 				long t1 = System.nanoTime();
 				Statistics.incrementHOPRecompileTime(t1-t0);
 				if( tmp!=_inst )
@@ -186,14 +185,14 @@ public class ProgramBlock
 
 		//dynamically recompile instructions if enabled and required
 		try {
-			long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+			long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 			if(    ConfigurationManager.isDynamicRecompilation()
 				&& requiresRecompile )
 			{
 				tmp = Recompiler.recompileHopsDag(
 					hops, ec.getVariables(), null, false, true, _tid);
 			}
-			if( DMLScript.STATISTICS ){
+			if( RuntimePlatform.statistics ){
 				long t1 = System.nanoTime();
 				Statistics.incrementHOPRecompileTime(t1-t0);
 				if( tmp!=inst )
@@ -281,7 +280,7 @@ public class ProgramBlock
 		try
 		{
 			// start time measurement for statistics
-			long t0 = (DMLScript.STATISTICS || LOG.isTraceEnabled()) ?
+			long t0 = (RuntimePlatform.statistics || LOG.isTraceEnabled()) ?
 					System.nanoTime() : 0;
 
 			// pre-process instruction (debug state, inst patching, listeners)
@@ -294,7 +293,7 @@ public class ProgramBlock
 			tmp.postprocessInstruction( ec );
 
 			// maintain aggregate statistics
-			if( DMLScript.STATISTICS) {
+			if( RuntimePlatform.statistics) {
 				Statistics.maintainCPHeavyHitters(
 					tmp.getExtendedOpcode(), System.nanoTime()-t0);
 			}

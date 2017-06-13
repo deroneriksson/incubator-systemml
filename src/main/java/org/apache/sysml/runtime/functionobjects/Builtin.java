@@ -22,8 +22,7 @@ package org.apache.sysml.runtime.functionobjects;
 import java.util.HashMap;
 
 import org.apache.commons.math3.util.FastMath;
-
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLScriptException;
 
@@ -461,11 +460,11 @@ public class Builtin extends ValueFunction
 	{
 		switch (bFunc) {
 		case PRINT:
-			if (!DMLScript.suppressPrint2Stdout())
+			if (!RuntimePlatform.suppressPrint2Stdout)
 				System.out.println(in1);
 			return null;
 		case PRINTF:
-			if (!DMLScript.suppressPrint2Stdout())
+			if (!RuntimePlatform.suppressPrint2Stdout)
 				System.out.println(in1);
 			return null;
 		case STOP:

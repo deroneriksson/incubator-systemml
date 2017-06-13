@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.UnaryCP;
 import org.apache.sysml.parser.Expression.DataType;
@@ -473,7 +473,7 @@ public class VariableCPInstruction extends CPInstruction
 				mobj.setFileFormatProperties(_formatProperties);
 				mobj.setUpdateType(_updateType);
 				ec.setVariable(input1.getName(), mobj);
-				if(DMLScript.STATISTICS && _updateType.isInPlace())
+				if(RuntimePlatform.statistics && _updateType.isInPlace())
 					Statistics.incrementTotalUIPVar();
 			}
 			else if( input1.getDataType() == DataType.FRAME ) {

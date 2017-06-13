@@ -19,7 +19,7 @@
 
 package org.apache.sysml.runtime.instructions.cp;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -79,7 +79,7 @@ public final class MatrixIndexingCPInstruction extends IndexingCPInstruction
 		else if ( opcode.equalsIgnoreCase("leftIndex"))
 		{
 			UpdateType updateType = mo.getUpdateType();
-			if(DMLScript.STATISTICS)
+			if(RuntimePlatform.statistics)
 			{
 				if( updateType.isInPlace() )
 					Statistics.incrementTotalLixUIP();

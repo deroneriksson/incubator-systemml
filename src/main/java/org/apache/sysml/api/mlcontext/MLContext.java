@@ -584,7 +584,7 @@ public class MLContext {
 	 *            otherwise
 	 */
 	public void setStatistics(boolean statistics) {
-		DMLScript.STATISTICS = statistics;
+		RuntimePlatform.statistics = statistics;
 		this.statistics = statistics;
 	}
 

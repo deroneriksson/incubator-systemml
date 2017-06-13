@@ -21,18 +21,18 @@ package org.apache.sysml.hops.recompile;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.AggUnaryOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
-import org.apache.sysml.hops.HopsException;
-import org.apache.sysml.hops.IndexingOp;
-import org.apache.sysml.hops.LiteralOp;
-import org.apache.sysml.hops.UnaryOp;
 import org.apache.sysml.hops.Hop.AggOp;
 import org.apache.sysml.hops.Hop.DataOpTypes;
 import org.apache.sysml.hops.Hop.Direction;
 import org.apache.sysml.hops.Hop.OpOp1;
+import org.apache.sysml.hops.HopsException;
+import org.apache.sysml.hops.IndexingOp;
+import org.apache.sysml.hops.LiteralOp;
+import org.apache.sysml.hops.UnaryOp;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -429,7 +429,7 @@ public class LiteralReplacement
 		throws DMLRuntimeException
 	{
 		//setup stats reporting if necessary
-		boolean REPORT_STATS = (DMLScript.STATISTICS && REPORT_LITERAL_REPLACE_OPS_STATS); 
+		boolean REPORT_STATS = (RuntimePlatform.statistics && REPORT_LITERAL_REPLACE_OPS_STATS); 
 		long t0 = REPORT_STATS ? System.nanoTime() : 0;
 		
 		//compute required unary aggregate 

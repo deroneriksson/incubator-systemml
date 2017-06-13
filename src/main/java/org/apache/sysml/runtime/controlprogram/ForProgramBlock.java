@@ -22,10 +22,10 @@ package org.apache.sysml.runtime.controlprogram;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.Hop;
-import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.parser.Expression.ValueType;
+import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLScriptException;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject.UpdateType;
@@ -187,7 +187,7 @@ public class ForProgramBlock extends ProgramBlock
 			{
 				if( _sb!=null )
 				{
-					if( DMLScript.isActiveAM() ) //set program block specific remote memory
+					if( RuntimePlatform.activeAM ) //set program block specific remote memory
 						DMLAppMasterUtils.setupProgramBlockRemoteMaxMemory(this);
 					
 					ForStatementBlock fsb = (ForStatementBlock)_sb;

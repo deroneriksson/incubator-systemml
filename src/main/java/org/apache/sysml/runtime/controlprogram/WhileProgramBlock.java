@@ -21,10 +21,10 @@ package org.apache.sysml.runtime.controlprogram;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.Hop;
-import org.apache.sysml.parser.WhileStatementBlock;
 import org.apache.sysml.parser.Expression.ValueType;
+import org.apache.sysml.parser.WhileStatementBlock;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLScriptException;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject.UpdateType;
@@ -33,12 +33,12 @@ import org.apache.sysml.runtime.instructions.Instruction;
 import org.apache.sysml.runtime.instructions.Instruction.INSTRUCTION_TYPE;
 import org.apache.sysml.runtime.instructions.cp.BooleanObject;
 import org.apache.sysml.runtime.instructions.cp.CPInstruction;
+import org.apache.sysml.runtime.instructions.cp.CPInstruction.CPINSTRUCTION_TYPE;
 import org.apache.sysml.runtime.instructions.cp.ComputationCPInstruction;
 import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.instructions.cp.StringObject;
 import org.apache.sysml.runtime.instructions.cp.VariableCPInstruction;
-import org.apache.sysml.runtime.instructions.cp.CPInstruction.CPINSTRUCTION_TYPE;
 import org.apache.sysml.yarn.DMLAppMasterUtils;
 
 
@@ -105,7 +105,7 @@ public class WhileProgramBlock extends ProgramBlock
 			{
 				if( _sb!=null )
 				{
-					if( DMLScript.isActiveAM() ) //set program block specific remote memory
+					if( RuntimePlatform.activeAM ) //set program block specific remote memory
 						DMLAppMasterUtils.setupProgramBlockRemoteMaxMemory(this);
 					
 					WhileStatementBlock wsb = (WhileStatementBlock)_sb;

@@ -34,6 +34,11 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.hops.Hop;
+import org.apache.sysml.hops.Hop.OpOp1;
+import org.apache.sysml.hops.HopsException;
+import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.codegen.cplan.CNode;
 import org.apache.sysml.hops.codegen.cplan.CNodeCell;
 import org.apache.sysml.hops.codegen.cplan.CNodeData;
@@ -43,23 +48,19 @@ import org.apache.sysml.hops.codegen.cplan.CNodeRow;
 import org.apache.sysml.hops.codegen.cplan.CNodeTernary;
 import org.apache.sysml.hops.codegen.cplan.CNodeTernary.TernaryType;
 import org.apache.sysml.hops.codegen.cplan.CNodeTpl;
+import org.apache.sysml.hops.codegen.template.CPlanMemoTable;
+import org.apache.sysml.hops.codegen.template.CPlanMemoTable.MemoTableEntry;
+import org.apache.sysml.hops.codegen.template.CPlanMemoTable.MemoTableEntrySet;
+import org.apache.sysml.hops.codegen.template.PlanSelection;
+import org.apache.sysml.hops.codegen.template.PlanSelectionFuseAll;
+import org.apache.sysml.hops.codegen.template.PlanSelectionFuseCostBased;
+import org.apache.sysml.hops.codegen.template.PlanSelectionFuseNoRedundancy;
 import org.apache.sysml.hops.codegen.template.TemplateBase;
 import org.apache.sysml.hops.codegen.template.TemplateBase.CloseType;
 import org.apache.sysml.hops.codegen.template.TemplateBase.TemplateType;
-import org.apache.sysml.hops.codegen.template.CPlanMemoTable;
-import org.apache.sysml.hops.codegen.template.PlanSelection;
-import org.apache.sysml.hops.codegen.template.PlanSelectionFuseCostBased;
-import org.apache.sysml.hops.codegen.template.PlanSelectionFuseAll;
-import org.apache.sysml.hops.codegen.template.PlanSelectionFuseNoRedundancy;
-import org.apache.sysml.hops.codegen.template.CPlanMemoTable.MemoTableEntry;
-import org.apache.sysml.hops.codegen.template.CPlanMemoTable.MemoTableEntrySet;
 import org.apache.sysml.hops.codegen.template.TemplateUtils;
 import org.apache.sysml.hops.recompile.RecompileStatus;
 import org.apache.sysml.hops.recompile.Recompiler;
-import org.apache.sysml.hops.Hop;
-import org.apache.sysml.hops.Hop.OpOp1;
-import org.apache.sysml.hops.HopsException;
-import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.hops.rewrite.ProgramRewriteStatus;
 import org.apache.sysml.hops.rewrite.ProgramRewriter;
@@ -67,6 +68,7 @@ import org.apache.sysml.hops.rewrite.RewriteCommonSubexpressionElimination;
 import org.apache.sysml.hops.rewrite.RewriteRemoveUnnecessaryCasts;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.parser.DMLProgram;
+import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.ForStatement;
 import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.parser.FunctionStatement;
@@ -77,7 +79,6 @@ import org.apache.sysml.parser.LanguageException;
 import org.apache.sysml.parser.StatementBlock;
 import org.apache.sysml.parser.WhileStatement;
 import org.apache.sysml.parser.WhileStatementBlock;
-import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.codegen.CodegenUtils;
 import org.apache.sysml.runtime.codegen.SpoofCellwise.CellType;
@@ -334,7 +335,7 @@ public class SpoofCompiler
 		if( roots == null || roots.isEmpty() )
 			return roots;
 	
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		ArrayList<Hop> ret = roots;
 		
 		try
@@ -384,14 +385,14 @@ public class SpoofCompiler
 					if( PLAN_CACHE_POLICY!=PlanCachePolicy.NONE )
 						planCache.putPlan(tmp.getValue(), cla);
 				}
-				else if( DMLScript.STATISTICS ) {
+				else if( RuntimePlatform.statistics ) {
 					Statistics.incrementCodegenPlanCacheHits();
 				}
 				
 				//make class available and maintain hits
 				if(cla != null)
 					clas.put(cplan.getKey(), new Pair<Hop[],Class<?>>(tmp.getKey(),cla));
-				if( DMLScript.STATISTICS )
+				if( RuntimePlatform.statistics )
 					Statistics.incrementCodegenPlanCacheTotal();
 			}
 			
@@ -416,7 +417,7 @@ public class SpoofCompiler
 			throw new DMLRuntimeException(ex);
 		}
 		
-		if( DMLScript.STATISTICS ) {
+		if( RuntimePlatform.statistics ) {
 			Statistics.incrementCodegenDAGCompile();
 			Statistics.incrementCodegenCompileTime(System.nanoTime()-t0);
 		}
@@ -561,7 +562,7 @@ public class SpoofCompiler
 			cplans.put(hop.getHopID(), TemplateUtils
 				.createTemplate(memo.getBest(hop.getHopID()).type)
 				.constructCplan(hop, memo, compileLiterals));
-			if( DMLScript.STATISTICS )
+			if( RuntimePlatform.statistics )
 				Statistics.incrementCodegenCPlanCompile(1); 
 		}
 		

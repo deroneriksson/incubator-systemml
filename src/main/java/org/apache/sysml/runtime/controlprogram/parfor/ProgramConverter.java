@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -753,7 +754,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle additional configurations
-		sb.append( PARFOR_CONF_STATS + "=" + DMLScript.STATISTICS );
+		sb.append( PARFOR_CONF_STATS + "=" + RuntimePlatform.statistics );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );
 		
@@ -1862,7 +1863,7 @@ public class ProgramConverter
 	
 	private static void parseAndSetAdditionalConfigurations(String conf) {
 		String[] statsFlag = conf.split("=");
-		DMLScript.STATISTICS = Boolean.parseBoolean(statsFlag[1]);
+		RuntimePlatform.statistics = Boolean.parseBoolean(statsFlag[1]);
 	}
 
 	//////////

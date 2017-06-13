@@ -35,7 +35,7 @@ import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyHostToDevice;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.utils.GPUStatistics;
 
@@ -200,13 +200,13 @@ public class CSRPointer {
   public static void copyToDevice(CSRPointer dest, int rows, long nnz, int[] rowPtr, int[] colInd, double[] values) {
     CSRPointer r = dest;
     long t0 = 0;
-    if (DMLScript.STATISTICS) t0 = System.nanoTime();
+    if (RuntimePlatform.statistics) t0 = System.nanoTime();
     r.nnz = nnz;
     cudaMemcpy(r.rowPtr, Pointer.to(rowPtr), getIntSizeOf(rows + 1), cudaMemcpyHostToDevice);
     cudaMemcpy(r.colInd, Pointer.to(colInd), getIntSizeOf(nnz), cudaMemcpyHostToDevice);
     cudaMemcpy(r.val, Pointer.to(values), getDoubleSizeOf(nnz), cudaMemcpyHostToDevice);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaToDevTime.addAndGet(System.nanoTime() - t0);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaToDevCount.addAndGet(3);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaToDevTime.addAndGet(System.nanoTime() - t0);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaToDevCount.addAndGet(3);
   }
 
   /**
@@ -222,12 +222,12 @@ public class CSRPointer {
   public static void copyToHost(CSRPointer src, int rows, long nnz, int[] rowPtr, int[] colInd, double[] values) {
     CSRPointer r = src;
     long t0 = 0;
-    if (DMLScript.STATISTICS) t0 = System.nanoTime();
+    if (RuntimePlatform.statistics) t0 = System.nanoTime();
     cudaMemcpy(Pointer.to(rowPtr), r.rowPtr, getIntSizeOf(rows + 1), cudaMemcpyDeviceToHost);
     cudaMemcpy(Pointer.to(colInd), r.colInd, getIntSizeOf(nnz), cudaMemcpyDeviceToHost);
     cudaMemcpy(Pointer.to(values), r.val, getDoubleSizeOf(nnz), cudaMemcpyDeviceToHost);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaFromDevTime.addAndGet(System.nanoTime() - t0);
-    if (DMLScript.STATISTICS) GPUStatistics.cudaFromDevCount.addAndGet(3);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaFromDevTime.addAndGet(System.nanoTime() - t0);
+    if (RuntimePlatform.statistics) GPUStatistics.cudaFromDevCount.addAndGet(3);
   }
 
   /**
