@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
@@ -162,8 +162,15 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getRemoteMaxMemoryMap()
 	{
-		if( _remoteJVMMaxMemMap == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemMap == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteJVMMaxMemMap;
 	}
@@ -180,8 +187,15 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getRemoteMaxMemoryReduce()
 	{
-		if( _remoteJVMMaxMemReduce == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemReduce == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteJVMMaxMemReduce;
 	}
@@ -355,7 +369,7 @@ public class InfrastructureAnalyzer
 	{
 		//in local mode, the cluster utilization is always 0.0 
 		
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		JobClient client = new JobClient(job);
 		ClusterStatus stat = client.getClusterStatus();
 		
@@ -405,7 +419,7 @@ public class InfrastructureAnalyzer
 	{
 		try 
 		{
-			JobConf job = ConfigurationManager.getCachedJobConf();
+			JobConf job = HadoopConfigurationManager.getCachedJobConf();
 			JobClient client = new JobClient(job);
 			ClusterStatus stat = client.getClusterStatus();
 			if( stat != null ) //if in cluster mode
@@ -431,7 +445,7 @@ public class InfrastructureAnalyzer
 	 */
 	private static void analyzeHadoopConfiguration()
 	{
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		
 		_remoteMRSortMem = (1024*1024) * job.getLong(MRConfigurationNames.MR_TASK_IO_SORT_MB,100); //1MB
 			

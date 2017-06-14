@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
@@ -107,16 +107,16 @@ public class StringAppendTest extends AutomatedTestBase
 	 */
 	public void runStringAppendTest(String TEST_NAME, int iters, boolean exceptionExpected, ExecType et)
 	{
-		RUNTIME_PLATFORM oldPlatform = rtplatform;		
+		ExecutionMode oldPlatform = rtplatform;		
 
 	    if(et == ExecType.SPARK) {
-	    	rtplatform = RUNTIME_PLATFORM.SPARK;
+	    	rtplatform = ExecutionMode.SPARK;
 	    }
 	    else {
-			rtplatform = (et==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+			rtplatform = (et==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 	    }
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 		
 		try

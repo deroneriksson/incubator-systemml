@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
@@ -86,151 +86,151 @@ public class IQMTest extends AutomatedTestBase
 	
 	@Test
 	public void testIQM1() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 1, false);
+		runTest(ExecutionMode.HYBRID, 1, false);
 	}
 	
 	@Test
 	public void testIQM2() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 2, false);
+		runTest(ExecutionMode.HYBRID, 2, false);
 	}
 	
 	@Test
 	public void testIQM3() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 3, false);
+		runTest(ExecutionMode.HYBRID, 3, false);
 	}
 	
 	@Test
 	public void testIQM4() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 4, false);
+		runTest(ExecutionMode.HYBRID, 4, false);
 	}
 	
 	@Test
 	public void testIQM5() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 5, false);
+		runTest(ExecutionMode.HYBRID, 5, false);
 	}
 	
 	@Test
 	public void testIQM6() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 6, false);
+		runTest(ExecutionMode.HYBRID, 6, false);
 	}
 	
 	@Test
 	public void testIQM7() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 7, false);
+		runTest(ExecutionMode.HYBRID, 7, false);
 	}
 	
 	@Test
 	public void testIQM8() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 8, false);
+		runTest(ExecutionMode.HYBRID, 8, false);
 	}
 	
 	@Test
 	public void testIQM1_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 1, false);
+		runTest(ExecutionMode.HADOOP, 1, false);
 	}
 	
 	@Test
 	public void testIQM2_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 2, false);
+		runTest(ExecutionMode.HADOOP, 2, false);
 	}
 	
 	@Test
 	public void testIQM3_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 3, false);
+		runTest(ExecutionMode.HADOOP, 3, false);
 	}
 	
 	@Test
 	public void testIQM4_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 4, false);
+		runTest(ExecutionMode.HADOOP, 4, false);
 	}
 	
 	@Test
 	public void testIQM5_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 5, false);
+		runTest(ExecutionMode.HADOOP, 5, false);
 	}
 	
 	@Test
 	public void testIQM6_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 6, false);
+		runTest(ExecutionMode.HADOOP, 6, false);
 	}
 	
 	@Test
 	public void testIQM7_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 7, false);
+		runTest(ExecutionMode.HADOOP, 7, false);
 	}
 	
 	@Test
 	public void testIQM8_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 8, false);
+		runTest(ExecutionMode.HADOOP, 8, false);
 	}
 	
 	@Test
 	public void testIQM1wt() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 1, true);
+		runTest(ExecutionMode.HYBRID, 1, true);
 	}
 	
 	@Test
 	public void testIQM2wt() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 2, true);
+		runTest(ExecutionMode.HYBRID, 2, true);
 	}
 	
 	@Test
 	public void testIQM3wt() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 3, true);
+		runTest(ExecutionMode.HYBRID, 3, true);
 	}
 	
 	@Test
 	public void testIQM4wt() {
-		runTest(RUNTIME_PLATFORM.HYBRID, 4, true);
+		runTest(ExecutionMode.HYBRID, 4, true);
 	}
 	
 	@Test
 	public void testIQM1wt_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 1, true);
+		runTest(ExecutionMode.HADOOP, 1, true);
 	}
 	
 	@Test
 	public void testIQM2wt_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 2, true);
+		runTest(ExecutionMode.HADOOP, 2, true);
 	}
 	
 	@Test
 	public void testIQM3wt_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 3, true);
+		runTest(ExecutionMode.HADOOP, 3, true);
 	}
 	
 	@Test
 	public void testIQM4wt_MR() {
-		runTest(RUNTIME_PLATFORM.HADOOP, 4, true);
+		runTest(ExecutionMode.HADOOP, 4, true);
 	}
 	
 	@Test
 	public void testIQM1wt_SP() {
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTest(RUNTIME_PLATFORM.SPARK, 1, true);
+		if(rtplatform == ExecutionMode.SPARK)
+		runTest(ExecutionMode.SPARK, 1, true);
 	}
 	
 	@Test
 	public void testIQM2wt_SP() {
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTest(RUNTIME_PLATFORM.SPARK, 2, true);
+		if(rtplatform == ExecutionMode.SPARK)
+		runTest(ExecutionMode.SPARK, 2, true);
 	}
 	
 	@Test
 	public void testIQM3wt_SP() {
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTest(RUNTIME_PLATFORM.SPARK, 3, true);
+		if(rtplatform == ExecutionMode.SPARK)
+		runTest(ExecutionMode.SPARK, 3, true);
 	}
 	
 	@Test
 	public void testIQM4wt_SP() {
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTest(RUNTIME_PLATFORM.SPARK, 4, true);
+		if(rtplatform == ExecutionMode.SPARK)
+		runTest(ExecutionMode.SPARK, 4, true);
 	}
 	
 	
-	private void runTest(RUNTIME_PLATFORM rt, int datasetIndex, boolean isWeighted ) {
-		RUNTIME_PLATFORM rtOld = rtplatform;
+	private void runTest(ExecutionMode rt, int datasetIndex, boolean isWeighted ) {
+		ExecutionMode rtOld = rtplatform;
 		rtplatform = rt;
 		
 		try

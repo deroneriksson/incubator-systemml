@@ -19,7 +19,6 @@
 
 package org.apache.sysml.conf;
 
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 
 
@@ -32,9 +31,7 @@ import org.apache.sysml.conf.CompilerConfig.ConfigType;
  */
 public class ConfigurationManager 
 {
-	/** Global cached job conf for read-only operations	*/
-	private static JobConf _rJob = null; 
-	
+
 	/** Global DML configuration (read or defaults) */
 	private static DMLConfig _dmlconf = null; 
 	
@@ -48,31 +45,11 @@ public class ConfigurationManager
     private static ThreadLocalCompilerConfig _lcconf = new ThreadLocalCompilerConfig();
     
     //global static initialization
-	static {
-		_rJob = new JobConf();
-		
-		//initialization after job conf in order to prevent cyclic initialization issues 
-		//ConfigManager -> OptimizerUtils -> InfrastructureAnalyer -> ConfigManager 
+	static { 
  		_dmlconf = new DMLConfig();
 		_cconf = new CompilerConfig();
 	}
-	
-	
-    /**
-     * Returns a cached JobConf object, intended for global use by all operations 
-     * with read-only access to job conf. This prevents to read the hadoop conf files
-     * over and over again from classpath. However, 
-     * 
-     * @return the cached JobConf
-     */
-	public static JobConf getCachedJobConf() {
-		return _rJob;
-	}
-	
-	public static void setCachedJobConf(JobConf job) {
-		_rJob = job;
-	}
-	
+
 	/**
 	 * Sets a global configuration as a basis for any thread-local configurations.
 	 * NOTE: This global configuration should never be accessed directly but only

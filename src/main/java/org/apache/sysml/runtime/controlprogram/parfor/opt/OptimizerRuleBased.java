@@ -34,12 +34,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
+import org.apache.sysml.hops.AggBinaryOp.MMultMethod;
 import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.FunctionOp;
 import org.apache.sysml.hops.Hop;
-import org.apache.sysml.hops.AggBinaryOp.MMultMethod;
 import org.apache.sysml.hops.Hop.DataOpTypes;
 import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.hops.Hop.ParamBuiltinOp;
@@ -52,11 +53,11 @@ import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.ParameterizedBuiltinOp;
 import org.apache.sysml.hops.ReorgOp;
 import org.apache.sysml.hops.UnaryOp;
+import org.apache.sysml.hops.recompile.Recompiler;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.hops.rewrite.ProgramRewriteStatus;
 import org.apache.sysml.hops.rewrite.ProgramRewriter;
 import org.apache.sysml.hops.rewrite.RewriteInjectSparkLoopCheckpointing;
-import org.apache.sysml.hops.recompile.Recompiler;
 import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.parser.DMLProgram;
@@ -74,8 +75,6 @@ import org.apache.sysml.runtime.controlprogram.FunctionProgramBlock;
 import org.apache.sysml.runtime.controlprogram.IfProgramBlock;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock;
-import org.apache.sysml.runtime.controlprogram.Program;
-import org.apache.sysml.runtime.controlprogram.ProgramBlock;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitioner;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
@@ -83,6 +82,8 @@ import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.POptMode;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PResultMerge;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PTaskPartitioner;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PartitionFormat;
+import org.apache.sysml.runtime.controlprogram.Program;
+import org.apache.sysml.runtime.controlprogram.ProgramBlock;
 import org.apache.sysml.runtime.controlprogram.WhileProgramBlock;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject.UpdateType;
@@ -1105,7 +1106,7 @@ public class OptimizerRuleBased extends Optimizer
 			
 			//account for remaining hdfs capacity
 			try {
-				FileSystem fs = FileSystem.get(ConfigurationManager.getCachedJobConf());
+				FileSystem fs = FileSystem.get(HadoopConfigurationManager.getCachedJobConf());
 				long hdfsCapacityRemain = fs.getStatus().getRemaining();
 				long sizeInputs = 0; //sum of all input sizes (w/o replication)
 				for( String var : partitionedMatrices.keySet() )

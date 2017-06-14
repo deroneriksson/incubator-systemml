@@ -22,7 +22,7 @@ package org.apache.sysml.runtime.instructions.cp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.MultipleCP;
 import org.apache.sysml.parser.Expression;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -84,7 +84,7 @@ public class ScalarBuiltinMultipleCPInstruction extends BuiltinMultipleCPInstruc
 			}
 
 			String result = String.format(formatString, objects);
-			if (!DMLScript.suppressPrint2Stdout()) {
+			if (!RuntimePlatform.suppressPrint2Stdout) {
 				System.out.println(result);
 			}
 

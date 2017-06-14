@@ -22,7 +22,7 @@ package org.apache.sysml.runtime.matrix.mapred;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.util.VersionInfo;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 
 /**
  * This class provides a central local for used hadoop configuration properties. For portability, we support both hadoop
@@ -85,7 +85,7 @@ public abstract class MRConfigurationNames {
 		LOG.debug("Hadoop build version: " + hversion);
 		
 		// determine mapreduce version
-		String mrversion = ConfigurationManager.getCachedJobConf().get(MR_FRAMEWORK_NAME);
+		String mrversion = HadoopConfigurationManager.getCachedJobConf().get(MR_FRAMEWORK_NAME);
 		boolean mrv2 = !(mrversion == null || mrversion.equals("classic")); 
 		
 		//handle hadoop configurations

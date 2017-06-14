@@ -19,22 +19,22 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
 import org.apache.sysml.lops.Binary;
 import org.apache.sysml.lops.DataPartition;
 import org.apache.sysml.lops.Group;
-import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.MMCJ;
+import org.apache.sysml.lops.MMCJ.MMCJType;
 import org.apache.sysml.lops.MMRJ;
 import org.apache.sysml.lops.MMTSJ;
-import org.apache.sysml.lops.MMCJ.MMCJType;
 import org.apache.sysml.lops.MMTSJ.MMTSJType;
 import org.apache.sysml.lops.MMZip;
 import org.apache.sysml.lops.MapMult;
@@ -546,7 +546,7 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 		int k = OptimizerUtils.getConstrainedNumThreads(_maxNumThreads);
 		
 		ExecType et = ExecType.CP;
-		if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 			et = ExecType.GPU;
 		}
 		
@@ -625,7 +625,7 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 	{	
 		Lop matmultCP = null;
 		
-		if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 			Hop h1 = getInput().get(0);
 			Hop h2 = getInput().get(1);
 			Lop left; Lop right;
@@ -1291,8 +1291,8 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 	{
 		//check for forced MR or Spark execution modes, which prevent the introduction of
 		//additional CP operations and hence the rewrite application
-		if(    DMLScript.rtplatform == RUNTIME_PLATFORM.HADOOP  //not hybrid_mr
-			|| DMLScript.rtplatform == RUNTIME_PLATFORM.SPARK ) //not hybrid_spark
+		if(    RuntimePlatform.rtplatform == ExecutionMode.HADOOP  //not hybrid_mr
+			|| RuntimePlatform.rtplatform == ExecutionMode.SPARK ) //not hybrid_spark
 		{
 			return false;
 		}

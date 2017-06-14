@@ -19,7 +19,7 @@
 
 package org.apache.sysml.runtime.instructions.cp;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.debug.DebugState;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
@@ -101,7 +101,7 @@ public class BreakPointInstruction extends Instruction
 	public void processInstruction(ExecutionContext ec) 
 		throws DMLRuntimeException
 	{
-		if( DMLScript.ENABLE_DEBUG_MODE && isBPInstructionEnabled()) {
+		if( RuntimePlatform.enableDebugMode && isBPInstructionEnabled()) {
 			DebugState dbState = ec.getDebugState();
 			
 			System.out.format("Breakpoint reached at %s.\n", dbState.getPC().toString());					

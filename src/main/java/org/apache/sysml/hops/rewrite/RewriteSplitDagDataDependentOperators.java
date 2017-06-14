@@ -23,16 +23,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
+import org.apache.sysml.hops.Hop.DataOpTypes;
 import org.apache.sysml.hops.Hop.OpOp1;
 import org.apache.sysml.hops.Hop.OpOp3;
 import org.apache.sysml.hops.Hop.ParamBuiltinOp;
-import org.apache.sysml.hops.Hop.DataOpTypes;
 import org.apache.sysml.hops.Hop.ReOrgOp;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.LiteralOp;
@@ -74,7 +74,7 @@ public class RewriteSplitDagDataDependentOperators extends StatementBlockRewrite
 		throws HopsException 
 	{
 		//DAG splits not required for forced single node
-		if( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
+		if( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE )
 			return new ArrayList<StatementBlock>(Arrays.asList(sb));
 		
 		ArrayList<StatementBlock> ret = new ArrayList<StatementBlock>();

@@ -21,8 +21,7 @@ package org.apache.sysml.runtime.instructions.cp;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
@@ -83,7 +82,7 @@ public class DataPartitionCPInstruction extends UnaryCPInstruction
 			//write matrix partitions to hdfs
 			WriterBinaryBlock writer = (WriterBinaryBlock) MatrixWriterFactory.createMatrixWriter(OutputInfo.BinaryBlockOutputInfo);
 			writer.writePartitionedBinaryBlockMatrixToHDFS(
-					   new Path(fname), new JobConf(ConfigurationManager.getCachedJobConf()), mb, moIn.getNumRows(), moIn.getNumColumns(), 
+					   new Path(fname), new JobConf(HadoopConfigurationManager.getCachedJobConf()), mb, moIn.getNumRows(), moIn.getNumColumns(), 
 					   (int)moIn.getNumRowsPerBlock(), (int)moIn.getNumColumnsPerBlock(), _pformat);
 			
 			//ensure correctness of output characteristics (required if input unknown during compile and no recompile)

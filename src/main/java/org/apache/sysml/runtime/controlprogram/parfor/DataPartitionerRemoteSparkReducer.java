@@ -28,8 +28,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.spark.api.java.function.VoidFunction;
-
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.controlprogram.parfor.util.PairWritableBlock;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
@@ -65,7 +64,7 @@ public class DataPartitionerRemoteSparkReducer implements VoidFunction<Tuple2<Lo
 		try
 		{
 			//create sequence file writer
-			Configuration job = new Configuration(ConfigurationManager.getCachedJobConf());
+			Configuration job = new Configuration(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path(_fnameNew + File.separator + key);
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			writer = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixBlock.class, 

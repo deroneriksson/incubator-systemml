@@ -25,7 +25,7 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -124,7 +124,7 @@ public class ResultMergeRemoteSpark extends ResultMerge
 		throws DMLRuntimeException 
 	{
 		String jobname = "ParFor-RMSP";
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		SparkExecutionContext sec = (SparkExecutionContext)_ec;
 		boolean withCompare = (compare!=null);
@@ -198,7 +198,7 @@ public class ResultMergeRemoteSpark extends ResultMerge
 		//maintain statistics
 		Statistics.incrementNoOfCompiledSPInst();
 		Statistics.incrementNoOfExecutedSPInst();
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			Statistics.maintainCPHeavyHitters(jobname, System.nanoTime()-t0);
 		}
 		

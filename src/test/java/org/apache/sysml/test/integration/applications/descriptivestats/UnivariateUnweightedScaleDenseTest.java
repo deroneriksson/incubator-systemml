@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.applications.descriptivestats;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 
 /**
  * Tests of univariate statistics built-in functions.
@@ -42,62 +42,62 @@ public class UnivariateUnweightedScaleDenseTest extends UnivariateStatsBase
 
 	@Test
 	public void testScale13() {
-		testScaleWithR(SIZE.DIV4, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale14() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P1, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale15() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale16() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale17() {
-		testScaleWithR(SIZE.DIV4, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale18() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P1, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale19() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale20() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale21() {
-		testScaleWithR(SIZE.DIV4, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale22() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P1, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale23() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 		
 	@Test
 	public void testScale24() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HYBRID);
+		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HYBRID);
 	}
 	
 	// -------------------------------------------------------------------------------------
@@ -106,62 +106,62 @@ public class UnivariateUnweightedScaleDenseTest extends UnivariateStatsBase
 
 	@Test
 	public void testScale37() {
-		testScaleWithR(SIZE.DIV4, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale38() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P1, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale39() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale40() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.NEG, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale41() {
-		testScaleWithR(SIZE.DIV4, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale42() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P1, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale43() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale44() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.MIXED, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale45() {
-		testScaleWithR(SIZE.DIV4, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale46() {
-		testScaleWithR(SIZE.DIV4P1, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P1, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale47() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 		
 	@Test
 	public void testScale48() {
-		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, RUNTIME_PLATFORM.HADOOP);
+		testScaleWithR(SIZE.DIV4P3, RANGE.POS, SPARSITY.DENSE, ExecutionMode.HADOOP);
 	}
 	// -------------------------------------------------------------------------------------
 	

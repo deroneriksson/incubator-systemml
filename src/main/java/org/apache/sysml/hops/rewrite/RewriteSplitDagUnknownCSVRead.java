@@ -22,8 +22,8 @@ package org.apache.sysml.hops.rewrite;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.Hop.DataOpTypes;
@@ -50,7 +50,7 @@ public class RewriteSplitDagUnknownCSVRead extends StatementBlockRewriteRule
 		throws HopsException 
 	{
 		//DAG splits not required for forced single node
-		if( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
+		if( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE )
 			return new ArrayList<StatementBlock>(Arrays.asList(sb));
 		
 		ArrayList<StatementBlock> ret = new ArrayList<StatementBlock>();

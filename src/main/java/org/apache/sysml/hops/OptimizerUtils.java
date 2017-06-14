@@ -23,8 +23,8 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -282,7 +282,7 @@ public class OptimizerUtils
 		// This overrides any optimization level that is present in the configuration file.
 		// Why ? This simplifies the calling logic: User doesnot have to maintain two config file or worse
 		// edit config file everytime he/she is trying to call the debugger.
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			optlevel = 5;
 		}
 		
@@ -521,31 +521,31 @@ public class OptimizerUtils
 		return ret;
 	}
 
-	public static RUNTIME_PLATFORM getDefaultExecutionMode() {
+	public static ExecutionMode getDefaultExecutionMode() {
 		//default execution type is hybrid (cp+mr)
-		RUNTIME_PLATFORM ret = RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode ret = ExecutionMode.HYBRID;
 		
 		//switch default to hybrid_spark (cp+spark) if in spark driver
 		String sparkenv = System.getenv().get("SPARK_ENV_LOADED");
 		if( sparkenv != null && sparkenv.equals("1") )
-			ret = RUNTIME_PLATFORM.HYBRID_SPARK;
+			ret = ExecutionMode.HYBRID_SPARK;
 		
 		return ret;
 	}
 
 	public static boolean isSparkExecutionMode() {
-		return (   DMLScript.rtplatform == RUNTIME_PLATFORM.SPARK
-				|| DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK);
+		return (   RuntimePlatform.rtplatform == ExecutionMode.SPARK
+				|| RuntimePlatform.rtplatform == ExecutionMode.HYBRID_SPARK);
 	}
 
 	public static boolean isHadoopExecutionMode() {
-		return (   DMLScript.rtplatform == RUNTIME_PLATFORM.HADOOP
-				|| DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID);
+		return (   RuntimePlatform.rtplatform == ExecutionMode.HADOOP
+				|| RuntimePlatform.rtplatform == ExecutionMode.HYBRID);
 	}
 
 	public static boolean isHybridExecutionMode() {
-		return (  DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID 
-			   || DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK );
+		return (  RuntimePlatform.rtplatform == ExecutionMode.HYBRID 
+			   || RuntimePlatform.rtplatform == ExecutionMode.HYBRID_SPARK );
 	}
 	
 	/**
@@ -891,7 +891,7 @@ public class OptimizerUtils
 	 */
 	public static String getUniqueTempFileName() {
 		return ConfigurationManager.getScratchSpace()
-			+ Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID()
+			+ Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid
 			+ Lop.FILE_SEPARATOR + ProgramConverter.CP_ROOT_THREAD_ID + Lop.FILE_SEPARATOR 
 			+ Dag.getNextUniqueFilenameSuffix();
 	}

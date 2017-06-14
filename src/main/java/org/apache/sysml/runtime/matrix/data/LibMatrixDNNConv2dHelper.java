@@ -21,7 +21,7 @@ package org.apache.sysml.runtime.matrix.data;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.utils.NativeHelper;
 
 /**
@@ -54,16 +54,16 @@ public class LibMatrixDNNConv2dHelper {
 			for(int n = _rl; n < _ru; n++)  {
 				for(int c = 0; c < _params.C; c++)  {
 					// im2col(input) => _im2ColOutBlock
-					long t1 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+					long t1 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 					im2ColWorker.execute(n, c);
-					long t2 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+					long t2 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 					
 					// filter %*% _im2ColOutBlock => matMultOutBlock
 					MatrixBlock matMultOutBlock = new MatrixBlock(K, PQ, false);
 					LibMatrixDNNHelper.singleThreadedMatMult(_filters.get(c), im2ColOutBlock, matMultOutBlock, false, true, _params);
-					long t3 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+					long t3 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 					
-					if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+					if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 						time1 += t2 - t1;
 						time2 += t3 - t2;
 					}
@@ -76,7 +76,7 @@ public class LibMatrixDNNConv2dHelper {
 				// bias is always converted to dense format
 				LibMatrixDNNHelper.addBias(_rl, _ru, _params.output.getDenseBlock(), _params.bias.getDenseBlock(), K, PQ);
 			}
-			if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+			if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 				LibMatrixDNN.loopedConvIm2ColTime.addAndGet(time1);
 				LibMatrixDNN.loopedConvMatMultTime.addAndGet(time2);
 			}
@@ -134,16 +134,16 @@ public class LibMatrixDNNConv2dHelper {
 			long time1 = 0; long time2 = 0;
 			for(int n = _rl; n < _ru; n++)  {
 				// im2col(input) => _im2ColOutBlock
-				long t1 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t1 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				im2ColWorker.execute(n);
-				long t2 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t2 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				
 				// filter %*% _im2ColOutBlock => matMultOutBlock
 				MatrixBlock matMultOutBlock = new MatrixBlock(K, PQ, false);
 				LibMatrixDNNHelper.singleThreadedMatMult(_params.input2, im2ColOutBlock, matMultOutBlock, false, true, _params);
-				long t3 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t3 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				
-				if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+				if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 					time1 += t2 - t1;
 					time2 += t3 - t2;
 				}
@@ -155,7 +155,7 @@ public class LibMatrixDNNConv2dHelper {
 				// bias is always converted to dense format
 				LibMatrixDNNHelper.addBias(_rl, _ru, _params.output.getDenseBlock(), _params.bias.getDenseBlock(), K, PQ);
 			}
-			if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+			if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 				LibMatrixDNN.loopedConvIm2ColTime.addAndGet(time1);
 				LibMatrixDNN.loopedConvMatMultTime.addAndGet(time2);
 			}

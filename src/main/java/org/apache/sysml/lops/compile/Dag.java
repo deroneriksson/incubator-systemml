@@ -30,8 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.AggBinaryOp;
@@ -196,7 +196,7 @@ public class Dag<N extends Lop>
 	private String getFilePath() {
 		if ( scratchFilePath == null ) {
 			scratchFilePath = scratch + Lop.FILE_SEPARATOR
-								+ Lop.PROCESS_PREFIX + DMLScript.getUUID()
+								+ Lop.PROCESS_PREFIX + RuntimePlatform.uuid
 								+ Lop.FILE_SEPARATOR + Lop.FILE_SEPARATOR
 								+ ProgramConverter.CP_ROOT_THREAD_ID + Lop.FILE_SEPARATOR;
 		}
@@ -704,7 +704,7 @@ public class Dag<N extends Lop>
 	 */
 	private static boolean sendWriteLopToMR(Lop node) 
 	{
-		if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
+		if ( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE )
 			return false;
 		Lop in = node.getInputs().get(0);
 		Format nodeFormat = node.getOutputParameters().getFormat();
@@ -1301,7 +1301,7 @@ public class Dag<N extends Lop>
 		// reduce the consumer count for all input lops
 		// if the count becomes zero, then then variable associated w/ input can be removed
 		for(Lop in : node.getInputs() ) {
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				processConsumers(in, inst, delteInst, node);
 			}
 			else {
@@ -2572,12 +2572,12 @@ public class Dag<N extends Lop>
 						
 						// rename the temp variable to constant variable (e.g., cpvar tVarAtemp tVarA)
 						/*Instruction currInstr = VariableCPInstruction.prepareCopyInstruction(tempVarName, constVarName);
-						if(DMLScript.ENABLE_DEBUG_MODE) {
+						if(RuntimePlatform.enableDebugMode) {
 							currInstr.setLineNum(node._beginLine);
 						}
 						out.addLastInstruction(currInstr);
 						Instruction tempInstr = VariableCPInstruction.prepareRemoveInstruction(tempVarName);
-						if(DMLScript.ENABLE_DEBUG_MODE) {
+						if(RuntimePlatform.enableDebugMode) {
 							tempInstr.setLineNum(node._beginLine);
 						}
 						out.addLastInstruction(tempInstr);*/
@@ -2789,7 +2789,7 @@ public class Dag<N extends Lop>
 		ArrayList<Instruction> variableInstructions = new ArrayList<Instruction>();
 		ArrayList<Instruction> postInstructions = new ArrayList<Instruction>();
 		ArrayList<Integer> MRJobLineNumbers = null;
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			MRJobLineNumbers = new ArrayList<Integer>();
 		}
 		
@@ -2989,7 +2989,7 @@ public class Dag<N extends Lop>
 		// set reducer instruction
 		mr.setAggregateInstructionsInReducer(getCSVString(aggInstructionsReducer));
 		mr.setOtherInstructionsInReducer(getCSVString(otherInstructionsReducer));
-		if(DMLScript.ENABLE_DEBUG_MODE) {
+		if(RuntimePlatform.enableDebugMode) {
 			// set line number information for each MR instruction
 			mr.setMRJobInstructionsLineNumbers(MRJobLineNumbers);
 		}
@@ -3001,7 +3001,7 @@ public class Dag<N extends Lop>
 		deleteinst.addAll(renameInstructions);
 		
 		for (Lop l : inputLops) {
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				processConsumers(l, rmvarinst, deleteinst, l);
 			}
 			else {
@@ -3090,7 +3090,7 @@ public class Dag<N extends Lop>
 				// Generate write instruction, which goes into CSV_WRITE Job
 				int output_index = start_index[0];
 				shuffleInstructions.add(node.getInstructions(inputIndices.get(0), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				nodeIndexMapping.put(node, output_index);
@@ -3120,7 +3120,7 @@ public class Dag<N extends Lop>
 			case GroupedAgg:
 			case DataPartition:
 				shuffleInstructions.add(node.getInstructions(inputIndices.get(0), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				break;
@@ -3133,7 +3133,7 @@ public class Dag<N extends Lop>
 			case MMRJ:
 			case CombineBinary:
 				shuffleInstructions.add(node.getInstructions(inputIndices.get(0), inputIndices.get(1), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				break;
@@ -3142,7 +3142,7 @@ public class Dag<N extends Lop>
 			case CombineTernary:
 				shuffleInstructions.add(node.getInstructions(inputIndices
 						.get(0), inputIndices.get(1), inputIndices.get(2), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				break;
@@ -3174,7 +3174,7 @@ public class Dag<N extends Lop>
 				if (node.getType() == Type.Aggregate) {
 					aggInstructionsReducer.add(node.getInstructions(
 							inputIndices.get(0), output_index));
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						MRJobLineNumbers.add(node._beginLine);
 					}
 				}
@@ -3182,7 +3182,7 @@ public class Dag<N extends Lop>
 					otherInstructionsReducer.add(node.getInstructions(
 							inputIndices.get(0), output_index));
 				}
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				nodeIndexMapping.put(node, output_index);
@@ -3194,7 +3194,7 @@ public class Dag<N extends Lop>
 
 				otherInstructionsReducer.add(node.getInstructions(inputIndices
 						.get(0), inputIndices.get(1), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				nodeIndexMapping.put(node, output_index);
@@ -3234,7 +3234,7 @@ public class Dag<N extends Lop>
 					otherInstructionsReducer.add(node.getInstructions(
 							inputIndices.get(0), inputIndices.get(1),
 							inputIndices.get(2), output_index));
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						MRJobLineNumbers.add(node._beginLine);
 					}
 					nodeIndexMapping.put(node, output_index);
@@ -3243,7 +3243,7 @@ public class Dag<N extends Lop>
 					otherInstructionsReducer.add(node.getInstructions(
 							inputIndices.get(0), inputIndices.get(1),
 							inputIndices.get(2), output_index));
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						MRJobLineNumbers.add(node._beginLine);
 					}
 					nodeIndexMapping.put(node, output_index);
@@ -3253,7 +3253,7 @@ public class Dag<N extends Lop>
 					otherInstructionsReducer.add(node.getInstructions(
 							inputIndices.get(0), inputIndices.get(1),
 							inputIndices.get(2), output_index));
-					if(DMLScript.ENABLE_DEBUG_MODE) {
+					if(RuntimePlatform.enableDebugMode) {
 						MRJobLineNumbers.add(node._beginLine);
 					}
 					nodeIndexMapping.put(node, output_index);
@@ -3268,7 +3268,7 @@ public class Dag<N extends Lop>
 				otherInstructionsReducer.add(node.getInstructions(
 						inputIndices.get(0), inputIndices.get(1),
 						inputIndices.get(2), inputIndices.get(3), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 				nodeIndexMapping.put(node, output_index);
@@ -3370,7 +3370,7 @@ public class Dag<N extends Lop>
 			if (node.getInputs().size() == 2) {
 				recordReaderInstructions.add(node.getInstructions(inputIndices
 						.get(0), inputIndices.get(1), output_index));
-				if(DMLScript.ENABLE_DEBUG_MODE) {
+				if(RuntimePlatform.enableDebugMode) {
 					MRJobLineNumbers.add(node._beginLine);
 				}
 			}
@@ -3525,7 +3525,7 @@ public class Dag<N extends Lop>
 			else
 				throw new LopsException("Node with " + node.getInputs().size() + " inputs is not supported in dag.java.");
 			
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				MRJobLineNumbers.add(node._beginLine);
 			}
 			return output_index;
@@ -3550,7 +3550,7 @@ public class Dag<N extends Lop>
 			numRowsPerBlock.add(node.getOutputParameters().getRowsInBlock());
 			numColsPerBlock.add(node.getOutputParameters().getColsInBlock());
 			inputStrings.add(node.getInstructions(inputStrings.size(), inputStrings.size()));
-			if(DMLScript.ENABLE_DEBUG_MODE) {
+			if(RuntimePlatform.enableDebugMode) {
 				MRJobLineNumbers.add(node._beginLine);
 			}
 			inputInfos.add(InputInfo.TextCellInputInfo);

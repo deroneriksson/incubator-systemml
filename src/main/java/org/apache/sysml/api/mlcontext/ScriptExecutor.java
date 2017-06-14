@@ -25,8 +25,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.DMLScript.DMLOptions;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.api.mlcontext.MLContext.ExplainLevel;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -237,12 +238,12 @@ public class ScriptExecutor {
 	 * Set the global flags (for example: statistics, gpu, etc).
 	 */
 	protected void setGlobalFlags() {
-		oldStatistics = DMLScript.STATISTICS;
-		DMLScript.STATISTICS = statistics;
-		oldForceGPU = DMLScript.FORCE_ACCELERATOR;
-		DMLScript.FORCE_ACCELERATOR = forceGPU;
-		oldGPU = DMLScript.USE_ACCELERATOR;
-		DMLScript.USE_ACCELERATOR = gpu;
+		oldStatistics = RuntimePlatform.statistics;
+		RuntimePlatform.statistics = statistics;
+		oldForceGPU = RuntimePlatform.forceAccelerator;
+		RuntimePlatform.forceAccelerator = forceGPU;
+		oldGPU = RuntimePlatform.useAccelerator;
+		RuntimePlatform.useAccelerator = gpu;
 		DMLScript.STATISTICS_COUNT = statisticsMaxHeavyHitters;
 	}
 
@@ -251,9 +252,9 @@ public class ScriptExecutor {
 	 * post-execution.
 	 */
 	protected void resetGlobalFlags() {
-		DMLScript.STATISTICS = oldStatistics;
-		DMLScript.FORCE_ACCELERATOR = oldForceGPU;
-		DMLScript.USE_ACCELERATOR = oldGPU;
+		RuntimePlatform.statistics = oldStatistics;
+		RuntimePlatform.forceAccelerator = oldForceGPU;
+		RuntimePlatform.useAccelerator = oldGPU;
 		DMLScript.STATISTICS_COUNT = DMLOptions.defaultOptions.statsCount;
 	}
 
@@ -331,7 +332,7 @@ public class ScriptExecutor {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
-		DMLScript.SCRIPT_TYPE = script.getScriptType();
+		RuntimePlatform.scriptType = script.getScriptType();
 		setGlobalFlags();
 		if (statistics) {
 			Statistics.reset();

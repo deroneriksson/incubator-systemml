@@ -44,7 +44,7 @@ import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.transform.TfUtils;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.UtilFunctions;
@@ -57,12 +57,12 @@ public class IOUtilFunctions
 
 	public static FileSystem getFileSystem(String fname) throws IOException {
 		return getFileSystem(new Path(fname),
-			ConfigurationManager.getCachedJobConf());
+			HadoopConfigurationManager.getCachedJobConf());
 	}
 	
 	public static FileSystem getFileSystem(Path fname) throws IOException {
 		return getFileSystem(fname, 
-			ConfigurationManager.getCachedJobConf());
+			HadoopConfigurationManager.getCachedJobConf());
 	}
 	
 	public static FileSystem getFileSystem(Path fname, Configuration conf) throws IOException {

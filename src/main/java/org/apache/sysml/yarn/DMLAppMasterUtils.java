@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -63,7 +63,7 @@ public class DMLAppMasterUtils
 		throws DMLRuntimeException
 	{
 		//set remote max memory (if in yarn appmaster context)
-		if( DMLScript.isActiveAM() ){
+		if( RuntimePlatform.activeAM ){
 			
 			//set optimization level (for awareness of resource optimization)
 			CompilerConfig cconf = OptimizerUtils.constructCompilerConfig(conf);
@@ -100,7 +100,7 @@ public class DMLAppMasterUtils
 	public static void setupProgramMappingRemoteMaxMemory(Program prog) 
 		throws DMLRuntimeException, HopsException, LopsException, IOException
 	{
-		if( DMLScript.isActiveAM() && isResourceOptimizerEnabled() )
+		if( RuntimePlatform.activeAM && isResourceOptimizerEnabled() )
 		{
 			ArrayList<ProgramBlock> pbProg = getRuntimeProgramBlocks( prog ); 
 			ArrayList<ProgramBlock> B = ResourceOptimizer.compileProgram( pbProg, _rc );
@@ -114,7 +114,7 @@ public class DMLAppMasterUtils
 
 	public static void setupProgramBlockRemoteMaxMemory(ProgramBlock pb)
 	{
-		if( DMLScript.isActiveAM() && isResourceOptimizerEnabled() )
+		if( RuntimePlatform.activeAM && isResourceOptimizerEnabled() )
 		{
 			if( _rcMap != null && _rcMap.containsKey(pb) ){ 
 				//set max map and reduce memory (to be used by the compiler)
@@ -128,7 +128,7 @@ public class DMLAppMasterUtils
 
 	public static void setupMRJobRemoteMaxMemory(JobConf job, DMLConfig conf)
 	{
-		if( DMLScript.isActiveAM() && conf.getBooleanValue(DMLConfig.YARN_APPMASTER) )
+		if( RuntimePlatform.activeAM && conf.getBooleanValue(DMLConfig.YARN_APPMASTER) )
 		{
 			int memMB = -1;
 			

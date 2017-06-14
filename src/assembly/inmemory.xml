@@ -1,0 +1,117 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+-->
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<!-- Assembly file for the "in-memory" SystemML release. -->
+	<id>inmemory</id>
+
+	<formats>
+		<format>jar</format>
+	</formats>
+
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<fileSets>
+		<fileSet>
+			<directory>${basedir}/src/assembly/inmemory</directory>
+			<includes>
+				<include>LICENSE</include>
+				<include>NOTICE</include>
+			</includes>
+			<outputDirectory>META-INF</outputDirectory>
+		</fileSet>
+	</fileSets>
+
+	<!--  Include all the libraries needed to run in in-memory (JMLC) mode. -->
+	<dependencySets>
+
+		<dependencySet>
+			<includes>
+				<include>*:hadoop-mapreduce-client-core*</include>
+			</includes>
+			<unpackOptions>
+				<includes>
+					<include>org/apache/hadoop/mapred/**</include>
+				</includes>
+			</unpackOptions>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
+
+		<dependencySet>
+			<includes>
+				<include>*:hadoop-common*</include>
+			</includes>
+			<unpackOptions>
+				<includes>
+<!-- 					<include>org/apache/hadoop/io/Writable.class</include>
+					<include>org/apache/hadoop/io/WritableComparable.class</include>
+					<include>org/apache/hadoop/io/DataInputBuffer.class</include> -->
+					<include>org/apache/hadoop/io/**</include>
+					<include>org/apache/hadoop/fs/**</include>
+					<!-- <include>org/apache/hadoop/conf/**</include> -->
+				</includes>
+			</unpackOptions>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
+
+		<dependencySet>
+			<includes>
+				<include>*:commons-lang</include>
+			</includes>
+			<unpackOptions>
+				<includes>
+					<include>org/apache/commons/lang/ArrayUtils.class</include>
+				</includes>
+			</unpackOptions>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
+
+		<dependencySet>
+			<includes>
+				<!-- <include>*:commons-lang</include> -->
+				<include>*:commons-logging*</include>
+				<include>*:systemml*</include>
+			</includes>
+			<unpackOptions>
+				<excludes>
+					<exclude>META-INF/ASL2.0</exclude>
+					<exclude>META-INF/DEPENDENCIES</exclude>
+					<exclude>META-INF/LICENSE.txt</exclude>
+					<exclude>META-INF/NOTICE.txt</exclude>
+					<exclude>META-INF/README.txt</exclude>
+					<exclude>META-INF/LICENSE</exclude>
+					<exclude>META-INF/NOTICE</exclude>
+					<exclude>kernels/**</exclude>
+					<exclude>lib/**</exclude>
+					<exclude>META-INF/maven/commons-logging/**</exclude>
+					<exclude>META-INF/maven/org.antlr/**</exclude>
+				</excludes>
+			</unpackOptions>
+			<outputDirectory>.</outputDirectory>
+			<scope>compile</scope>
+			<unpack>true</unpack>
+		</dependencySet>
+	</dependencySets>
+
+</assembly>

@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
@@ -242,15 +242,15 @@ public class FullCummaxTest extends AutomatedTestBase
 	 */
 	private void runColAggregateOperationTest( InputType type, boolean sparse, ExecType instType, boolean rewrites)
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		switch( instType ){
-			case MR: rtplatform = RUNTIME_PLATFORM.HADOOP; break;
-			case SPARK: rtplatform = RUNTIME_PLATFORM.SPARK; break;
-			default: rtplatform = RUNTIME_PLATFORM.HYBRID; break;
+			case MR: rtplatform = ExecutionMode.HADOOP; break;
+			case SPARK: rtplatform = ExecutionMode.SPARK; break;
+			default: rtplatform = ExecutionMode.HYBRID; break;
 		}
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 		
 		//rewrites

@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
@@ -84,7 +84,7 @@ public class MultipleReadsIPATest extends AutomatedTestBase
 	 */
 	private void runMultipleReadsTest( ExecType et, boolean IPA )
 	{	
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		boolean oldFlagIPA = OptimizerUtils.ALLOW_INTER_PROCEDURAL_ANALYSIS;
 		
 		try
@@ -106,7 +106,7 @@ public class MultipleReadsIPATest extends AutomatedTestBase
 			fullRScriptName = HOME + TEST_NAME + ".R";
 			rCmd = "Rscript" + " " + fullRScriptName + " " + inputDir() + " " + expectedDir();
 
-			rtplatform = (et==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+			rtplatform = (et==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 			OptimizerUtils.ALLOW_INTER_PROCEDURAL_ANALYSIS = IPA;
 						
 			double[][] X1 = getRandomMatrix(rows1, cols1, -1, 1, 1.0d, 7);

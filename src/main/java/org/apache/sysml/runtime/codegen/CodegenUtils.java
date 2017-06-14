@@ -40,7 +40,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.codegen.SpoofCompiler;
 import org.apache.sysml.hops.codegen.SpoofCompiler.CompilerType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -68,7 +68,7 @@ public class CodegenUtils
 		if( ret != null ) 
 			return ret;
 		
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		//compile java source w/ specific compiler
 		if( SpoofCompiler.JAVA_COMPILER == CompilerType.JANINO )
@@ -79,7 +79,7 @@ public class CodegenUtils
 		//keep compiled class for reuse
 		_cache.put(name, ret);
 		
-		if( DMLScript.STATISTICS ) {
+		if( RuntimePlatform.statistics ) {
 			Statistics.incrementCodegenClassCompile();
 			Statistics.incrementCodegenClassCompileTime(System.nanoTime()-t0);
 		}

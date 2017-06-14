@@ -31,8 +31,8 @@ import java.util.Map;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.DMLException;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
@@ -100,7 +100,7 @@ public class Connection implements Closeable
 	 */
 	public Connection()
 	{
-		DMLScript.rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+		RuntimePlatform.rtplatform = ExecutionMode.SINGLE_NODE;
 		
 		//setup basic parameters for embedded execution
 		//(parser, compiler, and runtime parameters)
@@ -157,7 +157,7 @@ public class Connection implements Closeable
 	public PreparedScript prepareScript( String script, Map<String, String> args, String[] inputs, String[] outputs, boolean parsePyDML) 
 		throws DMLException 
 	{
-		DMLScript.SCRIPT_TYPE = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
+		RuntimePlatform.scriptType = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
 
 		//prepare arguments
 		
@@ -249,7 +249,14 @@ public class Connection implements Closeable
 			}
 		}
 		finally {
-			IOUtilFunctions.closeSilently(in);
+			try {
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				IOUtilFunctions.closeSilently(in);
+			} catch (ClassNotFoundException e) {
+				if (in != null) {
+					in.close();
+				}
+			}
 		}
 		
 		return sb.toString();

@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.DataGenOp;
@@ -297,7 +297,7 @@ public class DataExpression extends DataIdentifier
 	public void addRandExprParam(String paramName, Expression paramValue) 
 		throws LanguageException
 	{
-		if (DMLScript.VALIDATOR_IGNORE_ISSUES && (paramValue == null)) {
+		if (RuntimePlatform.validatorIgnoreIssues && (paramValue == null)) {
 			return;
 		}
 		// check name is valid
@@ -485,7 +485,7 @@ public class DataExpression extends DataIdentifier
 	}
 
 	public void addVarParam(String name, Expression value){
-		if (DMLScript.VALIDATOR_IGNORE_ISSUES && (value == null)) {
+		if (RuntimePlatform.validatorIgnoreIssues && (value == null)) {
 			return;
 		}
 		_varParams.put(name, value);

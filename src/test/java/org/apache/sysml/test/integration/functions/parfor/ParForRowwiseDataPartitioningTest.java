@@ -24,7 +24,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitioner;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
@@ -279,12 +279,12 @@ public class ParForRowwiseDataPartitioningTest extends AutomatedTestBase
 	 */
 	private void runParForDataPartitioningTest( PDataPartitioner partitioner, PExecMode mode, boolean small, boolean sparse, boolean multiParts )
 	{
-		RUNTIME_PLATFORM oldRT = rtplatform;
+		ExecutionMode oldRT = rtplatform;
 		boolean oldUseSparkConfig = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
 		if( partitioner == PDataPartitioner.REMOTE_SPARK || mode == PExecMode.REMOTE_SPARK) {
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-			rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			rtplatform = ExecutionMode.HYBRID_SPARK;
 		}
 		
 		try

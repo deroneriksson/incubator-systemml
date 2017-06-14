@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.functions.tensor;
 import java.util.HashMap;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
@@ -140,7 +140,7 @@ public class PoolTest extends AutomatedTestBase
 	public void runPoolTest( ExecType et, int imgSize, int numImg, int numChannels, int stride, 
 			int pad, int poolSize1, int poolSize2, String poolMode, boolean sparse) 
 	{
-		RUNTIME_PLATFORM oldRTP = rtplatform;
+		ExecutionMode oldRTP = rtplatform;
 			
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
@@ -149,12 +149,12 @@ public class PoolTest extends AutomatedTestBase
 			String sparseVal = (""+sparse).toUpperCase();
 	    TestConfiguration config = getTestConfiguration(TEST_NAME);
 	    if(et == ExecType.SPARK) {
-	    	rtplatform = RUNTIME_PLATFORM.SPARK;
+	    	rtplatform = ExecutionMode.SPARK;
 	    }
 	    else {
-	    	rtplatform = (et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
+	    	rtplatform = (et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
 	    }
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 			loadTestConfiguration(config);

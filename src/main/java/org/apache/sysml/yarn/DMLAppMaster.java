@@ -40,6 +40,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.DMLScriptException;
@@ -88,7 +89,7 @@ public class DMLAppMaster
 		
 		
 		//set DMLscript app master context
- 		DMLScript.setActiveAM();
+ 		RuntimePlatform.activeAM = true;
  		
 		//parse input arguments
 		String[] otherArgs = new GenericOptionsParser(_conf, args).getRemainingArgs();

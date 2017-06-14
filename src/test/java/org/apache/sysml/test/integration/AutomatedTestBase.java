@@ -38,7 +38,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.SparkSession.Builder;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Lop;
@@ -191,7 +192,7 @@ public abstract class AutomatedTestBase
 	 * Also set DMLScript.USE_LOCAL_SPARK_CONFIG to true for running the test
 	 * suite in spark mode
 	 */
-	protected static RUNTIME_PLATFORM rtplatform = RUNTIME_PLATFORM.HYBRID;
+	protected static ExecutionMode rtplatform = ExecutionMode.HYBRID;
 
 	protected static final boolean DEBUG = false;
 	protected static final boolean VISUALIZE = false;
@@ -1176,15 +1177,15 @@ public abstract class AutomatedTestBase
 		if(VISUALIZE)
 			args.add("-v");
 		args.add("-exec");
-		if(rtplatform == RUNTIME_PLATFORM.HADOOP)
+		if(rtplatform == ExecutionMode.HADOOP)
 			args.add("hadoop");
-		else if (rtplatform == RUNTIME_PLATFORM.HYBRID)
+		else if (rtplatform == ExecutionMode.HYBRID)
 			args.add("hybrid");
-		else if (rtplatform == RUNTIME_PLATFORM.SINGLE_NODE)
+		else if (rtplatform == ExecutionMode.SINGLE_NODE)
 			args.add("singlenode");
-		else if (rtplatform == RUNTIME_PLATFORM.SPARK)
+		else if (rtplatform == ExecutionMode.SPARK)
 			args.add("spark");
-		else if (rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		else if (rtplatform == ExecutionMode.HYBRID_SPARK)
 			args.add("hybrid_spark");
 		else {
 			throw new RuntimeException("Unknown runtime platform: " + rtplatform);
@@ -1280,7 +1281,7 @@ public abstract class AutomatedTestBase
 			sb.append(conf.getTextValue(DMLConfig.SCRATCH_SPACE));
 			sb.append(Lop.FILE_SEPARATOR);
 			sb.append(Lop.PROCESS_PREFIX);
-			sb.append(DMLScript.getUUID());
+			sb.append(RuntimePlatform.uuid);
 			String pLocalDir = sb.toString();
 
 			return MapReduceTool.existsFileOnHDFS(pLocalDir);

@@ -33,7 +33,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.matrix.CSVReblockMR;
 import org.apache.sysml.runtime.matrix.data.CSVFileFormatProperties;
@@ -63,7 +63,7 @@ public class WriterTextCSV extends MatrixWriter
 		}
 		
 		//prepare file access
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -80,7 +80,7 @@ public class WriterTextCSV extends MatrixWriter
 	public final void writeEmptyMatrixToHDFS(String fname, long rlen, long clen, int brlen, int bclen) 
 		throws IOException, DMLRuntimeException 
 	{
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -241,7 +241,7 @@ public class WriterTextCSV extends MatrixWriter
 	public final void addHeaderToCSV(String srcFileName, String destFileName, long rlen, long clen) 
 		throws IOException 
 	{
-		Configuration conf = new Configuration(ConfigurationManager.getCachedJobConf());
+		Configuration conf = new Configuration(HadoopConfigurationManager.getCachedJobConf());
 
 		Path srcFilePath = new Path(srcFileName);
 		Path destFilePath = new Path(destFileName);

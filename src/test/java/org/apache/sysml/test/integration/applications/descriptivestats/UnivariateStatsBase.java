@@ -21,7 +21,7 @@ package org.apache.sysml.test.integration.applications.descriptivestats;
 
 import java.util.HashMap;
 
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
@@ -137,8 +137,8 @@ public abstract class UnivariateStatsBase extends AutomatedTestBase {
 	 * @param rt
 	 *            backend platform to test
 	 */
-	protected void testScaleWithR(SIZE sz, RANGE rng, SPARSITY sp, RUNTIME_PLATFORM rt) {
-		RUNTIME_PLATFORM oldrt = rtplatform;
+	protected void testScaleWithR(SIZE sz, RANGE rng, SPARSITY sp, ExecutionMode rt) {
+		ExecutionMode oldrt = rtplatform;
 		rtplatform = rt;
 
 		try {
@@ -213,9 +213,9 @@ public abstract class UnivariateStatsBase extends AutomatedTestBase {
 	 *            backend platform to test
 	 */
 	protected void testWeightedScaleWithR(SIZE sz, RANGE rng, SPARSITY sp,
-			RUNTIME_PLATFORM rt) {
+			ExecutionMode rt) {
 
-		RUNTIME_PLATFORM oldrt = rtplatform;
+		ExecutionMode oldrt = rtplatform;
 		rtplatform = rt;
 
 		try {

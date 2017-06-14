@@ -21,16 +21,15 @@ package org.apache.sysml.test.integration.applications.parfor;
 
 import java.util.HashMap;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.junit.Test;
 
 public class ParForCorrelationTest extends AutomatedTestBase 
 {
@@ -137,8 +136,8 @@ public class ParForCorrelationTest extends AutomatedTestBase
 	private void runParForCorrelationTest( boolean parallel, PExecMode outer, PExecMode inner, ExecType instType, boolean profile, boolean debug, boolean statistics )
 	{
 		//inst exec type, influenced via rows
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
-		rtplatform = (instType==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode oldPlatform = rtplatform;
+		rtplatform = (instType==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		int cols = (instType==ExecType.MR)? cols2 : cols1;
 		
 		//script
@@ -161,7 +160,7 @@ public class ParForCorrelationTest extends AutomatedTestBase
 		config.addVariable("cols", cols);
 		loadTestConfiguration(config);
 		
-		boolean oldStatistics = DMLScript.STATISTICS;
+		boolean oldStatistics = RuntimePlatform.statistics;
 		
 		/* This is for running the junit test the new way, i.e., construct the arguments directly */
 		String HOME = SCRIPT_DIR + TEST_DIR;
@@ -190,7 +189,7 @@ public class ParForCorrelationTest extends AutomatedTestBase
 		}
 		finally
 		{
-			DMLScript.STATISTICS = oldStatistics;
+			RuntimePlatform.statistics = oldStatistics;
 			rtplatform = oldPlatform;
 		}
 		

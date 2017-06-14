@@ -21,14 +21,15 @@ package org.apache.sysml.hops.rewrite;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.Hop.OpOp1;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.LeftIndexingOp;
 import org.apache.sysml.hops.UnaryOp;
+import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.ForStatement;
 import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.parser.IfStatement;
@@ -37,7 +38,6 @@ import org.apache.sysml.parser.StatementBlock;
 import org.apache.sysml.parser.VariableSet;
 import org.apache.sysml.parser.WhileStatement;
 import org.apache.sysml.parser.WhileStatementBlock;
-import org.apache.sysml.parser.Expression.DataType;
 
 /**
  * Rule: Mark loop variables that are only read/updated through cp left indexing
@@ -52,8 +52,8 @@ public class RewriteMarkLoopVariablesUpdateInPlace extends StatementBlockRewrite
 	{
 		ArrayList<StatementBlock> ret = new ArrayList<StatementBlock>();
 		
-		if( DMLScript.rtplatform == RUNTIME_PLATFORM.HADOOP
-			|| DMLScript.rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( RuntimePlatform.rtplatform == ExecutionMode.HADOOP
+			|| RuntimePlatform.rtplatform == ExecutionMode.SPARK )
 		{
 			ret.add(sb); // nothing to do here
 			return ret; //return original statement block

@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.RuntimePlatform;
+import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Lop;
@@ -248,7 +248,7 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire partition "+getVarName()+" "+pred);
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
 		
 		if ( !_partitioned )
 			throw new CacheException ("MatrixObject not available to indexed read.");
@@ -351,7 +351,7 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 			throw new CacheException(ex);
 		}
 		
-		if( DMLScript.STATISTICS ){
+		if( RuntimePlatform.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireRTime(t1-t0);
 		}
@@ -545,7 +545,7 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 			
 			// when outputFormat is binaryblock, make sure that matrixCharacteristics has correct blocking dimensions
 			// note: this is only required if singlenode (due to binarycell default) 
-			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE &&
+			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE &&
 				(mc.getRowsPerBlock() != ConfigurationManager.getBlocksize() || mc.getColsPerBlock() != ConfigurationManager.getBlocksize()) ) 
 			{
 				DataConverter.writeMatrixToHDFS(_data, fname, oinfo, new MatrixCharacteristics(mc.getRows(), mc.getCols(), ConfigurationManager.getBlocksize(), ConfigurationManager.getBlocksize(), mc.getNonZeros()), rep, fprop);
@@ -561,7 +561,7 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 			LOG.trace ("Writing matrix to HDFS ("+fname+") - NOTHING TO WRITE (_data == null).");
 		}
 		
-		if( DMLScript.STATISTICS )
+		if( RuntimePlatform.statistics )
 			CacheStatistics.incrementHDFSWrites();
 	}
 	

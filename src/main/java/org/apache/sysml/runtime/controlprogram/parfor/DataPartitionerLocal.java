@@ -39,7 +39,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PartitionFormat;
@@ -144,7 +144,7 @@ public class DataPartitionerLocal extends DataPartitioner
 		{
 			//STEP 1: read matrix from HDFS and write blocks to local staging area			
 			//check and add input path
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path(fname);
 			FileInputFormat.addInputPath(job, path);
 			TextInputFormat informat = new TextInputFormat();
@@ -237,7 +237,7 @@ public class DataPartitionerLocal extends DataPartitioner
 		{
 			//STEP 1: read matrix from HDFS and write blocks to local staging area
 			//check and add input path
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path(fname);
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			
@@ -325,7 +325,7 @@ public class DataPartitionerLocal extends DataPartitioner
 			
 			//STEP 1: read matrix from HDFS and write blocks to local staging area	
 			//check and add input path
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path(fname);
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			
@@ -398,7 +398,7 @@ public class DataPartitionerLocal extends DataPartitioner
 		{		
 			//STEP 1: read matrix from HDFS and write blocks to local staging area	
 			//check and add input path
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path(fname);
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			

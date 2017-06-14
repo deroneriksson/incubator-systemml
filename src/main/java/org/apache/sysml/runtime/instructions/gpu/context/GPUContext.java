@@ -46,7 +46,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -238,32 +238,32 @@ public class GPUContext {
 			LOG.trace(
 					"GPU : in allocate from instruction " + instructionName + ", allocating new block of size " + (size
 							/ 1024.0) + " Kbytes on " + this);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				t0 = System.nanoTime();
 			ensureFreeSpace(instructionName, size);
 			A = new Pointer();
 			cudaMalloc(A, size);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				GPUStatistics.cudaAllocTime.getAndAdd(System.nanoTime() - t0);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				GPUStatistics.cudaAllocCount.getAndAdd(statsCount);
 			if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
 				GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_ALLOCATE,
 						System.nanoTime() - t0);
 		}
 		// Set all elements to 0 since newly allocated space will contain garbage
-		if (DMLScript.STATISTICS)
+		if (RuntimePlatform.statistics)
 			t1 = System.nanoTime();
 		LOG.trace("GPU : in allocate from instruction " + instructionName + ", setting block of size " + (size / 1024.0)
 				+ " Kbytes to zero on " + this);
 		cudaMemset(A, 0, size);
-		if (DMLScript.STATISTICS)
+		if (RuntimePlatform.statistics)
 			end = System.nanoTime();
 		if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
 			GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_SET_ZERO, end - t1);
-		if (DMLScript.STATISTICS)
+		if (RuntimePlatform.statistics)
 			GPUStatistics.cudaMemSet0Time.getAndAdd(end - t1);
-		if (DMLScript.STATISTICS)
+		if (RuntimePlatform.statistics)
 			GPUStatistics.cudaMemSet0Count.getAndAdd(1);
 		cudaBlockSizeMap.put(A, size);
 		return A;
@@ -317,13 +317,13 @@ public class GPUContext {
 		if (eager) {
 			LOG.trace("GPU : eagerly freeing cuda memory [ " + toFree + " ] for instruction " + instructionName + " on "
 					+ this);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				t0 = System.nanoTime();
 			cudaFree(toFree);
 			cudaBlockSizeMap.remove(toFree);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				GPUStatistics.cudaDeAllocTime.addAndGet(System.nanoTime() - t0);
-			if (DMLScript.STATISTICS)
+			if (RuntimePlatform.statistics)
 				GPUStatistics.cudaDeAllocCount.addAndGet(1);
 			if (instructionName != null && GPUStatistics.DISPLAY_STATISTICS)
 				GPUStatistics.maintainCPMiscTimes(instructionName, GPUInstruction.MISC_TIMER_CUDA_FREE,

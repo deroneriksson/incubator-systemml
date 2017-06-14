@@ -83,7 +83,7 @@ public class ScriptExecutorUtils {
 		Statistics.startRunTimer();
 		try {
 			// run execute (w/ exception handling to ensure proper shutdown)
-			if (DMLScript.USE_ACCELERATOR && ec != null) {
+			if (RuntimePlatform.useAccelerator && ec != null) {
 				List<GPUContext> gCtxs = GPUContextPool.reserveAllGPUContexts();
 				if (gCtxs == null) {
 					throw new DMLRuntimeException(
@@ -94,7 +94,7 @@ public class ScriptExecutorUtils {
 			}
 			rtprog.execute(ec);
 		} finally { // ensure cleanup/shutdown
-			if (DMLScript.USE_ACCELERATOR && !ec.getGPUContexts().isEmpty()) {
+			if (RuntimePlatform.useAccelerator && !ec.getGPUContexts().isEmpty()) {
 				ec.getGPUContexts().forEach(gCtx -> gCtx.clearTemporaryMemory());
 				GPUContextPool.freeAllGPUContexts();
 			}
