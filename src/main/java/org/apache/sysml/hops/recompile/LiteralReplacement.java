@@ -21,7 +21,6 @@ package org.apache.sysml.hops.recompile;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.AggUnaryOp;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
@@ -41,6 +40,7 @@ import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 public class LiteralReplacement 
@@ -429,7 +429,7 @@ public class LiteralReplacement
 		throws DMLRuntimeException
 	{
 		//setup stats reporting if necessary
-		boolean REPORT_STATS = (RuntimePlatform.statistics && REPORT_LITERAL_REPLACE_OPS_STATS); 
+		boolean REPORT_STATS = (GlobalState.statistics && REPORT_LITERAL_REPLACE_OPS_STATS); 
 		long t0 = REPORT_STATS ? System.nanoTime() : 0;
 		
 		//compute required unary aggregate 

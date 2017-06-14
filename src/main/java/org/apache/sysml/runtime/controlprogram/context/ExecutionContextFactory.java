@@ -19,10 +19,10 @@
 
 package org.apache.sysml.runtime.controlprogram.context;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.controlprogram.Program;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 public class ExecutionContextFactory 
 {
@@ -40,7 +40,7 @@ public class ExecutionContextFactory
 	{
 		ExecutionContext ec = null;
 		
-		switch( RuntimePlatform.rtplatform )
+		switch( GlobalState.rtplatform )
 		{
 			case SINGLE_NODE:
 				//NOTE: even in case of forced singlenode operations, users might still 

@@ -21,7 +21,6 @@ package org.apache.sysml.runtime.controlprogram.parfor;
 
 import java.util.Collection;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -29,6 +28,7 @@ import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.Stat;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.StatisticMonitor;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.Timing;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * Instances of this class can be used to execute tasks in parallel. Within each ParWorker 
@@ -82,7 +82,7 @@ public class LocalParWorker extends ParWorker implements Runnable
 		}
 
 		// Initialize this GPUContext to this thread
-		if (RuntimePlatform.useAccelerator)
+		if (GlobalState.useAccelerator)
 			_ec.getGPUContext(0).initializeThread();
 		
 		//setup compiler config for worker thread

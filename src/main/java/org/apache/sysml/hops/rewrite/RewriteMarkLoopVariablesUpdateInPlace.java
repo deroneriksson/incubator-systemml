@@ -21,8 +21,6 @@ package org.apache.sysml.hops.rewrite;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.Hop.OpOp1;
@@ -30,6 +28,8 @@ import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.LeftIndexingOp;
 import org.apache.sysml.hops.UnaryOp;
 import org.apache.sysml.parser.Expression.DataType;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.apache.sysml.parser.ForStatement;
 import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.parser.IfStatement;
@@ -52,8 +52,8 @@ public class RewriteMarkLoopVariablesUpdateInPlace extends StatementBlockRewrite
 	{
 		ArrayList<StatementBlock> ret = new ArrayList<StatementBlock>();
 		
-		if( RuntimePlatform.rtplatform == ExecutionMode.HADOOP
-			|| RuntimePlatform.rtplatform == ExecutionMode.SPARK )
+		if( GlobalState.rtplatform == ExecutionMode.HADOOP
+			|| GlobalState.rtplatform == ExecutionMode.SPARK )
 		{
 			ret.add(sb); // nothing to do here
 			return ret; //return original statement block

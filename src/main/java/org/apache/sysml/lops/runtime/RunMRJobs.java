@@ -22,8 +22,6 @@ package org.apache.sysml.lops.runtime;
 import java.io.IOException;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -68,7 +66,9 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.data.RandomMatrixGenerator;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 
 public class RunMRJobs 
@@ -190,7 +190,7 @@ public class RunMRJobs
 			case DATAGEN:
 				if(    ConfigurationManager.isDynamicRecompilation()
 					&& OptimizerUtils.ALLOW_RAND_JOB_RECOMPILE
-					&& RuntimePlatform.rtplatform != ExecutionMode.HADOOP 
+					&& GlobalState.rtplatform != ExecutionMode.HADOOP 
 					&& Recompiler.checkCPDataGen( inst, rdInst ) ) 
 				{
 					ret = executeInMemoryDataGenOperations(inst, rdInst, outputMatrices);
@@ -225,7 +225,7 @@ public class RunMRJobs
 			case REBLOCK:
 			case CSV_REBLOCK:
 				if(    ConfigurationManager.isDynamicRecompilation() 
-					&& RuntimePlatform.rtplatform != ExecutionMode.HADOOP 
+					&& GlobalState.rtplatform != ExecutionMode.HADOOP 
 					&& Recompiler.checkCPReblock( inst, inputMatrices ) ) 
 				{
 					ret = executeInMemoryReblockOperations(inst, shuffleInst, inputMatrices, outputMatrices);

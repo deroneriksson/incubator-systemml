@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -214,7 +213,7 @@ public class Statistics
 		numExecutedSPInst.reset();
 		numExecutedMRJobs.reset();
 		
-		if( RuntimePlatform.useAccelerator )
+		if( GlobalState.useAccelerator )
 			GPUStatistics.setNoOfExecutedGPUInst(0);
 	}
 	
@@ -331,12 +330,12 @@ public class Statistics
 	}
 
 	public static void startCompileTimer() {
-		if( RuntimePlatform.statistics )
+		if( GlobalState.statistics )
 			compileStartTime = System.nanoTime();
 	}
 
 	public static void stopCompileTimer() {
-		if( RuntimePlatform.statistics )
+		if( GlobalState.statistics )
 			compileEndTime = System.nanoTime();
 	}
 
@@ -682,27 +681,27 @@ public class Statistics
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("SystemML Statistics:\n");
-		if( RuntimePlatform.statistics ) {
+		if( GlobalState.statistics ) {
 			sb.append("Total elapsed time:\t\t" + String.format("%.3f", (getCompileTime()+getRunTime())*1e-9) + " sec.\n"); // nanoSec --> sec
 			sb.append("Total compilation time:\t\t" + String.format("%.3f", getCompileTime()*1e-9) + " sec.\n"); // nanoSec --> sec
 		}
 		sb.append("Total execution time:\t\t" + String.format("%.3f", getRunTime()*1e-9) + " sec.\n"); // nanoSec --> sec
 		if( OptimizerUtils.isSparkExecutionMode() ) {
-			if( RuntimePlatform.statistics ) //moved into stats on Shiv's request
+			if( GlobalState.statistics ) //moved into stats on Shiv's request
 				sb.append("Number of compiled Spark inst:\t" + getNoOfCompiledSPInst() + ".\n");
 			sb.append("Number of executed Spark inst:\t" + getNoOfExecutedSPInst() + ".\n");
 		}
 		else {
-			if( RuntimePlatform.statistics ) //moved into stats on Shiv's request
+			if( GlobalState.statistics ) //moved into stats on Shiv's request
 				sb.append("Number of compiled MR Jobs:\t" + getNoOfCompiledMRJobs() + ".\n");
 			sb.append("Number of executed MR Jobs:\t" + getNoOfExecutedMRJobs() + ".\n");	
 		}
 
-		if( RuntimePlatform.useAccelerator && RuntimePlatform.statistics)
+		if( GlobalState.useAccelerator && GlobalState.statistics)
 			sb.append(GPUStatistics.getStringForCudaTimers());
 		
 		//show extended caching/compilation statistics
-		if( RuntimePlatform.statistics ) 
+		if( GlobalState.statistics ) 
 		{
 			if(NativeHelper.blasType != null) {
 				String blas = NativeHelper.blasType != null ? NativeHelper.blasType : ""; 

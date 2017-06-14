@@ -19,7 +19,6 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
@@ -55,6 +54,7 @@ import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.mapred.DistributedCacheInput;
+import org.apache.sysml.utils.GlobalState;
 
 
 /* Binary (cell operations): aij + bij
@@ -578,7 +578,7 @@ public class BinaryOp extends Hop
 			else //general case
 				ot = HopsOpOp2LopsU.get(op);
 			
-			if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) 
+			if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) 
 					&& (op == OpOp2.MULT || op == OpOp2.PLUS || op == OpOp2.MINUS || op == OpOp2.DIV || op == OpOp2.POW) ) {
 				et = ExecType.GPU;
 			}
@@ -596,7 +596,7 @@ public class BinaryOp extends Hop
 			ExecType et = optFindExecType();
 			if ( et == ExecType.CP ) 
 			{
-				if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) 
+				if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) 
 						&& (op == OpOp2.MULT || op == OpOp2.PLUS || op == OpOp2.MINUS || op == OpOp2.DIV || op == OpOp2.POW || op == OpOp2.SOLVE)) {
 					et = ExecType.GPU;
 				}

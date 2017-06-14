@@ -26,12 +26,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 @RunWith(value = Parameterized.class)
 public class CSVParametersTest extends AutomatedTestBase 

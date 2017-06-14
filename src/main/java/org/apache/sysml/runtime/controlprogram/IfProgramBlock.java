@@ -21,7 +21,6 @@ package org.apache.sysml.runtime.controlprogram;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.IfStatementBlock;
@@ -33,6 +32,7 @@ import org.apache.sysml.runtime.instructions.Instruction.INSTRUCTION_TYPE;
 import org.apache.sysml.runtime.instructions.cp.BooleanObject;
 import org.apache.sysml.runtime.instructions.cp.CPInstruction;
 import org.apache.sysml.runtime.instructions.cp.CPInstruction.CPINSTRUCTION_TYPE;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.runtime.instructions.cp.ComputationCPInstruction;
 import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
@@ -188,7 +188,7 @@ public class IfProgramBlock extends ProgramBlock
 			{
 				if( _sb != null )
 				{
-					if( RuntimePlatform.activeAM ) //set program block specific remote memory
+					if( GlobalState.activeAM ) //set program block specific remote memory
 						DMLAppMasterUtils.setupProgramBlockRemoteMaxMemory(this);
 					
 					IfStatementBlock isb = (IfStatementBlock)_sb;

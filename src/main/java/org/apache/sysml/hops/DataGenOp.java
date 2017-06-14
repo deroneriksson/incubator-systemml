@@ -23,7 +23,6 @@ package org.apache.sysml.hops;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
@@ -37,6 +36,7 @@ import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.Statement;
 import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * A DataGenOp can be rand (or matrix constructor), sequence, and sample -
@@ -111,7 +111,7 @@ public class DataGenOp extends Hop implements MultiThreadedHop
 		
 		//generate base dir
 		String scratch = ConfigurationManager.getScratchSpace();
-		_baseDir = scratch + Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + RuntimePlatform.uuid + Lop.FILE_SEPARATOR + 
+		_baseDir = scratch + Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + GlobalState.uuid + Lop.FILE_SEPARATOR + 
 	               Lop.FILE_SEPARATOR + ProgramConverter.CP_ROOT_THREAD_ID + Lop.FILE_SEPARATOR;
 		
 		//compute unknown dims and nnz

@@ -38,8 +38,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.SparkSession.Builder;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.Lop;
@@ -58,8 +56,10 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.ParameterBuilder;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.apache.wink.json4j.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -1281,7 +1281,7 @@ public abstract class AutomatedTestBase
 			sb.append(conf.getTextValue(DMLConfig.SCRATCH_SPACE));
 			sb.append(Lop.FILE_SEPARATOR);
 			sb.append(Lop.PROCESS_PREFIX);
-			sb.append(RuntimePlatform.uuid);
+			sb.append(GlobalState.uuid);
 			String pLocalDir = sb.toString();
 
 			return MapReduceTool.existsFileOnHDFS(pLocalDir);

@@ -23,12 +23,12 @@ import java.io.File;
 import java.util.HashMap;
 
 import org.junit.Test;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * 

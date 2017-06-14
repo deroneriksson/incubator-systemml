@@ -31,6 +31,7 @@ import org.apache.sysml.runtime.instructions.gpu.context.GPUContext;
 import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
 import org.apache.sysml.runtime.matrix.data.LibMatrixDNN;
 import org.apache.sysml.utils.GPUStatistics;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 public class ScriptExecutorUtils {
@@ -83,7 +84,7 @@ public class ScriptExecutorUtils {
 		Statistics.startRunTimer();
 		try {
 			// run execute (w/ exception handling to ensure proper shutdown)
-			if (RuntimePlatform.useAccelerator && ec != null) {
+			if (GlobalState.useAccelerator && ec != null) {
 				List<GPUContext> gCtxs = GPUContextPool.reserveAllGPUContexts();
 				if (gCtxs == null) {
 					throw new DMLRuntimeException(
@@ -94,7 +95,7 @@ public class ScriptExecutorUtils {
 			}
 			rtprog.execute(ec);
 		} finally { // ensure cleanup/shutdown
-			if (RuntimePlatform.useAccelerator && !ec.getGPUContexts().isEmpty()) {
+			if (GlobalState.useAccelerator && !ec.getGPUContexts().isEmpty()) {
 				ec.getGPUContexts().forEach(gCtx -> gCtx.clearTemporaryMemory());
 				GPUContextPool.freeAllGPUContexts();
 			}

@@ -22,12 +22,12 @@ package org.apache.sysml.test.integration.functions.unary.matrix;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.ParameterizedBuiltinOp;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 public class RemoveEmptyTest extends AutomatedTestBase 
 {

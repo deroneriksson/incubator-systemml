@@ -22,11 +22,10 @@ package org.apache.sysml.test.integration.functions.io.csv;
 import java.io.IOException;
 
 import org.junit.Test;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * JUnit Test cases to evaluate the functionality of reading CSV files.

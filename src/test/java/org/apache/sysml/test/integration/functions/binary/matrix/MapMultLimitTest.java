@@ -21,12 +21,11 @@ package org.apache.sysml.test.integration.functions.binary.matrix;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * Tests the number of mapmult operations that can be piggybacked into the same GMR job.

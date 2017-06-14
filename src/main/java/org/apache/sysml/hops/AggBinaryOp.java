@@ -19,8 +19,6 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop.MultiThreadedHop;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
@@ -53,6 +51,8 @@ import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.mapred.DistributedCacheInput;
 import org.apache.sysml.runtime.matrix.mapred.MMCJMRReducerWithAggregator;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 
 /* Aggregate binary (cell operations): Sum (aij + bij)
@@ -546,7 +546,7 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 		int k = OptimizerUtils.getConstrainedNumThreads(_maxNumThreads);
 		
 		ExecType et = ExecType.CP;
-		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+		if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 			et = ExecType.GPU;
 		}
 		
@@ -625,7 +625,7 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 	{	
 		Lop matmultCP = null;
 		
-		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+		if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 			Hop h1 = getInput().get(0);
 			Hop h2 = getInput().get(1);
 			Lop left; Lop right;
@@ -1291,8 +1291,8 @@ public class AggBinaryOp extends Hop implements MultiThreadedHop
 	{
 		//check for forced MR or Spark execution modes, which prevent the introduction of
 		//additional CP operations and hence the rewrite application
-		if(    RuntimePlatform.rtplatform == ExecutionMode.HADOOP  //not hybrid_mr
-			|| RuntimePlatform.rtplatform == ExecutionMode.SPARK ) //not hybrid_spark
+		if(    GlobalState.rtplatform == ExecutionMode.HADOOP  //not hybrid_mr
+			|| GlobalState.rtplatform == ExecutionMode.SPARK ) //not hybrid_spark
 		{
 			return false;
 		}

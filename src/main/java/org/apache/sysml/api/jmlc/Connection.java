@@ -31,8 +31,6 @@ import java.util.Map;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.DMLException;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
@@ -60,6 +58,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.transform.TfUtils;
 import org.apache.sysml.runtime.transform.meta.TfMetaUtils;
 import org.apache.sysml.runtime.util.DataConverter;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.apache.wink.json4j.JSONObject;
 
 /**
@@ -100,7 +100,7 @@ public class Connection implements Closeable
 	 */
 	public Connection()
 	{
-		RuntimePlatform.rtplatform = ExecutionMode.SINGLE_NODE;
+		GlobalState.rtplatform = ExecutionMode.SINGLE_NODE;
 		
 		//setup basic parameters for embedded execution
 		//(parser, compiler, and runtime parameters)
@@ -157,7 +157,7 @@ public class Connection implements Closeable
 	public PreparedScript prepareScript( String script, Map<String, String> args, String[] inputs, String[] outputs, boolean parsePyDML) 
 		throws DMLException 
 	{
-		RuntimePlatform.scriptType = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
+		GlobalState.scriptType = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
 
 		//prepare arguments
 		

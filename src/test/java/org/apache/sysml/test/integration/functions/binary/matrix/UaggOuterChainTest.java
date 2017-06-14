@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.UAggOuterChain;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.instructions.Instruction;
@@ -37,6 +36,7 @@ import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * TODO: extend test by various binary operator - unary aggregate operator combinations.

@@ -35,7 +35,6 @@ import org.apache.spark.ml.linalg.Vector;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.util.LongAccumulator;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
@@ -55,6 +54,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 import scala.Tuple2;
@@ -75,7 +75,7 @@ public class RemoteDPParForSpark
 		throws DMLRuntimeException
 	{
 		String jobname = "ParFor-DPESP";
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		SparkExecutionContext sec = (SparkExecutionContext)ec;
 		JavaSparkContext sc = sec.getSparkContext();
@@ -113,7 +113,7 @@ public class RemoteDPParForSpark
 		//maintain statistics
 	    Statistics.incrementNoOfCompiledSPInst();
 	    Statistics.incrementNoOfExecutedSPInst();
-	    if( RuntimePlatform.statistics ){
+	    if( GlobalState.statistics ){
 			Statistics.maintainCPHeavyHitters(jobname, System.nanoTime()-t0);
 		}
 		

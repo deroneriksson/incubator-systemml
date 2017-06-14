@@ -37,7 +37,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 
 import org.apache.hadoop.io.Writable;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.lops.Lop;
@@ -50,6 +49,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.MatrixValue;
 import org.apache.sysml.runtime.matrix.data.Pair;
+import org.apache.sysml.utils.GlobalState;
 
 public class LocalFileUtils 
 {
@@ -307,7 +307,7 @@ public class LocalFileUtils
 	}
 
 	public static String createWorkingDirectory() throws DMLRuntimeException {
-		return createWorkingDirectoryWithUUID( RuntimePlatform.uuid );
+		return createWorkingDirectoryWithUUID( GlobalState.uuid );
 	}
 
 	public static String createWorkingDirectoryWithUUID( String uuid )

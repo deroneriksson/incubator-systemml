@@ -81,6 +81,8 @@
 			<unpackOptions>
 				<includes>
 					<include>org/apache/commons/lang/ArrayUtils.class</include>
+					<include>org/apache/commons/lang/StringUtils.class</include>
+					<include>org/apache/commons/lang/SystemUtils.class</include>
 				</includes>
 			</unpackOptions>
 			<scope>compile</scope>

@@ -38,8 +38,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.util.random.SamplingUtils;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.Hop.DataGenMethod;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -61,7 +59,9 @@ import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.RandomMatrixGenerator;
 import org.apache.sysml.runtime.matrix.operators.Operator;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 import scala.Tuple2;
 
@@ -337,7 +337,7 @@ public class RandSPInstruction extends UnarySPInstruction
 
 		//step 2: potential in-memory rand operations if applicable
 		if( isMemAvail(rows, cols, sparsity, minValue, maxValue) 
-			&&  RuntimePlatform.rtplatform != ExecutionMode.SPARK )
+			&&  GlobalState.rtplatform != ExecutionMode.SPARK )
 		{
 			RandomMatrixGenerator rgen = LibMatrixDatagen.createRandomMatrixGenerator(
 					pdf, (int)rows, (int)cols, rowsInBlock, colsInBlock, 

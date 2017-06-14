@@ -27,12 +27,11 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.utils.TestUtils;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 public abstract class ID3Test extends AutomatedTestBase
 {

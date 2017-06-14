@@ -25,7 +25,6 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.lib.NullOutputFormat;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -39,6 +38,7 @@ import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 import org.apache.sysml.yarn.DMLAppMasterUtils;
 
@@ -72,7 +72,7 @@ public class DataPartitionerRemoteMR extends DataPartitioner
 			throws DMLRuntimeException 
 	{
 		String jobname = "ParFor-DPMR";
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		JobConf job;
 		job = new JobConf( DataPartitionerRemoteMR.class );
@@ -200,7 +200,7 @@ public class DataPartitionerRemoteMR extends DataPartitioner
 			throw new DMLRuntimeException(ex);
 		}
 		
-		if( RuntimePlatform.statistics && _pfid >= 0 ){ 
+		if( GlobalState.statistics && _pfid >= 0 ){ 
 			long t1 = System.nanoTime(); //only for parfor 
 			Statistics.maintainCPHeavyHitters("MR-Job_"+jobname, t1-t0);
 		}

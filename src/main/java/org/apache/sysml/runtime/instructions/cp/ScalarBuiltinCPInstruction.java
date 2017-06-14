@@ -19,13 +19,13 @@
 
 package org.apache.sysml.runtime.instructions.cp;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLScriptException;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.matrix.operators.Operator;
 import org.apache.sysml.runtime.matrix.operators.SimpleOperator;
+import org.apache.sysml.utils.GlobalState;
 
 
 public class ScalarBuiltinCPInstruction extends BuiltinUnaryCPInstruction
@@ -54,7 +54,7 @@ public class ScalarBuiltinCPInstruction extends BuiltinUnaryCPInstruction
 			
 			// print to stdout only when suppress flag in DMLScript is not set.
 			// The flag will be set, for example, when SystemML is invoked in fenced mode from Jaql.
-			if (!RuntimePlatform.suppressPrint2Stdout)
+			if (!GlobalState.suppressPrint2Stdout)
 				System.out.println(outString);
 			
 			// String that is printed on stdout will be inserted into symbol table (dummy, not necessary!) 

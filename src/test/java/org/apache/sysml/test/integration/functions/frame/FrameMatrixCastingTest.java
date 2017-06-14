@@ -22,7 +22,6 @@ package org.apache.sysml.test.integration.functions.frame;
 import java.io.IOException;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.DataType;
@@ -46,6 +45,7 @@ import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.junit.Test;
 
 /**

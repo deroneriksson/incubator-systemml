@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.DataGen;
 import org.apache.sysml.lops.Lop;
@@ -47,7 +45,9 @@ import org.apache.sysml.runtime.matrix.data.NumItemsByEachReducerMetaData;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /*
 ---------------------------------------------------------------------------------------
@@ -415,7 +415,7 @@ public class MRJobInstruction extends Instruction
 	 * @return Return true if found, otherwise return false 
 	 */
 	public boolean findMRInstructions(int lineNum) {
-		if (!RuntimePlatform.enableDebugMode) {
+		if (!GlobalState.enableDebugMode) {
 			System.err.println("Error: Expecting debug mode to be enabled for this functionality");
 			return false;
 		}
@@ -465,7 +465,7 @@ public class MRJobInstruction extends Instruction
 	 */
 	public String getMRString(boolean debug)
 	{
-		if (!RuntimePlatform.enableDebugMode) {
+		if (!GlobalState.enableDebugMode) {
 			System.err.println("Error: Expecting debug mode to be enabled for this functionality");
 			return "";
 		}
@@ -1273,7 +1273,7 @@ public class MRJobInstruction extends Instruction
 	public void processInstruction(ExecutionContext ec)
 		throws DMLRuntimeException 
 	{
-		if ( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE)
+		if ( GlobalState.rtplatform == ExecutionMode.SINGLE_NODE)
 			throw new DMLRuntimeException("MapReduce jobs cannot be executed when execution mode = singlenode");
 		
 		//execute MR job

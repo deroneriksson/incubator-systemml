@@ -20,7 +20,6 @@
 package org.apache.sysml.test.integration.functions.frame;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.io.FrameReaderFactory;
@@ -31,6 +30,7 @@ import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.junit.Assert;
 import org.junit.Test;
 

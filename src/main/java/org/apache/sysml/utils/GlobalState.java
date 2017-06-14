@@ -1,10 +1,10 @@
-package org.apache.sysml.api;
+package org.apache.sysml.utils;
 
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
 import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
 
-public class RuntimePlatform {
+public class GlobalState {
 
 	// TODO rename these modes to names that self-document and are more
 	// consistent, like: DRIVER, SPARK, HADOOP, DRIVER_AND_SPARK,

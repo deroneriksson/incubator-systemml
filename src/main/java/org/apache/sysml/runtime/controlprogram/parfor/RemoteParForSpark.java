@@ -26,11 +26,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.util.LongAccumulator;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 import scala.Tuple2;
@@ -58,7 +58,7 @@ public class RemoteParForSpark
 		throws DMLRuntimeException  
 	{
 		String jobname = "ParFor-ESP";
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		SparkExecutionContext sec = (SparkExecutionContext)ec;
 		JavaSparkContext sc = sec.getSparkContext();
@@ -86,7 +86,7 @@ public class RemoteParForSpark
 		//maintain statistics
 	    Statistics.incrementNoOfCompiledSPInst();
 	    Statistics.incrementNoOfExecutedSPInst();
-	    if( RuntimePlatform.statistics ){
+	    if( GlobalState.statistics ){
 			Statistics.maintainCPHeavyHitters(jobname, System.nanoTime()-t0);
 		}
 		

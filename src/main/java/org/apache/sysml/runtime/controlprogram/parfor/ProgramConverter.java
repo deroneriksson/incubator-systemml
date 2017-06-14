@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -90,6 +89,7 @@ import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.udf.ExternalFunctionInvocationInstruction;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * Program converter functionalities for 
@@ -743,7 +743,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle DMLScript UUID (propagate original uuid for writing to scratch space)
-		sb.append( RuntimePlatform.uuid );
+		sb.append( GlobalState.uuid );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );		
 		
@@ -753,7 +753,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle additional configurations
-		sb.append( PARFOR_CONF_STATS + "=" + RuntimePlatform.statistics );
+		sb.append( PARFOR_CONF_STATS + "=" + GlobalState.statistics );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );
 		
@@ -1321,7 +1321,7 @@ public class ProgramConverter
 		HierarchyAwareStringTokenizer st = new HierarchyAwareStringTokenizer(tmpin, COMPONENTS_DELIM);
 		
 		//(master UUID is used for all nodes (in order to simply cleanup))
-		RuntimePlatform.uuid = st.nextToken();
+		GlobalState.uuid = st.nextToken();
 		
 		//handle DML config (NOTE: set directly in ConfigurationManager)
 		String confStr = st.nextToken();
@@ -1861,7 +1861,7 @@ public class ProgramConverter
 	
 	private static void parseAndSetAdditionalConfigurations(String conf) {
 		String[] statsFlag = conf.split("=");
-		RuntimePlatform.statistics = Boolean.parseBoolean(statsFlag[1]);
+		GlobalState.statistics = Boolean.parseBoolean(statsFlag[1]);
 	}
 
 	//////////

@@ -21,8 +21,8 @@ package org.apache.sysml.parser;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.debug.DMLBreakpointManager;
+import org.apache.sysml.utils.GlobalState;
 
 
 public class AssignmentStatement extends Statement
@@ -80,7 +80,7 @@ public class AssignmentStatement extends Statement
 	@Override
 	public boolean controlStatement() {
 		// ensure that breakpoints end up in own statement block 
-		if (RuntimePlatform.enableDebugMode) {
+		if (GlobalState.enableDebugMode) {
 			DMLBreakpointManager.insertBreakpoint(_source.getBeginLine());
 			return true;
 		}

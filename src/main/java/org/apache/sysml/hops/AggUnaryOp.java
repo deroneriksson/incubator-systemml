@@ -19,7 +19,6 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp.SparkAggType;
 import org.apache.sysml.hops.Hop.MultiThreadedHop;
@@ -40,6 +39,7 @@ import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
+import org.apache.sysml.utils.GlobalState;
 
 
 /* Aggregate unary (cell) operation: Sum (aij), col_sum, row_sum
@@ -149,7 +149,7 @@ public class AggUnaryOp extends Hop implements MultiThreadedHop
 				}				
 				else { //general case		
 					int k = OptimizerUtils.getConstrainedNumThreads(_maxNumThreads);
-					if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
+					if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET)) {
 						// Only implemented methods for GPU
 						if (			 (_op == AggOp.SUM 			&& (_direction == Direction.RowCol || _direction == Direction.Row || _direction == Direction.Col))
 										|| (_op == AggOp.SUM_SQ 	&& (_direction == Direction.RowCol || _direction == Direction.Row || _direction == Direction.Col))

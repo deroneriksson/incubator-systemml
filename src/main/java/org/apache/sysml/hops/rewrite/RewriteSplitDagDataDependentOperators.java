@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.DataOp;
@@ -46,6 +44,8 @@ import org.apache.sysml.parser.VariableSet;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject.UpdateType;
 import org.apache.sysml.runtime.controlprogram.parfor.util.IDSequence;
 import org.apache.sysml.runtime.matrix.data.Pair;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * Rule: Split Hop DAG after specific data-dependent operators. This is
@@ -74,7 +74,7 @@ public class RewriteSplitDagDataDependentOperators extends StatementBlockRewrite
 		throws HopsException 
 	{
 		//DAG splits not required for forced single node
-		if( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE )
+		if( GlobalState.rtplatform == ExecutionMode.SINGLE_NODE )
 			return new ArrayList<StatementBlock>(Arrays.asList(sb));
 		
 		ArrayList<StatementBlock> ret = new ArrayList<StatementBlock>();

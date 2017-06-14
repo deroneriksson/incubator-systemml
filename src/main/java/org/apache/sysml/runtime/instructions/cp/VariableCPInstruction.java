@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.UnaryCP;
 import org.apache.sysml.parser.Expression.DataType;
@@ -57,6 +56,7 @@ import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 
@@ -502,7 +502,7 @@ public class VariableCPInstruction extends CPInstruction
 				mobj.setFileFormatProperties(_formatProperties);
 				mobj.setUpdateType(_updateType);
 				ec.setVariable(getInput1().getName(), mobj);
-				if(RuntimePlatform.statistics && _updateType.isInPlace())
+				if(GlobalState.statistics && _updateType.isInPlace())
 					Statistics.incrementTotalUIPVar();
 			}
 			else if( getInput1().getDataType() == DataType.FRAME ) {

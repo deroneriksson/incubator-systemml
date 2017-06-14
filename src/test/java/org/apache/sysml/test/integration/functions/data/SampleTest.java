@@ -29,9 +29,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * Tests if Rand produces the same output, for a given set of parameters, across different (CP vs. MR) runtime platforms.   

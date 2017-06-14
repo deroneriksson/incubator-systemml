@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.HopsException;
@@ -38,6 +37,7 @@ import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.LanguageException.LanguageErrorCodes;
 import org.apache.sysml.parser.PrintStatement.PRINTTYPE;
 import org.apache.sysml.runtime.controlprogram.parfor.util.IDSequence;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.MLContextProxy;
 
 
@@ -151,7 +151,7 @@ public class StatementBlock extends LiveVariableAnalysis
     public boolean isMergeableFunctionCallBlock(DMLProgram dmlProg) throws LanguageException{
 
 //    	if (RuntimePlatform.enableDebugMode && !DMLScript.ENABLE_DEBUG_OPTIMIZER)
-    	if (RuntimePlatform.enableDebugMode)
+    	if (GlobalState.enableDebugMode)
 			return false;
 
 		// check whether targetIndex stmt block is for a mergable function call

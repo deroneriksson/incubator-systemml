@@ -24,13 +24,13 @@ import static org.apache.sysml.api.mlcontext.ScriptFactory.dmlFromFile;
 import java.io.File;
 
 import org.apache.spark.sql.SparkSession;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.api.mlcontext.MLContext;
 import org.apache.sysml.api.mlcontext.Matrix;
 import org.apache.sysml.api.mlcontext.Script;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.junit.After;
 import org.junit.Test;
 
@@ -86,8 +86,8 @@ public class MLContextMultipleScriptsTest extends AutomatedTestBase
 	 */
 	private void runMLContextTestMultipleScript(ExecutionMode platform, boolean wRead) 
 	{
-		ExecutionMode oldplatform = RuntimePlatform.rtplatform;
-		RuntimePlatform.rtplatform = platform;
+		ExecutionMode oldplatform = GlobalState.rtplatform;
+		GlobalState.rtplatform = platform;
 		
 		//create mlcontext
 		SparkSession spark = createSystemMLSparkSession("MLContextMultipleScriptsTest", "local");
@@ -113,7 +113,7 @@ public class MLContextMultipleScriptsTest extends AutomatedTestBase
 			System.out.println(z);
 		}
 		finally {
-			RuntimePlatform.rtplatform = oldplatform;
+			GlobalState.rtplatform = oldplatform;
 			
 			// stop underlying spark context to allow single jvm tests (otherwise the
 			// next test that tries to create a SparkContext would fail)

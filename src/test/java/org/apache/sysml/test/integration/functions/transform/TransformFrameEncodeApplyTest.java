@@ -22,7 +22,6 @@ package org.apache.sysml.test.integration.functions.transform;
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.runtime.io.MatrixReaderFactory;
 import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.util.DataConverter;
@@ -30,6 +29,7 @@ import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 public class TransformFrameEncodeApplyTest extends AutomatedTestBase 
 {

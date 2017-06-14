@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.DMLOptions;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.api.mlcontext.MLContext.ExplainLevel;
@@ -51,6 +50,7 @@ import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysml.utils.Explain;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Explain.ExplainCounts;
 import org.apache.sysml.utils.Explain.ExplainType;
 import org.apache.sysml.utils.Statistics;
@@ -238,12 +238,12 @@ public class ScriptExecutor {
 	 * Set the global flags (for example: statistics, gpu, etc).
 	 */
 	protected void setGlobalFlags() {
-		oldStatistics = RuntimePlatform.statistics;
-		RuntimePlatform.statistics = statistics;
-		oldForceGPU = RuntimePlatform.forceAccelerator;
-		RuntimePlatform.forceAccelerator = forceGPU;
-		oldGPU = RuntimePlatform.useAccelerator;
-		RuntimePlatform.useAccelerator = gpu;
+		oldStatistics = GlobalState.statistics;
+		GlobalState.statistics = statistics;
+		oldForceGPU = GlobalState.forceAccelerator;
+		GlobalState.forceAccelerator = forceGPU;
+		oldGPU = GlobalState.useAccelerator;
+		GlobalState.useAccelerator = gpu;
 		DMLScript.STATISTICS_COUNT = statisticsMaxHeavyHitters;
 	}
 
@@ -252,9 +252,9 @@ public class ScriptExecutor {
 	 * post-execution.
 	 */
 	protected void resetGlobalFlags() {
-		RuntimePlatform.statistics = oldStatistics;
-		RuntimePlatform.forceAccelerator = oldForceGPU;
-		RuntimePlatform.useAccelerator = oldGPU;
+		GlobalState.statistics = oldStatistics;
+		GlobalState.forceAccelerator = oldForceGPU;
+		GlobalState.useAccelerator = oldGPU;
 		DMLScript.STATISTICS_COUNT = DMLOptions.defaultOptions.statsCount;
 	}
 
@@ -332,7 +332,7 @@ public class ScriptExecutor {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
-		RuntimePlatform.scriptType = script.getScriptType();
+		GlobalState.scriptType = script.getScriptType();
 		setGlobalFlags();
 		if (statistics) {
 			Statistics.reset();

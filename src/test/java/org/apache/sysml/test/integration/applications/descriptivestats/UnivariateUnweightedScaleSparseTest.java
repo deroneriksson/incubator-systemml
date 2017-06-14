@@ -19,9 +19,8 @@
 
 package org.apache.sysml.test.integration.applications.descriptivestats;
 
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.junit.Test;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 
 
 /**

@@ -19,7 +19,6 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
@@ -43,6 +42,7 @@ import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.Statement;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
+import org.apache.sysml.utils.GlobalState;
 
 /** Primary use cases for now, are
  * 		quantile (<n-1-matrix>, <n-1-matrix>, <literal>):      quantile (A, w, 0.5)
@@ -649,7 +649,7 @@ public class TernaryOp extends Hop
 			throw new HopsException("Unexpected operation: " + _op + ", expecting " + OpOp3.PLUS_MULT + " or" +  OpOp3.MINUS_MULT);
 		
 		ExecType et = null;
-		if(RuntimePlatform.useAccelerator && (RuntimePlatform.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) )
+		if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < OptimizerUtils.GPU_MEMORY_BUDGET) )
 			et = ExecType.GPU;
 		else
 			et = optFindExecType();

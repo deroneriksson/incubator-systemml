@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.DataGenOp;
@@ -39,6 +38,7 @@ import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyze
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.JSONHelper;
 import org.apache.wink.json4j.JSONArray;
 import org.apache.wink.json4j.JSONObject;
@@ -297,7 +297,7 @@ public class DataExpression extends DataIdentifier
 	public void addRandExprParam(String paramName, Expression paramValue) 
 		throws LanguageException
 	{
-		if (RuntimePlatform.validatorIgnoreIssues && (paramValue == null)) {
+		if (GlobalState.validatorIgnoreIssues && (paramValue == null)) {
 			return;
 		}
 		// check name is valid
@@ -485,7 +485,7 @@ public class DataExpression extends DataIdentifier
 	}
 
 	public void addVarParam(String name, Expression value){
-		if (RuntimePlatform.validatorIgnoreIssues && (value == null)) {
+		if (GlobalState.validatorIgnoreIssues && (value == null)) {
 			return;
 		}
 		_varParams.put(name, value);

@@ -20,10 +20,9 @@
 package org.apache.sysml.test.integration.functions.unary.scalar;
 
 import org.junit.Test;
-
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 
 /**

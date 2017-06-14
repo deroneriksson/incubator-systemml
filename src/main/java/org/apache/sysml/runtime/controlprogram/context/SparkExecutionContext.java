@@ -38,7 +38,6 @@ import org.apache.spark.storage.RDDInfo;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.util.LongAccumulator;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.api.mlcontext.MLContext;
 import org.apache.sysml.api.mlcontext.MLContextUtil;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -76,6 +75,7 @@ import org.apache.sysml.runtime.matrix.data.SparseBlock;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.MLContextProxy;
 import org.apache.sysml.utils.Statistics;
 
@@ -186,7 +186,7 @@ public class SparkExecutionContext extends ExecutionContext
 		if( _spctx != null )
 			return;
 
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		//create a default spark context (master, appname, etc refer to system properties
 		//as given in the spark configuration or during spark-submit)
@@ -233,7 +233,7 @@ public class SparkExecutionContext extends ExecutionContext
 			MRJobConfiguration.addBinaryBlockSerializationFramework( _spctx.hadoopConfiguration() );
 
 		//statistics maintenance
-		if( RuntimePlatform.statistics ){
+		if( GlobalState.statistics ){
 			Statistics.setSparkCtxCreateTime(System.nanoTime()-t0);
 		}
 	}
@@ -506,7 +506,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public PartitionedBroadcast<MatrixBlock> getBroadcastForVariable( String varname )
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		MatrixObject mo = getMatrixObject(varname);
 
@@ -560,7 +560,7 @@ public class SparkExecutionContext extends ExecutionContext
 			CacheableData.addBroadcastSize(bchandle.getSize());
 		}
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkBroadCastTime(System.nanoTime() - t0);
 			Statistics.incSparkBroadcastCount(1);
 		}
@@ -572,7 +572,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public PartitionedBroadcast<FrameBlock> getBroadcastForFrameVariable( String varname)
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		FrameObject fo = getFrameObject(varname);
 
@@ -626,7 +626,7 @@ public class SparkExecutionContext extends ExecutionContext
 			CacheableData.addBroadcastSize(bchandle.getSize());
 		}
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkBroadCastTime(System.nanoTime() - t0);
 			Statistics.incSparkBroadcastCount(1);
 		}
@@ -663,7 +663,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public static JavaPairRDD<MatrixIndexes,MatrixBlock> toMatrixJavaPairRDD(JavaSparkContext sc, MatrixBlock src, int brlen, int bclen)
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		LinkedList<Tuple2<MatrixIndexes,MatrixBlock>> list = new LinkedList<Tuple2<MatrixIndexes,MatrixBlock>>();
 
 		if(    src.getNumRows() <= brlen
@@ -698,7 +698,7 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 
 		JavaPairRDD<MatrixIndexes,MatrixBlock> result = sc.parallelizePairs(list);
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkParallelizeTime(System.nanoTime() - t0);
 			Statistics.incSparkParallelizeCount(1);
 		}
@@ -709,7 +709,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public static JavaPairRDD<Long,FrameBlock> toFrameJavaPairRDD(JavaSparkContext sc, FrameBlock src)
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		LinkedList<Tuple2<Long,FrameBlock>> list = new LinkedList<Tuple2<Long,FrameBlock>>();
 
 		//create and write subblocks of matrix
@@ -731,7 +731,7 @@ public class SparkExecutionContext extends ExecutionContext
 		}
 
 		JavaPairRDD<Long,FrameBlock> result = sc.parallelizePairs(list);
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkParallelizeTime(System.nanoTime() - t0);
 			Statistics.incSparkParallelizeCount(1);
 		}
@@ -780,7 +780,7 @@ public class SparkExecutionContext extends ExecutionContext
 		throws DMLRuntimeException
 	{
 
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		MatrixBlock out = null;
 
@@ -844,7 +844,7 @@ public class SparkExecutionContext extends ExecutionContext
 			out.examSparsity();
 		}
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkCollectTime(System.nanoTime() - t0);
 			Statistics.incSparkCollectCount(1);
 		}
@@ -875,7 +875,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public static MatrixBlock toMatrixBlock(JavaPairRDD<MatrixIndexes, MatrixCell> rdd, int rlen, int clen, long nnz)
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		MatrixBlock out = null;
 
@@ -906,7 +906,7 @@ public class SparkExecutionContext extends ExecutionContext
 		out.recomputeNonZeros();
 		out.examSparsity();
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkCollectTime(System.nanoTime() - t0);
 			Statistics.incSparkCollectCount(1);
 		}
@@ -918,7 +918,7 @@ public class SparkExecutionContext extends ExecutionContext
 		throws DMLRuntimeException
 	{
 
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		PartitionedBlock<MatrixBlock> out = new PartitionedBlock<MatrixBlock>(rlen, clen, brlen, bclen);
 		List<Tuple2<MatrixIndexes,MatrixBlock>> list = rdd.collect();
@@ -932,7 +932,7 @@ public class SparkExecutionContext extends ExecutionContext
 			out.setBlock((int)ix.getRowIndex(), (int)ix.getColumnIndex(), block);
 		}
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkCollectTime(System.nanoTime() - t0);
 			Statistics.incSparkCollectCount(1);
 		}
@@ -951,7 +951,7 @@ public class SparkExecutionContext extends ExecutionContext
 	public static FrameBlock toFrameBlock(JavaPairRDD<Long,FrameBlock> rdd, ValueType[] schema, int rlen, int clen)
 		throws DMLRuntimeException
 	{
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 
 		if(schema == null)
 			schema = UtilFunctions.nCopies(clen, ValueType.STRING);
@@ -977,7 +977,7 @@ public class SparkExecutionContext extends ExecutionContext
 			}
 		}
 
-		if (RuntimePlatform.statistics) {
+		if (GlobalState.statistics) {
 			Statistics.accSparkCollectTime(System.nanoTime() - t0);
 			Statistics.incSparkCollectCount(1);
 		}

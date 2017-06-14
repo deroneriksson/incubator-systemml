@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.parser.DMLProgram;
 import org.apache.sysml.parser.DataIdentifier;
@@ -39,6 +38,7 @@ import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysml.runtime.instructions.Instruction;
 import org.apache.sysml.runtime.instructions.InstructionUtils;
+import org.apache.sysml.utils.GlobalState;
 
 public class FunctionCallCPInstruction extends CPInstruction 
 {	
@@ -104,7 +104,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		Instruction tmp = super.preprocessInstruction(ec);
 		
 		//maintain debug state (function call stack) 
-		if( RuntimePlatform.enableDebugMode ) {
+		if( GlobalState.enableDebugMode ) {
 			ec.handleDebugFunctionEntry((FunctionCallCPInstruction) tmp);
 		}
 
@@ -167,7 +167,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		// Create a symbol table under a new execution context for the function invocation,
 		// and copy the function arguments into the created table. 
 		ExecutionContext fn_ec = ExecutionContextFactory.createContext(false, ec.getProgram());
-		if (RuntimePlatform.useAccelerator) {
+		if (GlobalState.useAccelerator) {
 			fn_ec.setGPUContexts(ec.getGPUContexts());
 			ec.setGPUContexts(null);
 			fn_ec.getGPUContext(0).initializeThread();
@@ -205,7 +205,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		// Unpin the pinned variables
 		ec.unpinVariables(_boundInputParamNames, pinStatus);
 
-		if (RuntimePlatform.useAccelerator) {
+		if (GlobalState.useAccelerator) {
 			ec.setGPUContexts(fn_ec.getGPUContexts());
 			fn_ec.setGPUContexts(null);
 			ec.getGPUContext(0).initializeThread();
@@ -237,7 +237,7 @@ public class FunctionCallCPInstruction extends CPInstruction
 		throws DMLRuntimeException 
 	{
 		//maintain debug state (function call stack) 
-		if (RuntimePlatform.enableDebugMode ) {
+		if (GlobalState.enableDebugMode ) {
 			ec.handleDebugFunctionExit( this );
 		}
 		

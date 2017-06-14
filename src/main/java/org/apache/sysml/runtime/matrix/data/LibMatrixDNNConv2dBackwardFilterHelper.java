@@ -20,8 +20,8 @@ package org.apache.sysml.runtime.matrix.data;
 
 import java.util.concurrent.Callable;
 
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.runtime.util.ConvolutionUtils;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.NativeHelper;
 
 public class LibMatrixDNNConv2dBackwardFilterHelper {
@@ -97,13 +97,13 @@ public class LibMatrixDNNConv2dBackwardFilterHelper {
 				rotate180Worker.execute(n, 0);
 				
 				// im2col(input) => _im2ColOutBlock
-				long t1 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t1 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				im2ColWorker.execute(n);
-				long t2 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t2 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				
 				MatrixBlock temp = new MatrixBlock(CRS, K, false);
 				LibMatrixDNNHelper.singleThreadedMatMult(im2ColOutBlock, dout_reshaped, temp, true, true, _params);
-				long t3 = RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t3 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				
 				if(!temp.isEmptyBlock()) {
 					// partialRetBlock is size: [params.C*params.R*params.S, params.K]
@@ -111,13 +111,13 @@ public class LibMatrixDNNConv2dBackwardFilterHelper {
 							LibMatrixDNN._binaryElementWiseAddition);
 				}
 				
-				if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
+				if(GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 					time1 += t2 - t1;
 					time2 += t3 - t2;
 				}
 			}
 			inplaceTransposedAddition(partialRetBlock, _params);
-			if(RuntimePlatform.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
+			if(GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 				LibMatrixDNN.loopedConvBwdFilterIm2ColTime.addAndGet(time1);
 				LibMatrixDNN.loopedConvBwdFilterMatMultTime.addAndGet(time2);
 			}

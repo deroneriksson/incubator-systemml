@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.parser.AssignmentStatement;
 import org.apache.sysml.parser.BinaryExpression;
 import org.apache.sysml.parser.BooleanExpression;
@@ -55,6 +54,7 @@ import org.apache.sysml.parser.Statement;
 import org.apache.sysml.parser.StringIdentifier;
 import org.apache.sysml.parser.dml.DmlSyntacticValidator;
 import org.apache.sysml.parser.pydml.PydmlSyntacticValidator;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * Contains fields and (helper) methods common to {@link DmlSyntacticValidator} and {@link PydmlSyntacticValidator}
@@ -89,7 +89,7 @@ public abstract class CommonSyntacticValidator {
 	}
 
 	protected void notifyErrorListeners(String message, Token op) {
-		if (!RuntimePlatform.validatorIgnoreIssues) {
+		if (!GlobalState.validatorIgnoreIssues) {
 			errorListener.validationError(op.getLine(), op.getCharPositionInLine(), message);
 		}
 	}
@@ -490,7 +490,7 @@ public abstract class CommonSyntacticValidator {
 
 	protected void setPrintStatement(ParserRuleContext ctx, String functionName,
 			ArrayList<ParameterExpression> paramExpression, StatementInfo thisinfo) {
-		if (RuntimePlatform.validatorIgnoreIssues == true) { // create dummy print statement
+		if (GlobalState.validatorIgnoreIssues == true) { // create dummy print statement
 			try {
 				int line = ctx.start.getLine();
 				int col = ctx.start.getCharPositionInLine();

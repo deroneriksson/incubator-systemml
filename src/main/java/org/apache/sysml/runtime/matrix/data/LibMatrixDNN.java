@@ -28,12 +28,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.instructions.InstructionUtils;
 import org.apache.sysml.runtime.matrix.operators.BinaryOperator;
 import org.apache.sysml.runtime.util.ConvolutionUtils;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 /*
@@ -90,7 +90,7 @@ public class LibMatrixDNN {
 	static AtomicLong loopedConvBwdDataCol2ImTime = new AtomicLong(0);
 	
 	public static void appendStatistics(StringBuilder sb) {
-		if(RuntimePlatform.statistics && DISPLAY_STATISTICS) {
+		if(GlobalState.statistics && DISPLAY_STATISTICS) {
 			sb.append("LibMatrixDNN dense count (conv/bwdF/bwdD/im2col/maxBwd):\t" 
 					+ conv2dDenseCount.get() + "/"
 					+ conv2dBwdFilterDenseCount.get() + "/"
@@ -237,7 +237,7 @@ public class LibMatrixDNN {
 		if(params.stride_h <= 0 || params.stride_w <= 0) 
 			throw new DMLRuntimeException("Only positive strides supported:" + params.stride_h + ", " + params.stride_w);
 		
-		if(RuntimePlatform.statistics && DISPLAY_STATISTICS) {
+		if(GlobalState.statistics && DISPLAY_STATISTICS) {
 			if(filter.isInSparseFormat() || dout.isInSparseFormat()) {
 				conv2dBwdDataSparseCount.addAndGet(1);
 			}
@@ -262,7 +262,7 @@ public class LibMatrixDNN {
 		if(params.stride_h <= 0 || params.stride_w <= 0) 
 			throw new DMLRuntimeException("Only positive strides supported:" + params.stride_h + ", " + params.stride_w);
 		
-		if(RuntimePlatform.statistics && DISPLAY_STATISTICS) {
+		if(GlobalState.statistics && DISPLAY_STATISTICS) {
 			if(input.isInSparseFormat() || dout.isInSparseFormat()) {
 				conv2dBwdFilterSparseCount.addAndGet(1);
 			}
@@ -288,7 +288,7 @@ public class LibMatrixDNN {
 		if(params.stride_h <= 0 || params.stride_w <= 0) 
 			throw new DMLRuntimeException("Only positive strides supported:" + params.stride_h + ", " + params.stride_w);
 		
-		if(RuntimePlatform.statistics && DISPLAY_STATISTICS) {
+		if(GlobalState.statistics && DISPLAY_STATISTICS) {
 			if(input.isInSparseFormat() || filter.isInSparseFormat()) {
 				conv2dSparseCount.addAndGet(1);
 			}
@@ -321,7 +321,7 @@ public class LibMatrixDNN {
 			throw new DMLRuntimeException("Incorrect dout dimensions in maxpooling_backward:" + input.getNumRows() + " " + input.getNumColumns() + " " + params.N + " " + params.K*params.P*params.Q);
 		}
 		
-		if(RuntimePlatform.statistics && DISPLAY_STATISTICS) {
+		if(GlobalState.statistics && DISPLAY_STATISTICS) {
 			if(input.isInSparseFormat() || dout.isInSparseFormat()) {
 				maxPoolBwdSparseCount.addAndGet(1);
 			}

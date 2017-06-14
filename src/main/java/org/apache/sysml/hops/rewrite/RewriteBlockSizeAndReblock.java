@@ -21,8 +21,6 @@ package org.apache.sysml.hops.rewrite;
 
 import java.util.ArrayList;
 
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.DataOp;
 import org.apache.sysml.hops.FunctionOp;
@@ -31,6 +29,8 @@ import org.apache.sysml.hops.Hop.FileFormatTypes;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.parser.Expression.DataType;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 /**
  * Rule: BlockSizeAndReblock. For all statement blocks, determine
@@ -127,7 +127,7 @@ public class RewriteBlockSizeAndReblock extends HopRewriteRule
 				} 
 				else if (dop.getDataOpType() == DataOp.DataOpTypes.TRANSIENTWRITE
 						|| dop.getDataOpType() == DataOp.DataOpTypes.TRANSIENTREAD) {
-					if ( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE ) {
+					if ( GlobalState.rtplatform == ExecutionMode.SINGLE_NODE ) {
 						// simply copy the values from its input
 						dop.setRowsInBlock(hop.getInput().get(0).getRowsInBlock());
 						dop.setColsInBlock(hop.getInput().get(0).getColsInBlock());
@@ -217,6 +217,6 @@ public class RewriteBlockSizeAndReblock extends HopRewriteRule
 	}
 	
 	private static boolean isReblockValid() {
-		return ( RuntimePlatform.rtplatform != ExecutionMode.SINGLE_NODE);
+		return ( GlobalState.rtplatform != ExecutionMode.SINGLE_NODE);
 	}
 }

@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.AggUnaryOp;
@@ -61,6 +59,8 @@ import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.instructions.cp.ScalarObjectFactory;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 
 public class HopRewriteUtils 
 {
@@ -686,7 +686,7 @@ public class HopRewriteUtils
 	{
 		//awareness of forced exec single node (e.g., standalone), where we can 
 		//guarantee a single block independent of the size because always in CP.
-		if( RuntimePlatform.rtplatform == ExecutionMode.SINGLE_NODE ) {
+		if( GlobalState.rtplatform == ExecutionMode.SINGLE_NODE ) {
 			return true;
 		}
 		

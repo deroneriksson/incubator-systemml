@@ -34,7 +34,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.Hop.OpOp1;
 import org.apache.sysml.hops.HopsException;
@@ -92,6 +91,7 @@ import org.apache.sysml.runtime.controlprogram.WhileProgramBlock;
 import org.apache.sysml.runtime.instructions.Instruction;
 import org.apache.sysml.runtime.matrix.data.Pair;
 import org.apache.sysml.utils.Explain;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 public class SpoofCompiler 
@@ -335,7 +335,7 @@ public class SpoofCompiler
 		if( roots == null || roots.isEmpty() )
 			return roots;
 	
-		long t0 = RuntimePlatform.statistics ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		ArrayList<Hop> ret = roots;
 		
 		try
@@ -387,14 +387,14 @@ public class SpoofCompiler
 					if( PLAN_CACHE_POLICY!=PlanCachePolicy.NONE )
 						planCache.putPlan(tmp.getValue(), cla);
 				}
-				else if( RuntimePlatform.statistics ) {
+				else if( GlobalState.statistics ) {
 					Statistics.incrementCodegenPlanCacheHits();
 				}
 				
 				//make class available and maintain hits
 				if(cla != null)
 					clas.put(cplan.getKey(), new Pair<Hop[],Class<?>>(tmp.getKey(),cla));
-				if( RuntimePlatform.statistics )
+				if( GlobalState.statistics )
 					Statistics.incrementCodegenPlanCacheTotal();
 			}
 			
@@ -419,7 +419,7 @@ public class SpoofCompiler
 			throw new DMLRuntimeException(ex);
 		}
 		
-		if( RuntimePlatform.statistics ) {
+		if( GlobalState.statistics ) {
 			Statistics.incrementCodegenDAGCompile();
 			Statistics.incrementCodegenCompileTime(System.nanoTime()-t0);
 		}
@@ -564,7 +564,7 @@ public class SpoofCompiler
 			cplans.put(hop.getHopID(), TemplateUtils
 				.createTemplate(memo.getBest(hop.getHopID()).type)
 				.constructCplan(hop, memo, compileLiterals));
-			if( RuntimePlatform.statistics )
+			if( GlobalState.statistics )
 				Statistics.incrementCodegenCPlanCompile(1); 
 		}
 		

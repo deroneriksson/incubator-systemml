@@ -36,8 +36,6 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.RuntimePlatform;
-import org.apache.sysml.api.RuntimePlatform.ExecutionMode;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -52,6 +50,8 @@ import org.apache.sysml.runtime.util.UtilFunctions;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.GlobalState.ExecutionMode;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -251,12 +251,12 @@ public class DataFrameVectorFrameConversionTest extends AutomatedTestBase
 
 	private void testDataFrameConversion(ValueType[] schema, boolean containsID, boolean dense, boolean unknownDims) {
 		boolean oldConfig = DMLScript.USE_LOCAL_SPARK_CONFIG; 
-		ExecutionMode oldPlatform = RuntimePlatform.rtplatform;
+		ExecutionMode oldPlatform = GlobalState.rtplatform;
 
 		try
 		{
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-			RuntimePlatform.rtplatform = ExecutionMode.HYBRID_SPARK;
+			GlobalState.rtplatform = ExecutionMode.HYBRID_SPARK;
 			
 			//generate input data and setup metadata
 			int cols = schema.length + colsVector - 1;
@@ -287,7 +287,7 @@ public class DataFrameVectorFrameConversionTest extends AutomatedTestBase
 		}
 		finally {
 			DMLScript.USE_LOCAL_SPARK_CONFIG = oldConfig;
-			RuntimePlatform.rtplatform = oldPlatform;
+			GlobalState.rtplatform = oldPlatform;
 		}
 	}
 
