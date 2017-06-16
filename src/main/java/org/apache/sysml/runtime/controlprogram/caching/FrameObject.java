@@ -237,6 +237,13 @@ public class FrameObject extends CacheableData<FrameBlock>
 	protected void writeBlobToHDFS(String fname, String ofmt, int rep, FileFormatProperties fprop) 
 		throws IOException, DMLRuntimeException 
 	{
+		try {
+			Class.forName("org.apache.hadoop.conf.Configuration");
+		} catch (ClassNotFoundException e) {
+			// hadoop not available
+			return;
+		}
+
 		OutputInfo oinfo = OutputInfo.stringToOutputInfo(ofmt);
 		FrameWriter writer = FrameWriterFactory.createFrameWriter(oinfo, fprop);
 		writer.writeFrameToHDFS(_data, fname,  getNumRows(), getNumColumns());

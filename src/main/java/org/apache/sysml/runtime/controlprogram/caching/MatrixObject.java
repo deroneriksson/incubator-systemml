@@ -526,6 +526,14 @@ public class MatrixObject extends CacheableData<MatrixBlock>
 	protected void writeBlobToHDFS(String fname, String ofmt, int rep, FileFormatProperties fprop)
 		throws IOException, DMLRuntimeException
 	{
+
+		try {
+			Class.forName("org.apache.hadoop.conf.Configuration");
+		} catch (ClassNotFoundException e) {
+			// hadoop not available
+			return;
+		}
+
 		long begin = 0;
 		if( LOG.isTraceEnabled() ){
 			LOG.trace (" Writing matrix to HDFS...  " + getVarName() + "  Path: " + fname + ", Format: " +

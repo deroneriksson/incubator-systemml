@@ -34,7 +34,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.conf.HadoopConfigurationManager;
+//import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.AggBinaryOp.MMultMethod;
 import org.apache.sysml.hops.DataGenOp;
@@ -106,6 +106,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.data.SparseRowVector;
 import org.apache.sysml.utils.Explain;
+import org.apache.sysml.utils.HadoopUtils;
 import org.apache.sysml.yarn.ropt.YarnClusterAnalyzer;
 
 /**
@@ -1106,7 +1107,14 @@ public class OptimizerRuleBased extends Optimizer
 			
 			//account for remaining hdfs capacity
 			try {
-				FileSystem fs = FileSystem.get(HadoopConfigurationManager.getCachedJobConf());
+				FileSystem fs = null;
+				try {
+//					Class.forName("org.apache.hadoop.fs.FileSystem");
+					Class.forName("org.apache.hadoop.conf.Configuration");
+					fs = HadoopUtils.getFileSystemFromHadoopJobConf();
+				} catch (ClassNotFoundException e) {
+					// hadoop not available
+				}
 				long hdfsCapacityRemain = fs.getStatus().getRemaining();
 				long sizeInputs = 0; //sum of all input sizes (w/o replication)
 				for( String var : partitionedMatrices.keySet() )

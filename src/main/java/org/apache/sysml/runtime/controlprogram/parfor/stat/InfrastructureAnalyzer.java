@@ -95,9 +95,15 @@ public class InfrastructureAnalyzer
 	 */
 	public static int getRemoteParallelNodes() 
 	{
-		if( _remotePar == -1 )
-			analyzeHadoopCluster();
-		
+		if( _remotePar == -1 ) {
+			try {
+				// Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopCluster();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		return _remotePar;
 	}	
 	
@@ -108,8 +114,15 @@ public class InfrastructureAnalyzer
 	 */
 	public static int getRemoteParallelMapTasks()
 	{
-		if( _remoteParMap == -1 )
-			analyzeHadoopCluster();
+		if( _remoteParMap == -1 ) {
+			try {
+				// Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopCluster();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteParMap;
 	}
@@ -126,8 +139,15 @@ public class InfrastructureAnalyzer
 	 */
 	public static int getRemoteParallelReduceTasks()
 	{
-		if( _remoteParReduce == -1 )
-			analyzeHadoopCluster();
+		if( _remoteParReduce == -1 ) {
+			try {
+				// Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopCluster();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteParReduce;
 	}
@@ -212,16 +232,30 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getRemoteMaxMemorySortBuffer( )
 	{
-		if( _remoteMRSortMem == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteMRSortMem == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _remoteMRSortMem;		
 	}
 	
 	public static boolean isLocalMode()
 	{
-		if( _remoteJVMMaxMemMap == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemMap == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _localJT;		
 	}
@@ -283,16 +317,30 @@ public class InfrastructureAnalyzer
 	 */
 	public static long getHDFSBlockSize()
 	{
-		if( _blocksize == -1 )
-			analyzeHadoopConfiguration();
+		if( _blocksize == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _blocksize;		
 	}
 
 	public static boolean isYarnEnabled()
 	{
-		if( _remoteJVMMaxMemMap == -1 )
-			analyzeHadoopConfiguration();
+		if( _remoteJVMMaxMemMap == -1 ) {
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				analyzeHadoopConfiguration();
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
+		}
 		
 		return _yarnEnabled;
 	}

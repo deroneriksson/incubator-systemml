@@ -993,10 +993,16 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			{
 				mc = new MatrixCharacteristics(mc.getRows(), mc.getCols(), ConfigurationManager.getBlocksize(), ConfigurationManager.getBlocksize(), mc.getNonZeros());
 			}
-			
-			//write the actual meta data file
-			MapReduceTool.writeMetaDataFile (filePathAndName + ".mtd", valueType, 
-					getSchema(), dataType, mc, oinfo, formatProperties);
+
+			try {
+//				Class.forName("org.apache.hadoop.fs.FileSystem");
+				Class.forName("org.apache.hadoop.conf.Configuration");
+				//write the actual meta data file
+				MapReduceTool.writeMetaDataFile (filePathAndName + ".mtd", valueType, 
+						getSchema(), dataType, mc, oinfo, formatProperties);
+			} catch (ClassNotFoundException e) {
+				// hadoop not available
+			}
 		}
 	}
 
