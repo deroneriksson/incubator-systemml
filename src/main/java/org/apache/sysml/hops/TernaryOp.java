@@ -19,31 +19,31 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
 import org.apache.sysml.lops.CentralMoment;
 import org.apache.sysml.lops.CoVariance;
 import org.apache.sysml.lops.CombineBinary;
+import org.apache.sysml.lops.CombineBinary.OperationTypes;
 import org.apache.sysml.lops.CombineTernary;
 import org.apache.sysml.lops.Group;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.LopsException;
+import org.apache.sysml.lops.PartialAggregate.CorrectionLocationType;
 import org.apache.sysml.lops.PickByCount;
 import org.apache.sysml.lops.PlusMult;
 import org.apache.sysml.lops.RepMat;
 import org.apache.sysml.lops.SortKeys;
 import org.apache.sysml.lops.Ternary;
 import org.apache.sysml.lops.UnaryCP;
-import org.apache.sysml.lops.CombineBinary.OperationTypes;
-import org.apache.sysml.lops.LopProperties.ExecType;
-import org.apache.sysml.lops.PartialAggregate.CorrectionLocationType;
-import org.apache.sysml.parser.Statement;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
+import org.apache.sysml.parser.Statement;
 import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
+import org.apache.sysml.utils.GlobalState;
 
 /** Primary use cases for now, are
  * 		quantile (<n-1-matrix>, <n-1-matrix>, <literal>):      quantile (A, w, 0.5)
@@ -650,7 +650,7 @@ public class TernaryOp extends Hop
 			throw new HopsException("Unexpected operation: " + _op + ", expecting " + OpOp3.PLUS_MULT + " or" +  OpOp3.MINUS_MULT);
 		
 		ExecType et = null;
-		if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < GPUContextPool
+		if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < GPUContextPool
 				.initialGPUMemBudget()) )
 			et = ExecType.GPU;
 		else

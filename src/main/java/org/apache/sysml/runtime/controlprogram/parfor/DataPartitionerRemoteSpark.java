@@ -20,8 +20,6 @@
 package org.apache.sysml.runtime.controlprogram.parfor;
 
 import org.apache.spark.api.java.JavaPairRDD;
-
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PartitionFormat;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
@@ -34,6 +32,7 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 /**
@@ -61,7 +60,7 @@ public class DataPartitionerRemoteSpark extends DataPartitioner
 			throws DMLRuntimeException 
 	{
 		String jobname = "ParFor-DPSP";
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		SparkExecutionContext sec = (SparkExecutionContext)_ec;
 
@@ -91,7 +90,7 @@ public class DataPartitionerRemoteSpark extends DataPartitioner
 		//maintain statistics
 	    Statistics.incrementNoOfCompiledSPInst();
 	    Statistics.incrementNoOfExecutedSPInst();
-	    if( DMLScript.STATISTICS ){
+	    if( GlobalState.statistics ){
 			Statistics.maintainCPHeavyHitters(jobname, System.nanoTime()-t0);
 		}
 	}

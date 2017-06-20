@@ -19,10 +19,7 @@
 
 package org.apache.sysml.test.integration.functions.transform;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.io.FrameReader;
 import org.apache.sysml.runtime.io.FrameReaderFactory;
 import org.apache.sysml.runtime.matrix.data.CSVFileFormatProperties;
@@ -32,7 +29,10 @@ import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * This test is similar to TransformFrameEncodeDecode test but specifically
@@ -57,17 +57,17 @@ public class TransformFrameEncodeDecodeTokenTest extends AutomatedTestBase
 	
 	@Test
 	public void test20newsRecodeSingleNodeCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SINGLE_NODE, "csv");
+		runTransformTest(ExecutionMode.SINGLE_NODE, "csv");
 	}
 	
 	@Test
 	public void test20newsRecodeSparkCSV() {
-		runTransformTest(RUNTIME_PLATFORM.SPARK, "csv");
+		runTransformTest(ExecutionMode.SPARK, "csv");
 	}
 	
 	@Test
 	public void test20newsRecodeHybridCSV() {
-		runTransformTest(RUNTIME_PLATFORM.HYBRID_SPARK, "csv");
+		runTransformTest(ExecutionMode.HYBRID_SPARK, "csv");
 	}
 	
 	/**
@@ -76,14 +76,14 @@ public class TransformFrameEncodeDecodeTokenTest extends AutomatedTestBase
 	 * @param ofmt
 	 * @param dataset
 	 */
-	private void runTransformTest( RUNTIME_PLATFORM rt, String ofmt )
+	private void runTransformTest( ExecutionMode rt, String ofmt )
 	{
 		//set runtime platform
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK || rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK)
+		if( rtplatform == ExecutionMode.SPARK || rtplatform == ExecutionMode.HYBRID_SPARK)
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		if( !ofmt.equals("csv") )
@@ -114,7 +114,7 @@ public class TransformFrameEncodeDecodeTokenTest extends AutomatedTestBase
 			String[][] R2 = DataConverter.convertToStringFrame(fb2);
 			TestUtils.compareFrames(R1, R2, R1.length, R1[0].length);			
 			
-			if( rt == RUNTIME_PLATFORM.HYBRID_SPARK ) {
+			if( rt == ExecutionMode.HYBRID_SPARK ) {
 				Assert.assertEquals("Wrong number of executed Spark instructions: " + 
 					Statistics.getNoOfExecutedSPInst(), new Long(2), new Long(Statistics.getNoOfExecutedSPInst()));
 			}

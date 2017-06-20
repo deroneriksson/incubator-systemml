@@ -21,13 +21,13 @@ package org.apache.sysml.test.integration.functions.indexing;
 
 import java.util.HashMap;
 
-import org.junit.Test;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class LeftIndexingUpdateInPlaceTest extends AutomatedTestBase
 {
@@ -117,8 +117,8 @@ public class LeftIndexingUpdateInPlaceTest extends AutomatedTestBase
 	 */
 	public void runLeftIndexingUpdateInPlaceTest(boolean sparseM1, boolean sparseM2, boolean vectorM2, boolean emptyM2) 
 	{
-		RUNTIME_PLATFORM oldRTP = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode oldRTP = rtplatform;
+		rtplatform = ExecutionMode.HYBRID;
 		
 		try {
 		    TestConfiguration config = getTestConfiguration(TEST_NAME);

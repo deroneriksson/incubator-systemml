@@ -20,7 +20,6 @@
 package org.apache.sysml.test.integration.functions.frame;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.io.FrameReaderFactory;
@@ -32,6 +31,7 @@ import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 
 public class FrameFunctionTest extends AutomatedTestBase
@@ -76,15 +76,15 @@ public class FrameFunctionTest extends AutomatedTestBase
 	private void runFrameFunctionTest( ExecType et, boolean IPA )
 	{
 		//rtplatform for MR
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		switch( et ){
-			case SPARK: rtplatform = RUNTIME_PLATFORM.SPARK; break;
-			default: rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK; break;
+			case SPARK: rtplatform = ExecutionMode.SPARK; break;
+			default: rtplatform = ExecutionMode.HYBRID_SPARK; break;
 		}
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK 
-			|| rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK )
+		if( rtplatform == ExecutionMode.SPARK 
+			|| rtplatform == ExecutionMode.HYBRID_SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 	
 		boolean oldIPA = OptimizerUtils.ALLOW_INTER_PROCEDURAL_ANALYSIS;

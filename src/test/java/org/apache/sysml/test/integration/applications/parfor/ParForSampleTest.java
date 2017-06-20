@@ -23,16 +23,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
@@ -97,15 +97,15 @@ public class ParForSampleTest extends AutomatedTestBase
 	@SuppressWarnings({ "unchecked" })
 	private void runParForSampleTest( boolean sparse, ExecType et )
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		switch( et ){
-			case MR: rtplatform = RUNTIME_PLATFORM.HADOOP; break;
-			case SPARK: rtplatform = RUNTIME_PLATFORM.SPARK; break;
-			default: rtplatform = RUNTIME_PLATFORM.HYBRID; break;
+			case MR: rtplatform = ExecutionMode.HADOOP; break;
+			case SPARK: rtplatform = ExecutionMode.SPARK; break;
+			default: rtplatform = ExecutionMode.HYBRID; break;
 		}
 	
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 

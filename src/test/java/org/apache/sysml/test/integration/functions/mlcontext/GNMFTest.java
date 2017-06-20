@@ -36,7 +36,6 @@ import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.api.mlcontext.MLContext;
 import org.apache.sysml.api.mlcontext.MLContextUtil;
 import org.apache.sysml.api.mlcontext.MLResults;
@@ -57,6 +56,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -162,11 +163,11 @@ public class GNMFTest extends AutomatedTestBase
 		
 		boolean oldConfig = DMLScript.USE_LOCAL_SPARK_CONFIG; 
 		DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-		RUNTIME_PLATFORM oldRT = DMLScript.rtplatform;
+		ExecutionMode oldRT = GlobalState.rtplatform;
 		
 		try 
 		{
-			DMLScript.rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			GlobalState.rtplatform = ExecutionMode.HYBRID_SPARK;
 
 			Script script = ScriptFactory.dmlFromFile(fullDMLScriptName);
 			// set positional argument values
@@ -252,7 +253,7 @@ public class GNMFTest extends AutomatedTestBase
 			TestUtils.compareMatrices(hmHDML, hmHR, 0.000001, "hmHDML", "hmHR");
 		}
 		finally {
-			DMLScript.rtplatform = oldRT;
+			GlobalState.rtplatform = oldRT;
 			DMLScript.USE_LOCAL_SPARK_CONFIG = oldConfig;
 		}
 	}

@@ -19,10 +19,9 @@
 
 package org.apache.sysml.runtime.controlprogram.context;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
-import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.controlprogram.Program;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 
 public class ExecutionContextFactory 
 {
@@ -40,12 +39,12 @@ public class ExecutionContextFactory
 	{
 		ExecutionContext ec = null;
 		
-		switch( DMLScript.rtplatform )
+		switch( GlobalState.rtplatform )
 		{
 			case SINGLE_NODE:
 				//NOTE: even in case of forced singlenode operations, users might still 
 				//want to run remote parfor which requires the correct execution context
-				if( OptimizerUtils.getDefaultExecutionMode()==RUNTIME_PLATFORM.HYBRID)
+				if( GlobalState.getDefaultExecutionMode()==ExecutionMode.HYBRID)
 					ec = new ExecutionContext(allocateVars, prog);
 				else
 					ec = new SparkExecutionContext(allocateVars, prog);

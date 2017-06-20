@@ -25,14 +25,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.Assert;
+import org.junit.runners.Parameterized.Parameters;
 
 public abstract class ID3Test extends AutomatedTestBase
 {
@@ -101,7 +100,7 @@ public abstract class ID3Test extends AutomatedTestBase
 		runRScript(true);
         
 		//check also num actually executed jobs
-		if(AutomatedTestBase.rtplatform != RUNTIME_PLATFORM.SPARK) {
+		if(AutomatedTestBase.rtplatform != ExecutionMode.SPARK) {
 			long actualMR = Statistics.getNoOfExecutedMRJobs();
 			Assert.assertEquals("Wrong number of executed jobs: expected 0 but executed "+actualMR+".", 0, actualMR);
 		}

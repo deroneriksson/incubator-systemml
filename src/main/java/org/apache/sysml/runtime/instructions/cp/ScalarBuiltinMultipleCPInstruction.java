@@ -22,12 +22,12 @@ package org.apache.sysml.runtime.instructions.cp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.lops.MultipleCP;
 import org.apache.sysml.parser.Expression;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.matrix.operators.Operator;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * The ScalarBuiltinMultipleCPInstruction class is responsible for printf-style
@@ -84,7 +84,7 @@ public class ScalarBuiltinMultipleCPInstruction extends BuiltinMultipleCPInstruc
 			}
 
 			String result = String.format(formatString, objects);
-			if (!DMLScript.suppressPrint2Stdout()) {
+			if (!GlobalState.SUPPRESS_PRINT_TO_STDOUT) {
 				System.out.println(result);
 			}
 

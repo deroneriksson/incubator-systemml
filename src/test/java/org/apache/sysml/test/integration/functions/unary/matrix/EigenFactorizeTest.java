@@ -19,12 +19,11 @@
 
 package org.apache.sysml.test.integration.functions.unary.matrix;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class EigenFactorizeTest extends AutomatedTestBase 
 {
@@ -50,56 +49,56 @@ public class EigenFactorizeTest extends AutomatedTestBase
 	@Test
 	public void testEigenFactorizeDenseCP() 
 	{
-		runTestEigenFactorize( rows1, RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestEigenFactorize( rows1, ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testEigenFactorizeDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTestEigenFactorize( rows1, RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+		runTestEigenFactorize( rows1, ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testEigenFactorizeDenseMR() 
 	{
-		runTestEigenFactorize( rows1, RUNTIME_PLATFORM.HADOOP );
+		runTestEigenFactorize( rows1, ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testEigenFactorizeDenseHybrid() 
 	{
-		runTestEigenFactorize( rows1, RUNTIME_PLATFORM.HYBRID );
+		runTestEigenFactorize( rows1, ExecutionMode.HYBRID );
 	}
 	
 	@Test
 	public void testLargeEigenFactorizeDenseCP() 
 	{
-		runTestEigenFactorize( rows2, RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestEigenFactorize( rows2, ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testLargeEigenFactorizeDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-		runTestEigenFactorize( rows2, RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+		runTestEigenFactorize( rows2, ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testLargeEigenFactorizeDenseMR() 
 	{
-		runTestEigenFactorize( rows2, RUNTIME_PLATFORM.HADOOP );
+		runTestEigenFactorize( rows2, ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testLargeEigenFactorizeDenseHybrid() 
 	{
-		runTestEigenFactorize( rows2, RUNTIME_PLATFORM.HYBRID );
+		runTestEigenFactorize( rows2, ExecutionMode.HYBRID );
 	}
 	
-	private void runTestEigenFactorize( int rows, RUNTIME_PLATFORM rt)
+	private void runTestEigenFactorize( int rows, ExecutionMode rt)
 	{		
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 		
 		try

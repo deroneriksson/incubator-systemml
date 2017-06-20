@@ -22,14 +22,13 @@ package org.apache.sysml.test.integration.functions.reorg;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.junit.Test;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class DiagV2MTest extends AutomatedTestBase
 {
@@ -47,15 +46,15 @@ public class DiagV2MTest extends AutomatedTestBase
 			new TestConfiguration(TEST_CLASS_DIR, "DiagV2MTest", new String[] {"C"}));
 	}
 	
-	public void commonReorgTest(RUNTIME_PLATFORM platform)
+	public void commonReorgTest(ExecutionMode platform)
 	{
 		TestConfiguration config = getTestConfiguration("DiagV2MTest");
 	    
-		RUNTIME_PLATFORM prevPlfm=rtplatform;
+		ExecutionMode prevPlfm=rtplatform;
 		
 	    rtplatform = platform;
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 		try {
@@ -99,17 +98,17 @@ public class DiagV2MTest extends AutomatedTestBase
 	
 	@Test
 	public void testDiagV2MMR() {
-		commonReorgTest(RUNTIME_PLATFORM.HADOOP);
+		commonReorgTest(ExecutionMode.HADOOP);
 	}   
 	
 	@Test
 	public void testDiagV2MCP() {
-		commonReorgTest(RUNTIME_PLATFORM.SINGLE_NODE);
+		commonReorgTest(ExecutionMode.SINGLE_NODE);
 	}
 	
 	@Test
 	public void testDiagV2MSP() {
-		commonReorgTest(RUNTIME_PLATFORM.SPARK);
+		commonReorgTest(ExecutionMode.SPARK);
 	}
 }
 

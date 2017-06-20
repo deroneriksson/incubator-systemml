@@ -19,12 +19,11 @@
 
 package org.apache.sysml.test.integration.functions.unary.matrix;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class LUFactorizeTest extends AutomatedTestBase 
 {
@@ -49,56 +48,56 @@ public class LUFactorizeTest extends AutomatedTestBase
 	@Test
 	public void testLUFactorizeDenseCP() 
 	{
-		runTestLUFactorize( rows1, RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestLUFactorize( rows1, ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testLUFactorizeDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-			runTestLUFactorize( rows1, RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+			runTestLUFactorize( rows1, ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testLUFactorizeDenseMR() 
 	{
-		runTestLUFactorize( rows1, RUNTIME_PLATFORM.HADOOP );
+		runTestLUFactorize( rows1, ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testLUFactorizeDenseHybrid() 
 	{
-		runTestLUFactorize( rows1, RUNTIME_PLATFORM.HYBRID );
+		runTestLUFactorize( rows1, ExecutionMode.HYBRID );
 	}
 	
 	@Test
 	public void testLargeLUFactorizeDenseCP() 
 	{
-		runTestLUFactorize( rows2, RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestLUFactorize( rows2, ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testLargeLUFactorizeDenseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-			runTestLUFactorize( rows2, RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+			runTestLUFactorize( rows2, ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testLargeLUFactorizeDenseMR() 
 	{
-		runTestLUFactorize( rows2, RUNTIME_PLATFORM.HADOOP );
+		runTestLUFactorize( rows2, ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testLargeLUFactorizeDenseHybrid() 
 	{
-		runTestLUFactorize( rows2, RUNTIME_PLATFORM.HYBRID );
+		runTestLUFactorize( rows2, ExecutionMode.HYBRID );
 	}
 	
-	private void runTestLUFactorize( int rows, RUNTIME_PLATFORM rt)
+	private void runTestLUFactorize( int rows, ExecutionMode rt)
 	{		
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 		
 		try

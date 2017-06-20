@@ -31,7 +31,6 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.parser.Expression.DataType;
@@ -53,6 +52,7 @@ import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 /**
@@ -174,7 +174,7 @@ public class ResultMergeRemoteMR extends ResultMerge
 			throws DMLRuntimeException 
 	{
 		String jobname = "ParFor-RMMR";
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		JobConf job = new JobConf( ResultMergeRemoteMR.class );
 		job.setJobName(jobname+_pfid);
@@ -318,7 +318,7 @@ public class ResultMergeRemoteMR extends ResultMerge
 			throw new DMLRuntimeException(ex);
 		}		
 		
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			Statistics.maintainCPHeavyHitters("MR-Job_"+jobname, t1-t0);
 		}

@@ -42,7 +42,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.parser.DataExpression;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
@@ -228,7 +228,7 @@ public class MapReduceTool
 			throw new IOException("Cannot merge files into different target file system.");
 		FileSystem fs = IOUtilFunctions.getFileSystem(pathOrig);
 		FileUtil.copyMerge(fs, pathOrig, fs, pathNew, true, 
-			ConfigurationManager.getCachedJobConf(), null);
+			HadoopConfigurationManager.getCachedJobConf(), null);
 	}
 
 	public static void copyFileOnHDFS(String originalDir, String newDir) throws IOException {
@@ -237,7 +237,7 @@ public class MapReduceTool
 		boolean deleteSource = false;
 		boolean overwrite = true;
 		
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		FileSystem fs = IOUtilFunctions.getFileSystem(originalPath, job);
 		if (fs.exists(originalPath)) {
 			FileUtil.copy(fs, originalPath, fs, newPath, deleteSource, overwrite, job);

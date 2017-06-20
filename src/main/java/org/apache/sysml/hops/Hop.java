@@ -25,8 +25,6 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.lops.CSVReBlock;
 import org.apache.sysml.lops.Checkpoint;
@@ -48,6 +46,8 @@ import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 
 
 public abstract class Hop 
@@ -190,11 +190,11 @@ public abstract class Hop
 	
 	public void checkAndSetForcedPlatform()
 	{
-		if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE )
+		if ( GlobalState.rtplatform == ExecutionMode.SINGLE_NODE )
 			_etypeForced = ExecType.CP;
-		else if ( DMLScript.rtplatform == RUNTIME_PLATFORM.HADOOP )
+		else if ( GlobalState.rtplatform == ExecutionMode.HADOOP )
 			_etypeForced = ExecType.MR;
-		else if ( DMLScript.rtplatform == RUNTIME_PLATFORM.SPARK )
+		else if ( GlobalState.rtplatform == ExecutionMode.SPARK )
 			_etypeForced = ExecType.SPARK;
 	}
 	
@@ -219,9 +219,9 @@ public abstract class Hop
 			
 			//force exec type mr if necessary
 			if( invalid ) { 
-				if( DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID )
+				if( GlobalState.rtplatform == ExecutionMode.HYBRID )
 					_etype = ExecType.MR;
-				else if( DMLScript.rtplatform == RUNTIME_PLATFORM.HYBRID_SPARK )
+				else if( GlobalState.rtplatform == ExecutionMode.HYBRID_SPARK )
 					_etype = ExecType.SPARK;
 			}
 		}
@@ -288,7 +288,7 @@ public abstract class Hop
 	{
 		//determine execution type
 		ExecType et = ExecType.CP;
-		if( DMLScript.rtplatform != RUNTIME_PLATFORM.SINGLE_NODE 
+		if( GlobalState.rtplatform != ExecutionMode.SINGLE_NODE 
 			&& !(getDataType()==DataType.SCALAR) )
 		{
 			et = OptimizerUtils.isSparkExecutionMode() ? ExecType.SPARK : ExecType.MR;
@@ -770,9 +770,9 @@ public abstract class Hop
 			et = ExecType.CP;
 		}
 		else {
-			if( DMLScript.rtplatform == DMLScript.RUNTIME_PLATFORM.HYBRID )
+			if( GlobalState.rtplatform == ExecutionMode.HYBRID )
 				et = ExecType.MR;
-			else if( DMLScript.rtplatform == DMLScript.RUNTIME_PLATFORM.HYBRID_SPARK )
+			else if( GlobalState.rtplatform == ExecutionMode.HYBRID_SPARK )
 				et = ExecType.SPARK;
 			
 			c = '*';
@@ -788,7 +788,7 @@ public abstract class Hop
 	}
 	
 	protected ExecType findGPUExecTypeByMemEstimate(ExecType et) {
-		if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < GPUContextPool
+		if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < GPUContextPool
 				.initialGPUMemBudget())) {
 			return ExecType.GPU;
 		}

@@ -19,9 +19,6 @@
 
 package org.apache.sysml.test.integration.functions.data;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.ValueType;
@@ -31,6 +28,9 @@ import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
@@ -316,8 +316,8 @@ public class FullStringInitializeTest extends AutomatedTestBase
 	private void runStringInitializeTest( InputType intype, ValueType vt, boolean sparse, ErrorType errtype, ExecType instType)
 	{
 		//rtplatform for MR
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = (instType==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = (instType==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		
 		try
 		{

@@ -21,12 +21,11 @@ package org.apache.sysml.test.integration.functions.io.csv;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 /**
  * JUnit Test cases to evaluate the functionality of reading CSV files.
@@ -55,47 +54,47 @@ public class WriteCSVTest extends AutomatedTestBase
 	
 	@Test
 	public void testCSV1_CP() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HYBRID, true, ":", true);
+		runCSVWriteTest(ExecutionMode.HYBRID, true, ":", true);
 	}
 	
 	@Test
 	public void testCSV1_MR() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HADOOP, true, ":", true);
+		runCSVWriteTest(ExecutionMode.HADOOP, true, ":", true);
 	}
 	
 	@Test
 	public void testCSV2_CP() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HYBRID, false, ":", true);
+		runCSVWriteTest(ExecutionMode.HYBRID, false, ":", true);
 	}
 	
 	@Test
 	public void testCSV2_MR() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HADOOP, false, ":", true);
+		runCSVWriteTest(ExecutionMode.HADOOP, false, ":", true);
 	}
 	
 	@Test
 	public void testCSV3_CP() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HYBRID, false, ":", false);
+		runCSVWriteTest(ExecutionMode.HYBRID, false, ":", false);
 	}
 	
 	@Test
 	public void testCSV3_MR() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HADOOP, false, ":", false);
+		runCSVWriteTest(ExecutionMode.HADOOP, false, ":", false);
 	}
 	
 	@Test
 	public void testCSV4_CP() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HYBRID, false, ".", false);
+		runCSVWriteTest(ExecutionMode.HYBRID, false, ".", false);
 	}
 	
 	@Test
 	public void testCSV4_MR() throws IOException {
-		runCSVWriteTest(RUNTIME_PLATFORM.HADOOP, false, ".", false);
+		runCSVWriteTest(ExecutionMode.HADOOP, false, ".", false);
 	}
 	
-	private void runCSVWriteTest(RUNTIME_PLATFORM platform, boolean header, String sep, boolean sparse) throws IOException {
+	private void runCSVWriteTest(ExecutionMode platform, boolean header, String sep, boolean sparse) throws IOException {
 		
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
+		ExecutionMode oldPlatform = rtplatform;
 		rtplatform = platform;
 		
 		TestConfiguration config = getTestConfiguration(TEST_NAME);

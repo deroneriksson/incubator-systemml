@@ -59,6 +59,7 @@ import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.debug.DMLDebugger;
 import org.apache.sysml.debug.DMLDebuggerException;
 import org.apache.sysml.debug.DMLDebuggerProgramInfo;
@@ -87,14 +88,15 @@ import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
-import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.CleanupMR;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Explain;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Explain.ExplainCounts;
 import org.apache.sysml.utils.Explain.ExplainType;
 import org.apache.sysml.utils.Statistics;
@@ -103,15 +105,7 @@ import org.apache.sysml.yarn.DMLYarnClientProxy;
 
 
 public class DMLScript 
-{	
-	public enum RUNTIME_PLATFORM { 
-		HADOOP, 	    // execute all matrix operations in MR
-		SINGLE_NODE,    // execute all matrix operations in CP
-		HYBRID,         // execute matrix operations in CP or MR
-		HYBRID_SPARK,   // execute matrix operations in CP or Spark
-		SPARK			// execute matrix operations in Spark
-	}
-
+{
 	/**
 	 * Set of DMLOptions that can be set through the command line
 	 * and {@link org.apache.sysml.api.mlcontext.MLContext}
@@ -126,7 +120,7 @@ public class DMLScript
 		public boolean              stats         = false;            // Whether to record and print the statistics
 		public int                  statsCount    = 10;	              // Default statistics count
 		public Explain.ExplainType  explainType   = Explain.ExplainType.NONE;  // Whether to print the "Explain" and if so, what type
-		public DMLScript.RUNTIME_PLATFORM execMode = OptimizerUtils.getDefaultExecutionMode();  // Execution mode standalone, MR, Spark or a hybrid
+		public ExecutionMode        execMode      = GlobalState.getDefaultExecutionMode();  // Execution mode standalone, MR, Spark or a hybrid
 		public boolean              gpu           = false;            // Whether to use the GPU
 		public boolean              forceGPU      = false;            // Whether to ignore memory & estimates and always use the GPU
 		public boolean              debug         = false;            // to go into debug mode to be able to step through a program
@@ -158,65 +152,14 @@ public class DMLScript
 		}
 	}
 
-	public static RUNTIME_PLATFORM  rtplatform          = DMLOptions.defaultOptions.execMode;    // the execution mode
-	public static boolean           STATISTICS          = DMLOptions.defaultOptions.stats;       // whether to print statistics
 	public static int               STATISTICS_COUNT    = DMLOptions.defaultOptions.statsCount;  // statistics maximum heavy hitter count
-	public static boolean           ENABLE_DEBUG_MODE   = DMLOptions.defaultOptions.debug;       // debug mode
 	public static ExplainType       EXPLAIN             = DMLOptions.defaultOptions.explainType; // explain type
 	public static String            DML_FILE_PATH_ANTLR_PARSER = DMLOptions.defaultOptions.filePath; // filename of dml/pydml script
 
-	/**
-	 * Global variable indicating the script type (DML or PYDML). Can be used
-	 * for DML/PYDML-specific tasks, such as outputting booleans in the correct
-	 * case (TRUE/FALSE for DML and True/False for PYDML).
-	 */
-	public static ScriptType        SCRIPT_TYPE         = DMLOptions.defaultOptions.scriptType;
-	public static boolean           USE_ACCELERATOR     = DMLOptions.defaultOptions.gpu;
-	public static boolean           FORCE_ACCELERATOR   = DMLOptions.defaultOptions.forceGPU;
-
-
-	public static boolean _suppressPrint2Stdout = false;  // flag that indicates whether or not to suppress any prints to stdout
 	public static boolean USE_LOCAL_SPARK_CONFIG = false; //set default local spark configuration - used for local testing
-	public static boolean _activeAM = false;
-	/**
-	 * If true, allow DMLProgram to be generated while not halting due to validation errors/warnings
-	 */
-	public static boolean VALIDATOR_IGNORE_ISSUES = false;
 
-	public static String _uuid = IDHandler.createDistributedUniqueID();
 	private static final Log LOG = LogFactory.getLog(DMLScript.class.getName());
 	
-	///////////////////////////////
-	// public external interface
-	////////
-	
-	public static String getUUID() {
-		return _uuid;
-	}
-
-	/**
-	 * Used to set master UUID on all nodes (in parfor remote_mr, where DMLScript passed) 
-	 * in order to simplify cleanup of scratch_space and local working dirs.
-	 * 
-	 * @param uuid master UUID to set on all nodes
-	 */
-	public static void setUUID(String uuid) 
-	{
-		_uuid = uuid;
-	}
-	
-	public static boolean suppressPrint2Stdout() {
-		return _suppressPrint2Stdout;
-	}
-	
-	public static void setActiveAM(){
-		_activeAM = true;
-	}
-	
-	public static boolean isActiveAM(){
-		return _activeAM;
-	}
-
 	/**
 	 *
 	 * @param args command-line arguments
@@ -226,7 +169,7 @@ public class DMLScript
 	public static void main(String[] args)
 		throws IOException, DMLException
 	{
-		Configuration conf = new Configuration(ConfigurationManager.getCachedJobConf());
+		Configuration conf = new Configuration(HadoopConfigurationManager.getCachedJobConf());
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
 		try {
@@ -269,11 +212,11 @@ public class DMLScript
 		if (line.hasOption("exec")){
 			String execMode = line.getOptionValue("exec");
 			if (execMode != null){
-				if (execMode.equalsIgnoreCase("hadoop")) dmlOptions.execMode = RUNTIME_PLATFORM.HADOOP;
-				else if (execMode.equalsIgnoreCase("singlenode")) dmlOptions.execMode = RUNTIME_PLATFORM.SINGLE_NODE;
-				else if (execMode.equalsIgnoreCase("hybrid")) dmlOptions.execMode = RUNTIME_PLATFORM.HYBRID;
-				else if (execMode.equalsIgnoreCase("hybrid_spark")) dmlOptions.execMode = RUNTIME_PLATFORM.HYBRID_SPARK;
-				else if (execMode.equalsIgnoreCase("spark")) dmlOptions.execMode = RUNTIME_PLATFORM.SPARK;
+				if (execMode.equalsIgnoreCase("hadoop")) dmlOptions.execMode = ExecutionMode.HADOOP;
+				else if (execMode.equalsIgnoreCase("singlenode")) dmlOptions.execMode = ExecutionMode.SINGLE_NODE;
+				else if (execMode.equalsIgnoreCase("hybrid")) dmlOptions.execMode = ExecutionMode.HYBRID;
+				else if (execMode.equalsIgnoreCase("hybrid_spark")) dmlOptions.execMode = ExecutionMode.HYBRID_SPARK;
+				else if (execMode.equalsIgnoreCase("spark")) dmlOptions.execMode = ExecutionMode.SPARK;
 				else throw new org.apache.commons.cli.ParseException("Invalid argument specified for -exec option, must be one of [hadoop, singlenode, hybrid, hybrid_spark, spark]");
 			}
 		}
@@ -445,7 +388,7 @@ public class DMLScript
 		throws DMLException
 	{
 		//parse arguments and set execution properties
-		RUNTIME_PLATFORM oldrtplatform  = rtplatform;  //keep old rtplatform
+		ExecutionMode oldrtplatform  = GlobalState.rtplatform;  //keep old rtplatform
 		ExplainType oldexplain          = EXPLAIN;     //keep old explain
 
 		Options options = createCLIOptions();
@@ -456,14 +399,14 @@ public class DMLScript
 			// String[] scriptArgs = null; //optional script arguments
 			// boolean namedScriptArgs = false;
 
-			STATISTICS        = dmlOptions.stats;
+			GlobalState.statistics = dmlOptions.stats;
 			STATISTICS_COUNT  = dmlOptions.statsCount;
-			USE_ACCELERATOR   = dmlOptions.gpu;
-			FORCE_ACCELERATOR = dmlOptions.forceGPU;
+			GlobalState.useAccelerator = dmlOptions.gpu;
+			GlobalState.forceAccelerator = dmlOptions.forceGPU;
 			EXPLAIN           = dmlOptions.explainType;
-			ENABLE_DEBUG_MODE = dmlOptions.debug;
-			SCRIPT_TYPE       = dmlOptions.scriptType;
-			rtplatform        = dmlOptions.execMode;
+			GlobalState.enableDebugMode = dmlOptions.debug;
+			GlobalState.scriptType = dmlOptions.scriptType;
+			GlobalState.rtplatform = dmlOptions.execMode;
 
 			String fnameOptConfig = dmlOptions.configFile;
 			boolean isFile = dmlOptions.filePath != null;
@@ -483,12 +426,12 @@ public class DMLScript
 			}
 
 			//set log level
-			if (!ENABLE_DEBUG_MODE)
+			if (!GlobalState.enableDebugMode)
 				setLoggingProperties( conf );
 		
 			//Step 2: prepare script invocation
 			if (isFile && StringUtils.endsWithIgnoreCase(fileOrScript, ".pydml")) {
-				SCRIPT_TYPE = ScriptType.PYDML;
+				GlobalState.scriptType = ScriptType.PYDML;
 			}
 
 			String dmlScriptStr = readDMLScript(isFile, fileOrScript);
@@ -498,12 +441,12 @@ public class DMLScript
 			
 			//Step 3: invoke dml script
 			printInvocationInfo(fileOrScript, fnameOptConfig, argVals);
-			if (ENABLE_DEBUG_MODE) {
+			if (GlobalState.enableDebugMode) {
 				// inner try loop is just to isolate the debug exception, which will allow to manage the bugs from debugger v/s runtime
-				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, SCRIPT_TYPE);
+				launchDebugger(dmlScriptStr, fnameOptConfig, argVals, GlobalState.scriptType);
 			}
 			else {
-				execute(dmlScriptStr, fnameOptConfig, argVals, args, SCRIPT_TYPE);
+				execute(dmlScriptStr, fnameOptConfig, argVals, args, GlobalState.scriptType);
 			}
 
 		}
@@ -535,12 +478,81 @@ public class DMLScript
 		finally
 		{
 			//reset runtime platform and visualize flag
-			rtplatform = oldrtplatform;
+			GlobalState.rtplatform = oldrtplatform;
 			EXPLAIN = oldexplain;
 		}
 		
 		return true;
 	}
+	
+	///////////////////////////////
+	// private internal utils (argument parsing)
+	////////
+
+	@Deprecated()
+	/**
+	 * Creates an argument map appropriate for consumption by the backend
+	 * The only method using this is the legacy {@link MLContext} api.
+	 * Once that is removed, this function should be removed as well.
+	 * This method uses a fragile position based argument for -args & -nvargs
+	 * @param hasNamedArgs true for named arguments, false for positional arguments
+	 * @param args in "k=v" format for named arguments and "v" for positional arguments
+	 * @return	a map containing either ($K,V) or ($1,V) for named and positional arguments respectively
+	 * @throws LanguageException when a named argument is an invalid identifier for DML/PyDML
+	 */
+	protected static Map<String,String> createArgumentsMap(boolean hasNamedArgs, String[] args)
+		throws LanguageException
+	{			
+		Map<String, String> argMap = new HashMap<String,String>();
+		
+		if (args == null)
+			return argMap;
+		
+		for(int i=1; i<=args.length; i++)
+		{
+			String arg = args[i-1];
+			
+			if (arg.equalsIgnoreCase("-l") || arg.equalsIgnoreCase("-log") ||
+				arg.equalsIgnoreCase("-v") || arg.equalsIgnoreCase("-visualize")||
+				arg.equalsIgnoreCase("-explain") || 
+				arg.equalsIgnoreCase("-debug") || 
+				arg.equalsIgnoreCase("-stats") || 
+				arg.equalsIgnoreCase("-exec") ||
+				arg.equalsIgnoreCase("-debug") ||
+				arg.startsWith("-config"))
+			{
+					throw new LanguageException("-args or -nvargs must be the final argument for DMLScript!");
+			}
+			
+			//parse arguments (named args / args by position)
+			if(hasNamedArgs)
+			{
+				// CASE: named argument argName=argValue -- must add <argName, argValue> pair to _argVals
+				String[] argPieces = arg.split("=");
+				if(argPieces.length < 2)
+					throw new LanguageException("for -nvargs option, elements in arg list must be named and have form argName=argValue");
+				String argName = argPieces[0];
+				StringBuilder sb = new StringBuilder();
+				for (int jj=1; jj < argPieces.length; jj++){
+					sb.append(argPieces[jj]); 
+				}
+				
+				String varNameRegex = "^[a-zA-Z]([a-zA-Z0-9_])*$";
+				if (!argName.matches(varNameRegex))
+					throw new LanguageException("argName " + argName + " must be a valid variable name in DML. Valid variable names in DML start with upper-case or lower-case letter, and contain only letters, digits, or underscores");
+					
+				argMap.put("$"+argName,sb.toString());
+			}
+			else 
+			{
+				// CASE: unnamed argument -- use position in arg list for name
+				argMap.put("$"+i ,arg);
+			}
+		}
+		
+		return argMap;
+	}
+
 
 	/**
 	 * Reads the DML/PyDML script into a String
@@ -657,7 +669,7 @@ public class DMLScript
 	private static void execute(String dmlScriptStr, String fnameOptConfig, Map<String,String> argVals, String[] allArgs, ScriptType scriptType)
 		throws ParseException, IOException, DMLRuntimeException, LanguageException, HopsException, LopsException 
 	{	
-		SCRIPT_TYPE = scriptType;
+		GlobalState.scriptType = scriptType;
 
 		//print basic time and environment info
 		printStartExecInfo( dmlScriptStr );
@@ -729,9 +741,9 @@ public class DMLScript
 		
 		//launch SystemML appmaster (if requested and not already in launched AM)
 		if( dmlconf.getBooleanValue(DMLConfig.YARN_APPMASTER) ){
-			if( !isActiveAM() && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlconf, allArgs, rtprog) )
+			if( !GlobalState.activeAM && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlconf, allArgs, rtprog) )
 				return; //if AM launch unsuccessful, fall back to normal execute
-			if( isActiveAM() ) //in AM context (not failed AM launch)
+			if( GlobalState.activeAM ) //in AM context (not failed AM launch)
 				DMLAppMasterUtils.setupProgramMappingRemoteMaxMemory(rtprog);
 		}
 		
@@ -757,7 +769,7 @@ public class DMLScript
 		ExecutionContext ec = null;
 		try {
 			ec = ExecutionContextFactory.createContext(rtprog);
-			ScriptExecutorUtils.executeRuntimeProgram(rtprog, ec, dmlconf, STATISTICS ? STATISTICS_COUNT : 0);
+			ScriptExecutorUtils.executeRuntimeProgram(rtprog, ec, dmlconf, GlobalState.statistics ? STATISTICS_COUNT : 0);
 		}
 		finally {
 			if(ec != null && ec instanceof SparkExecutionContext)
@@ -847,7 +859,7 @@ public class DMLScript
 						
 		//reset statistics (required if multiple scripts executed in one JVM)
 		Statistics.resetNoOfExecutedJobs();
-		if( STATISTICS ) {
+		if( GlobalState.statistics ) {
 			CacheStatistics.reset();
 			Statistics.reset();
 		}
@@ -868,7 +880,7 @@ public class DMLScript
 		}catch(Exception ex){}
 		
 		//analyze hadoop configuration
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		boolean localMode     = InfrastructureAnalyzer.isLocalMode(job);
 		String taskController = job.get(MRConfigurationNames.MR_TASKTRACKER_TASKCONTROLLER, "org.apache.hadoop.mapred.DefaultTaskController");
 		String ttGroupName    = job.get(MRConfigurationNames.MR_TASKTRACKER_GROUP,"null");
@@ -905,7 +917,7 @@ public class DMLScript
 		StringBuilder sb = new StringBuilder();
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(GlobalState.uuid);
 		String dirSuffix = sb.toString();
 		
 		//1) cleanup scratch space (everything for current uuid) 
@@ -914,7 +926,7 @@ public class DMLScript
 		
 		//2) cleanup hadoop working dirs (only required for LocalJobRunner (local job tracker), because
 		//this implementation does not create job specific sub directories)
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		if( InfrastructureAnalyzer.isLocalMode(job) ) {
 			try 
 			{
@@ -947,8 +959,8 @@ public class DMLScript
 
 	private static void printInvocationInfo(String fnameScript, String fnameOptConfig, Map<String,String> argVals)
 	{		
-		LOG.debug("****** args to DML Script ******\n" + "UUID: " + getUUID() + "\n" + "SCRIPT PATH: " + fnameScript + "\n" 
-	                + "RUNTIME: " + rtplatform + "\n" + "BUILTIN CONFIG: " + DMLConfig.DEFAULT_SYSTEMML_CONFIG_FILEPATH + "\n"
+		LOG.debug("****** args to DML Script ******\n" + "UUID: " + GlobalState.uuid + "\n" + "SCRIPT PATH: " + fnameScript + "\n" 
+	                + "RUNTIME: " + GlobalState.rtplatform + "\n" + "BUILTIN CONFIG: " + DMLConfig.DEFAULT_SYSTEMML_CONFIG_FILEPATH + "\n"
 	                + "OPTIONAL CONFIG: " + fnameOptConfig + "\n");
 
 		if( !argVals.isEmpty() ) {
@@ -963,7 +975,7 @@ public class DMLScript
 		LOG.info("BEGIN DML run " + getDateTime());
 		LOG.debug("DML script: \n" + dmlScriptString);
 		
-		if (rtplatform == RUNTIME_PLATFORM.HADOOP || rtplatform == RUNTIME_PLATFORM.HYBRID) {
+		if (GlobalState.rtplatform == ExecutionMode.HADOOP || GlobalState.rtplatform == ExecutionMode.HYBRID) {
 			String hadoop_home = System.getenv("HADOOP_HOME");
 			LOG.info("HADOOP_HOME: " + hadoop_home);
 		}

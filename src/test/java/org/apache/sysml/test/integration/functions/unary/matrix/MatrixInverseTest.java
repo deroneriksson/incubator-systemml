@@ -19,12 +19,11 @@
 
 package org.apache.sysml.test.integration.functions.unary.matrix;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class MatrixInverseTest extends AutomatedTestBase 
 {
@@ -63,32 +62,32 @@ public class MatrixInverseTest extends AutomatedTestBase
 	@Test
 	public void testInverseCP() 
 	{
-		runTestMatrixInverse( RUNTIME_PLATFORM.SINGLE_NODE );
+		runTestMatrixInverse( ExecutionMode.SINGLE_NODE );
 	}
 	
 	@Test
 	public void testInverseSP() 
 	{
-		if(rtplatform == RUNTIME_PLATFORM.SPARK)
-			runTestMatrixInverse( RUNTIME_PLATFORM.SPARK );
+		if(rtplatform == ExecutionMode.SPARK)
+			runTestMatrixInverse( ExecutionMode.SPARK );
 	}
 	
 	@Test
 	public void testInverseMR() 
 	{
-		runTestMatrixInverse( RUNTIME_PLATFORM.HADOOP );
+		runTestMatrixInverse( ExecutionMode.HADOOP );
 	}
 	
 	@Test
 	public void testInverseHybrid() 
 	{
-		runTestMatrixInverse( RUNTIME_PLATFORM.HYBRID );
+		runTestMatrixInverse( ExecutionMode.HYBRID );
 	}
 	
-	private void runTestMatrixInverse( RUNTIME_PLATFORM rt )
+	private void runTestMatrixInverse( ExecutionMode rt )
 	{		
 
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 		
 		boolean exceptionExpected = false;

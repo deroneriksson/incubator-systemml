@@ -28,7 +28,6 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -45,7 +44,9 @@ import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Explain.ExplainType;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.MLContextProxy;
 
 /**
@@ -236,7 +237,7 @@ public class MLContext {
 
 		this.spark = spark;
 		// by default, run in hybrid Spark mode for optimal performance
-		DMLScript.rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+		GlobalState.rtplatform = ExecutionMode.HYBRID_SPARK;
 
 		activeMLContext = this;
 		MLContextProxy.setActive(true);
@@ -583,7 +584,7 @@ public class MLContext {
 	 *            otherwise
 	 */
 	public void setStatistics(boolean statistics) {
-		DMLScript.STATISTICS = statistics;
+		GlobalState.statistics = statistics;
 		this.statistics = statistics;
 	}
 

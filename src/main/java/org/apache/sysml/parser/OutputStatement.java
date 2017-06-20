@@ -21,9 +21,9 @@ package org.apache.sysml.parser;
 
 import java.util.HashMap;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.debug.DMLBreakpointManager;
 import org.apache.sysml.parser.Expression.DataOp;
+import org.apache.sysml.utils.GlobalState;
 
 public class OutputStatement extends Statement
 {
@@ -156,7 +156,7 @@ public class OutputStatement extends Statement
 	@Override
 	public boolean controlStatement() {
 		// ensure that breakpoints end up in own statement block 
-		if (DMLScript.ENABLE_DEBUG_MODE) {
+		if (GlobalState.enableDebugMode) {
 			DMLBreakpointManager.insertBreakpoint(_paramsExpr.getBeginLine());
 			return true;
 		}

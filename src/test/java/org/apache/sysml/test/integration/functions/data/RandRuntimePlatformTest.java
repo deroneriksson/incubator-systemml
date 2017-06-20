@@ -24,17 +24,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Complete suit of tests for Rand:
@@ -181,7 +180,7 @@ public class RandRuntimePlatformTest extends AutomatedTestBase
 	@Test
 	public void testRandAcrossRuntimePlatforms()
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 	
 		try
 		{
@@ -212,25 +211,25 @@ public class RandRuntimePlatformTest extends AutomatedTestBase
 			boolean exceptionExpected = false;
 			
 			// Generate Data in CP
-			rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+			rtplatform = ExecutionMode.SINGLE_NODE;
 			programArgs[programArgs.length-1] = output("A_SN"); // data file generated from CP
 			runTest(true, exceptionExpected, null, -1); 
 						
 			
 			// Generate Data in CP
-			rtplatform = RUNTIME_PLATFORM.HYBRID;
+			rtplatform = ExecutionMode.HYBRID;
 			programArgs[programArgs.length-1] = output("A_CP"); // data file generated from CP
 			runTest(true, exceptionExpected, null, -1); 
 			
 			// Generate Data in MR
-			rtplatform = RUNTIME_PLATFORM.HADOOP;
+			rtplatform = ExecutionMode.HADOOP;
 			programArgs[programArgs.length-1] = output("A_MR"); // data file generated from MR
 			runTest(true, exceptionExpected, null, -1); 
 			
 			boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 			try {
 				// Generate Data in Spark
-				rtplatform = RUNTIME_PLATFORM.SPARK;
+				rtplatform = ExecutionMode.SPARK;
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 				programArgs[programArgs.length-1] = output("A_SPARK"); // data file generated from MR
 				runTest(true, exceptionExpected, null, -1); 

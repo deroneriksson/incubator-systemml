@@ -38,11 +38,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.util.random.SamplingUtils;
-
-import scala.Tuple2;
-
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.DataGenOp;
 import org.apache.sysml.hops.Hop.DataGenMethod;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -64,7 +59,11 @@ import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.data.RandomMatrixGenerator;
 import org.apache.sysml.runtime.matrix.operators.Operator;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
+
+import scala.Tuple2;
 
 public class RandSPInstruction extends UnarySPInstruction
 {
@@ -338,7 +337,7 @@ public class RandSPInstruction extends UnarySPInstruction
 
 		//step 2: potential in-memory rand operations if applicable
 		if( isMemAvail(rows, cols, sparsity, minValue, maxValue) 
-			&&  DMLScript.rtplatform != RUNTIME_PLATFORM.SPARK )
+			&&  GlobalState.rtplatform != ExecutionMode.SPARK )
 		{
 			RandomMatrixGenerator rgen = LibMatrixDatagen.createRandomMatrixGenerator(
 					pdf, (int)rows, (int)cols, rowsInBlock, colsInBlock, 

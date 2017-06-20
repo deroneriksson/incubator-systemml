@@ -19,28 +19,29 @@
 
 package org.apache.sysml.hops;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.rewrite.HopRewriteUtils;
 import org.apache.sysml.lops.Aggregate;
-import org.apache.sysml.lops.AppendGAlignedSP;
-import org.apache.sysml.lops.AppendM;
 import org.apache.sysml.lops.AppendCP;
 import org.apache.sysml.lops.AppendG;
+import org.apache.sysml.lops.AppendGAlignedSP;
+import org.apache.sysml.lops.AppendM;
 import org.apache.sysml.lops.AppendR;
 import org.apache.sysml.lops.Binary;
-import org.apache.sysml.lops.BinaryScalar;
 import org.apache.sysml.lops.BinaryM;
+import org.apache.sysml.lops.BinaryScalar;
 import org.apache.sysml.lops.BinaryUAggChain;
 import org.apache.sysml.lops.CentralMoment;
 import org.apache.sysml.lops.CoVariance;
 import org.apache.sysml.lops.CombineBinary;
+import org.apache.sysml.lops.CombineBinary.OperationTypes;
 import org.apache.sysml.lops.CombineUnary;
 import org.apache.sysml.lops.ConvolutionTransform;
 import org.apache.sysml.lops.Data;
 import org.apache.sysml.lops.DataPartition;
 import org.apache.sysml.lops.Group;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.PartialAggregate;
 import org.apache.sysml.lops.PickByCount;
@@ -48,14 +49,13 @@ import org.apache.sysml.lops.RepMat;
 import org.apache.sysml.lops.SortKeys;
 import org.apache.sysml.lops.Unary;
 import org.apache.sysml.lops.UnaryCP;
-import org.apache.sysml.lops.CombineBinary.OperationTypes;
-import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.mapred.DistributedCacheInput;
+import org.apache.sysml.utils.GlobalState;
 
 
 /* Binary (cell operations): aij + bij
@@ -579,7 +579,8 @@ public class BinaryOp extends Hop
 			else //general case
 				ot = HopsOpOp2LopsU.get(op);
 			
-			if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < GPUContextPool
+
+			if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < GPUContextPool
 					.initialGPUMemBudget())
 					&& (op == OpOp2.MULT || op == OpOp2.PLUS || op == OpOp2.MINUS || op == OpOp2.DIV || op == OpOp2.POW) ) {
 				et = ExecType.GPU;
@@ -598,7 +599,7 @@ public class BinaryOp extends Hop
 			ExecType et = optFindExecType();
 			if ( et == ExecType.CP ) 
 			{
-				if(DMLScript.USE_ACCELERATOR && (DMLScript.FORCE_ACCELERATOR || getMemEstimate() < GPUContextPool
+				if(GlobalState.useAccelerator && (GlobalState.forceAccelerator || getMemEstimate() < GPUContextPool
 						.initialGPUMemBudget())
 						&& (op == OpOp2.MULT || op == OpOp2.PLUS || op == OpOp2.MINUS || op == OpOp2.DIV || op == OpOp2.POW || op == OpOp2.SOLVE)) {
 					et = ExecType.GPU;

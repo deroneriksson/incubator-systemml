@@ -21,12 +21,12 @@ package org.apache.sysml.test.integration.functions.tensor;
 import java.util.HashMap;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 
 public class Conv2DTest extends AutomatedTestBase
@@ -200,7 +200,7 @@ public class Conv2DTest extends AutomatedTestBase
 	public void runConv2DTest( ExecType et, int imgSize, int numImg, int numChannels, int numFilters, 
 			int filterSize, int stride, int pad, boolean sparse1, boolean sparse2) 
 	{
-		RUNTIME_PLATFORM oldRTP = rtplatform;
+		ExecutionMode oldRTP = rtplatform;
 			
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
@@ -211,12 +211,12 @@ public class Conv2DTest extends AutomatedTestBase
 			
 	    TestConfiguration config = getTestConfiguration(TEST_NAME);
 	    if(et == ExecType.SPARK) {
-	    	rtplatform = RUNTIME_PLATFORM.SPARK;
+	    	rtplatform = ExecutionMode.SPARK;
 	    }
 	    else {
-	    	rtplatform = (et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
+	    	rtplatform = (et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
 	    }
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 			loadTestConfiguration(config);

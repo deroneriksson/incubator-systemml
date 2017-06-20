@@ -19,20 +19,20 @@
 
 package org.apache.sysml.test.integration.functions.data;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * Tests both DML's seq() and PyDML's range() functions
@@ -115,7 +115,7 @@ public class SequenceTest extends AutomatedTestBase
 	
 	@Test
 	public void testSequence() {
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		
 		try
 		{
@@ -159,19 +159,19 @@ public class SequenceTest extends AutomatedTestBase
 			}
 			int outputIndex = programArgs.length-1;
 	
-			rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+			rtplatform = ExecutionMode.SINGLE_NODE;
 			programArgs[outputIndex] = output("A_CP");
 			runTest(true, exceptionExpected, null, -1); 
 			
-			rtplatform = RUNTIME_PLATFORM.HADOOP;
+			rtplatform = ExecutionMode.HADOOP;
 			programArgs[outputIndex] = output("A_HADOOP");
 			runTest(true, exceptionExpected, null, -1); 
 			
-			rtplatform = RUNTIME_PLATFORM.HYBRID;
+			rtplatform = ExecutionMode.HYBRID;
 			programArgs[outputIndex] = output("A_HYBRID");
 			runTest(true, exceptionExpected, null, -1);
 			
-			rtplatform = RUNTIME_PLATFORM.SPARK;
+			rtplatform = ExecutionMode.SPARK;
 			boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
 			try {
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;

@@ -19,11 +19,10 @@
 
 package org.apache.sysml.test.integration.functions.unary.scalar;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 
 /**
@@ -62,37 +61,37 @@ public class StopTestCtrlStr extends AutomatedTestBase
 	
 	@Test
 	public void testStopFor() {
-		testLoop("for", RUNTIME_PLATFORM.HYBRID);
+		testLoop("for", ExecutionMode.HYBRID);
 	}
 	
 	@Test
 	public void testStopWhile() {
-		testLoop("while", RUNTIME_PLATFORM.HYBRID);
+		testLoop("while", ExecutionMode.HYBRID);
 	}
 	
 	@Test
 	public void testStopFunction() {
-		testLoop("fn", RUNTIME_PLATFORM.HYBRID);
+		testLoop("fn", ExecutionMode.HYBRID);
 	}
 	
 	@Test
 	public void testStopForMR() {
-		testLoop("for", RUNTIME_PLATFORM.HADOOP);
+		testLoop("for", ExecutionMode.HADOOP);
 	}
 	
 	@Test
 	public void testStopWhileMR() {
-		testLoop("while", RUNTIME_PLATFORM.HADOOP);
+		testLoop("while", ExecutionMode.HADOOP);
 	}
 	
 	@Test
 	public void testStopFunctionMR() {
-		testLoop("fn", RUNTIME_PLATFORM.HADOOP);
+		testLoop("fn", ExecutionMode.HADOOP);
 	}
 	
-	private void testLoop(String loop, RUNTIME_PLATFORM rt) {
+	private void testLoop(String loop, ExecutionMode rt) {
 		
-		RUNTIME_PLATFORM oldRT = rtplatform;
+		ExecutionMode oldRT = rtplatform;
 		rtplatform = rt;
 		
 		getAndLoadTestConfiguration(TEST_NAME);

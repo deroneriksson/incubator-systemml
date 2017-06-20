@@ -33,7 +33,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.matrix.data.IJV;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
@@ -51,7 +51,7 @@ public class WriterMatrixMarket extends MatrixWriter
 		}
 				
 		//prepare file access
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fname );
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -168,7 +168,7 @@ public class WriterMatrixMarket extends MatrixWriter
 	public final void mergeTextcellToMatrixMarket( String srcFileName, String fileName, long rlen, long clen, long nnz )
 		throws IOException
 	{
-		  Configuration conf = new Configuration(ConfigurationManager.getCachedJobConf());
+		  Configuration conf = new Configuration(HadoopConfigurationManager.getCachedJobConf());
 		
 		  Path src = new Path (srcFileName);
 	      Path merge = new Path (fileName);

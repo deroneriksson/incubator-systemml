@@ -21,10 +21,7 @@ package org.apache.sysml.test.integration.functions.reorg;
 
 import java.util.HashMap;
 
-import org.junit.Test;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.ReorgOp;
 import org.apache.sysml.lops.LopProperties.ExecType;
@@ -32,6 +29,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 /**
  * TODO add tests for dynamically computed ordering parameters; in hybrid execution mode
@@ -922,7 +921,7 @@ public class FullOrderTest extends AutomatedTestBase
 	 */
 	private void runOrderTest( String testname, boolean matrix, InputType dtype, boolean desc, boolean ixreturn, boolean rewrite, ExecType instType, boolean forceDistSort)
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		boolean rewriteOld = OptimizerUtils.ALLOW_ALGEBRAIC_SIMPLIFICATION;
 		boolean forceOpOld = ReorgOp.FORCE_DIST_SORT_INDEXES;
 		
@@ -934,12 +933,12 @@ public class FullOrderTest extends AutomatedTestBase
 		
 			//set flags
 			if(instType == ExecType.SPARK) {
-		    	rtplatform = RUNTIME_PLATFORM.SPARK;
+		    	rtplatform = ExecutionMode.SPARK;
 		    }
 		    else {
-				rtplatform = (instType==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+				rtplatform = (instType==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		    }
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 			OptimizerUtils.ALLOW_ALGEBRAIC_SIMPLIFICATION = rewrite;

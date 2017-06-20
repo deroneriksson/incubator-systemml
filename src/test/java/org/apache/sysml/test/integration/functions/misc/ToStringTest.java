@@ -20,10 +20,10 @@
 package org.apache.sysml.test.integration.functions.misc;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 
 public class ToStringTest extends AutomatedTestBase {
@@ -50,7 +50,7 @@ public class ToStringTest extends AutomatedTestBase {
 				"11.000 12.000 13.000 14.000 15.000\n" +
 				"16.000 17.000 18.000 19.000 20.000\n";
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class ToStringTest extends AutomatedTestBase {
 				"5.000 6.000 7.000\n" +
 				"9.000 10.000 11.000\n";		
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class ToStringTest extends AutomatedTestBase {
 				"4.00 5.00 6.00\n" +
 				"7.00 8.00 9.00\n";		
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class ToStringTest extends AutomatedTestBase {
 				"4.000 | 5.000 | 6.000\n" +
 				"7.000 | 8.000 | 9.000\n";		
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public class ToStringTest extends AutomatedTestBase {
 				"4.000 5.000 6.000\t" +
 				"7.000 8.000 9.000\t";		
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 
@@ -137,7 +137,7 @@ public class ToStringTest extends AutomatedTestBase {
 			k += (INPUT_COLS - j + 1);
 		}
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, sb.toString());
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, sb.toString());
 	}
 	
 	/**
@@ -167,7 +167,7 @@ public class ToStringTest extends AutomatedTestBase {
 			k += (INPUT_COLS - j + 1);
 		}
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, sb.toString());
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, sb.toString());
 	}
 	
 	/**
@@ -186,7 +186,7 @@ public class ToStringTest extends AutomatedTestBase {
 								"4 2 8.000\n";
 								
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -204,7 +204,7 @@ public class ToStringTest extends AutomatedTestBase {
 								"3 3 7.000\n";
 								
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -222,7 +222,7 @@ public class ToStringTest extends AutomatedTestBase {
 								"3  3  7.000|";
 								
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 	
 	/**
@@ -240,15 +240,15 @@ public class ToStringTest extends AutomatedTestBase {
 								"3 3 7.000\n";
 								
 		addTestConfiguration(testName, new TestConfiguration(TEST_CLASS_DIR, testName));
-		toStringTestHelper(RUNTIME_PLATFORM.SINGLE_NODE, testName, expectedOutput);
+		toStringTestHelper(ExecutionMode.SINGLE_NODE, testName, expectedOutput);
 	}
 
-	protected void toStringTestHelper(RUNTIME_PLATFORM platform, String testName, String expectedOutput) {
-		RUNTIME_PLATFORM platformOld = rtplatform;
+	protected void toStringTestHelper(ExecutionMode platform, String testName, String expectedOutput) {
+		ExecutionMode platformOld = rtplatform;
 		
 		rtplatform = platform;
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-        if (rtplatform == RUNTIME_PLATFORM.SPARK)
+        if (rtplatform == ExecutionMode.SPARK)
             DMLScript.USE_LOCAL_SPARK_CONFIG = true;
         try {
             // Create and load test configuration

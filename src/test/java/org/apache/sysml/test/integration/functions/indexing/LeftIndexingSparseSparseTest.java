@@ -21,11 +21,7 @@ package org.apache.sysml.test.integration.functions.indexing;
 
 import java.util.HashMap;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.LeftIndexingOp;
 import org.apache.sysml.hops.LeftIndexingOp.LeftIndexingMethod;
 import org.apache.sysml.lops.LopProperties.ExecType;
@@ -34,6 +30,10 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LeftIndexingSparseSparseTest extends AutomatedTestBase
 {
@@ -177,7 +177,7 @@ public class LeftIndexingSparseSparseTest extends AutomatedTestBase
 		int cu = cl+cols2-1;
 		
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		RUNTIME_PLATFORM oldRTP = rtplatform;
+		ExecutionMode oldRTP = rtplatform;
 		try
 		{
 			if(indexingMethod != null) {
@@ -185,13 +185,13 @@ public class LeftIndexingSparseSparseTest extends AutomatedTestBase
 			}
 			
 			if(et == ExecType.SPARK) {
-		    	rtplatform = RUNTIME_PLATFORM.SPARK;
+		    	rtplatform = ExecutionMode.SPARK;
 		    }
 			else {
-				// rtplatform = (et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
-			    rtplatform = RUNTIME_PLATFORM.HYBRID;
+				// rtplatform = (et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
+			    rtplatform = ExecutionMode.HYBRID;
 			}
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 			TestConfiguration config = getTestConfiguration(TEST_NAME);

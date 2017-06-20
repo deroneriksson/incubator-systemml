@@ -19,15 +19,14 @@
 
 package org.apache.sysml.test.integration.functions.piggybacking;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PiggybackingTest1 extends AutomatedTestBase 
 {
@@ -82,8 +81,8 @@ public class PiggybackingTest1 extends AutomatedTestBase
 	@Test
 	public void testDistCacheBug_mvmult()
 	{		
-		RUNTIME_PLATFORM rtold = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		ExecutionMode rtold = rtplatform;
+		rtplatform = ExecutionMode.HADOOP;
 		
 		try
 		{
@@ -124,8 +123,8 @@ public class PiggybackingTest1 extends AutomatedTestBase
 	public void testDistCacheBug_append()
 	{		
 
-		RUNTIME_PLATFORM rtold = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		ExecutionMode rtold = rtplatform;
+		rtplatform = ExecutionMode.HADOOP;
 		
 		TestConfiguration config = getTestConfiguration(TEST_NAME);
 		loadTestConfiguration(config);

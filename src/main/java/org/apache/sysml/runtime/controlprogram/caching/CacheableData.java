@@ -30,8 +30,6 @@ import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.Path;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
@@ -54,6 +52,8 @@ import org.apache.sysml.runtime.matrix.data.NumItemsByEachReducerMetaData;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 
 
 /**
@@ -383,7 +383,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire read "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		if ( !isAvailableToRead() )
 			throw new CacheException ("MatrixObject not available to read.");
@@ -412,7 +412,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		{			
 			try
 			{
-				if( DMLScript.STATISTICS )
+				if( GlobalState.statistics )
 					CacheStatistics.incrementHDFSHits();
 				
 				if( getRDDHandle()==null || getRDDHandle().allowsShortCircuitRead() )
@@ -446,7 +446,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			
 			_isAcquireFromEmpty = true;
 		}
-		else if( DMLScript.STATISTICS )
+		else if( GlobalState.statistics )
 		{
 			if( _data!=null )
 				CacheStatistics.incrementMemHits();
@@ -456,7 +456,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		acquire( false, _data==null );	
 		updateStatusPinned(true);
 		
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireRTime(t1-t0);
 		}
@@ -480,7 +480,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire modify "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		if ( !isAvailableToModify() )
 			throw new CacheException("MatrixObject not available to modify.");
@@ -513,7 +513,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		setDirty(true);
 		_isAcquireFromEmpty = false;
 		
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireMTime(t1-t0);
 		}
@@ -538,7 +538,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Acquire modify newdata "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		if (! isAvailableToModify ())
 			throw new CacheException ("CacheableData not available to modify.");
@@ -558,7 +558,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		_data = newData;
 		updateStatusPinned(true);
 		
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementAcquireMTime(t1-t0);
 		}
@@ -583,7 +583,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Release "+getVarName());
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		boolean write = false;
 		if ( isModify() )
@@ -629,7 +629,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			LOG.trace("Var "+getVarName()+" not subject to caching, state="+getStatusAsString());
 		}
 
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementReleaseTime(t1-t0);
 		}
@@ -742,7 +742,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	{
 		if( LOG.isTraceEnabled() )
 			LOG.trace("Export data "+getVarName()+" "+fName);
-		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+		long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 		
 		//prevent concurrent modifications
 		if ( !isAvailableToRead() )
@@ -859,7 +859,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			LOG.trace(this.getDebugName() + ": Skip export to hdfs since data already exists.");
 		}
 		  
-		if( DMLScript.STATISTICS ){
+		if( GlobalState.statistics ){
 			long t1 = System.nanoTime();
 			CacheStatistics.incrementExportTime(t1-t0);
 		}
@@ -990,7 +990,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			
 			// when outputFormat is binaryblock, make sure that matrixCharacteristics has correct blocking dimensions
 			// note: this is only required if singlenode (due to binarycell default) 
-			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE &&
+			if ( oinfo == OutputInfo.BinaryBlockOutputInfo && GlobalState.rtplatform == ExecutionMode.SINGLE_NODE &&
 				(mc.getRowsPerBlock() != ConfigurationManager.getBlocksize() || mc.getColsPerBlock() != ConfigurationManager.getBlocksize()) ) 
 			{
 				mc = new MatrixCharacteristics(mc.getRows(), mc.getCols(), ConfigurationManager.getBlocksize(), ConfigurationManager.getBlocksize(), mc.getNonZeros());
@@ -1306,7 +1306,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 	public synchronized static void initCaching() 
 		throws IOException
 	{
-		initCaching(DMLScript.getUUID());
+		initCaching(GlobalState.uuid);
 	}
 	
 	/**

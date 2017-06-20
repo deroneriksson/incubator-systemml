@@ -21,16 +21,15 @@ package org.apache.sysml.test.integration.functions.parfor;
 
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ParForSerialRemoteResultMergeTest extends AutomatedTestBase 
 {
@@ -124,12 +123,12 @@ public class ParForSerialRemoteResultMergeTest extends AutomatedTestBase
 	 */
 	private void runParallelRemoteResultMerge( String test_name, boolean sparse )
 	{
-		RUNTIME_PLATFORM oldRT = rtplatform;
+		ExecutionMode oldRT = rtplatform;
 		boolean oldUseSparkConfig = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		
 		if( test_name.equals(TEST_NAME3) || test_name.equals(TEST_NAME4)  ) {
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-			rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			rtplatform = ExecutionMode.HYBRID_SPARK;
 		}
 		
 		//inst exec type, influenced via rows

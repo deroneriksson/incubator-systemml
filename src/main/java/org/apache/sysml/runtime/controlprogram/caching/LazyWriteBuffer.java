@@ -26,9 +26,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
 import org.apache.sysml.runtime.util.LocalFileUtils;
+import org.apache.sysml.utils.GlobalState;
 
 public class LazyWriteBuffer 
 {
@@ -103,7 +103,7 @@ public class LazyWriteBuffer
 			//serialize matrix (outside synchronized critical path)
 			bbuff.serializeBlock(cb); 
 			
-			if( DMLScript.STATISTICS ) {
+			if( GlobalState.statistics ) {
 				CacheStatistics.incrementFSBuffWrites();
 				CacheStatistics.incrementFSWrites(numEvicted);
 			}
@@ -112,7 +112,7 @@ public class LazyWriteBuffer
 		{
 			//write directly to local FS (bypass buffer if too large)
 			LocalFileUtils.writeCacheBlockToLocal(fname, cb);
-			if( DMLScript.STATISTICS )
+			if( GlobalState.statistics )
 				CacheStatistics.incrementFSWrites();
 		}	
 	}
@@ -162,13 +162,13 @@ public class LazyWriteBuffer
 		if( ldata != null )
 		{
 			cb = ldata.deserializeBlock();
-			if( DMLScript.STATISTICS )
+			if( GlobalState.statistics )
 				CacheStatistics.incrementFSBuffHits();
 		}
 		else
 		{
 			cb = LocalFileUtils.readCacheBlockFromLocal(fname, matrix); 
-			if( DMLScript.STATISTICS )
+			if( GlobalState.statistics )
 				CacheStatistics.incrementFSHits();
 		}
 		

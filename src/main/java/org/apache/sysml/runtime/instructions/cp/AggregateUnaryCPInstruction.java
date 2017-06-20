@@ -19,8 +19,6 @@
 
 package org.apache.sysml.runtime.instructions.cp;
 
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -34,6 +32,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixIndexes;
 import org.apache.sysml.runtime.matrix.operators.AggregateUnaryOperator;
 import org.apache.sysml.runtime.matrix.operators.Operator;
 import org.apache.sysml.runtime.matrix.operators.SimpleOperator;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 
 public class AggregateUnaryCPInstruction extends UnaryCPInstruction
 {
@@ -98,7 +98,7 @@ public class AggregateUnaryCPInstruction extends UnaryCPInstruction
 			//Note: check on matrix characteristics to cover incorrect length (-1*-1 -> 1)
 			if( !mc.dimsKnown() ) //invalid nrow/ncol/length
 			{
-				if(    DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE 
+				if(    GlobalState.rtplatform == ExecutionMode.SINGLE_NODE 
 					|| (input1.getDataType() == DataType.FRAME && OptimizerUtils.isHadoopExecutionMode()) )
 				{
 					if( OptimizerUtils.isHadoopExecutionMode() ) {

@@ -23,28 +23,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.CompilerConfig;
+import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.recompile.Recompiler;
 import org.apache.sysml.parser.DMLProgram;
 import org.apache.sysml.parser.DataIdentifier;
+import org.apache.sysml.parser.Expression.DataType;
+import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.ForStatementBlock;
 import org.apache.sysml.parser.IfStatementBlock;
 import org.apache.sysml.parser.ParForStatementBlock;
 import org.apache.sysml.parser.StatementBlock;
-import org.apache.sysml.parser.Expression.DataType;
-import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.parser.WhileStatementBlock;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.codegen.CodegenUtils;
@@ -55,12 +55,12 @@ import org.apache.sysml.runtime.controlprogram.FunctionProgramBlock;
 import org.apache.sysml.runtime.controlprogram.IfProgramBlock;
 import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock;
-import org.apache.sysml.runtime.controlprogram.Program;
-import org.apache.sysml.runtime.controlprogram.ProgramBlock;
-import org.apache.sysml.runtime.controlprogram.WhileProgramBlock;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PartitionFormat;
+import org.apache.sysml.runtime.controlprogram.Program;
+import org.apache.sysml.runtime.controlprogram.ProgramBlock;
+import org.apache.sysml.runtime.controlprogram.WhileProgramBlock;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject.UpdateType;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
@@ -89,6 +89,7 @@ import org.apache.sysml.runtime.matrix.data.InputInfo;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.udf.ExternalFunctionInvocationInstruction;
+import org.apache.sysml.utils.GlobalState;
 
 /**
  * Program converter functionalities for 
@@ -742,7 +743,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle DMLScript UUID (propagate original uuid for writing to scratch space)
-		sb.append( DMLScript.getUUID() );
+		sb.append( GlobalState.uuid );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );		
 		
@@ -752,7 +753,7 @@ public class ProgramConverter
 		sb.append( NEWLINE );
 		
 		//handle additional configurations
-		sb.append( PARFOR_CONF_STATS + "=" + DMLScript.STATISTICS );
+		sb.append( PARFOR_CONF_STATS + "=" + GlobalState.statistics );
 		sb.append( COMPONENTS_DELIM );
 		sb.append( NEWLINE );
 		
@@ -1321,11 +1322,11 @@ public class ProgramConverter
 		
 		//handle DMLScript UUID (NOTE: set directly in DMLScript)
 		//(master UUID is used for all nodes (in order to simply cleanup))
-		DMLScript.setUUID( st.nextToken() );
+		GlobalState.uuid = st.nextToken();
 		
 		//handle DML config (NOTE: set directly in ConfigurationManager)
 		String confStr = st.nextToken();
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		if( !InfrastructureAnalyzer.isLocalMode(job) ) {
 			if( confStr != null && !confStr.trim().isEmpty() ) {
 				DMLConfig dmlconf = DMLConfig.parseDMLConfig(confStr);
@@ -1861,7 +1862,7 @@ public class ProgramConverter
 	
 	private static void parseAndSetAdditionalConfigurations(String conf) {
 		String[] statsFlag = conf.split("=");
-		DMLScript.STATISTICS = Boolean.parseBoolean(statsFlag[1]);
+		GlobalState.statistics = Boolean.parseBoolean(statsFlag[1]);
 	}
 
 	//////////

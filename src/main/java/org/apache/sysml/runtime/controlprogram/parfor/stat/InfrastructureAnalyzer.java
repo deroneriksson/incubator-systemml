@@ -25,11 +25,12 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.HadoopUtils;
 
 /**
  * Central place for analyzing and obtaining static infrastructure properties
@@ -93,24 +94,20 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return number of cluster nodes
 	 */
-	public static int getRemoteParallelNodes() 
-	{
-		if( _remotePar == -1 )
+	public static int getRemoteParallelNodes() {
+		if ((HadoopUtils.confAvailable()) && (_remotePar == -1))
 			analyzeHadoopCluster();
-		
 		return _remotePar;
-	}	
-	
+	}
+
 	/**
 	 * Gets the number of remote parallel map slots.
 	 * 
 	 * @return number of remote parallel map tasks
 	 */
-	public static int getRemoteParallelMapTasks()
-	{
-		if( _remoteParMap == -1 )
+	public static int getRemoteParallelMapTasks() {
+		if ((HadoopUtils.confAvailable()) && (_remoteParMap == -1))
 			analyzeHadoopCluster();
-		
 		return _remoteParMap;
 	}
 
@@ -124,11 +121,9 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return number of remote parallel reduce tasks
 	 */
-	public static int getRemoteParallelReduceTasks()
-	{
-		if( _remoteParReduce == -1 )
+	public static int getRemoteParallelReduceTasks() {
+		if ((HadoopUtils.confAvailable()) && (_remoteParReduce == -1))
 			analyzeHadoopCluster();
-		
 		return _remoteParReduce;
 	}
 
@@ -160,11 +155,9 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return maximum memory of remote hadoop map task jvm
 	 */
-	public static long getRemoteMaxMemoryMap()
-	{
-		if( _remoteJVMMaxMemMap == -1 )
+	public static long getRemoteMaxMemoryMap() {
+		if ((HadoopUtils.confAvailable()) && (_remoteJVMMaxMemMap == -1))
 			analyzeHadoopConfiguration();
-		
 		return _remoteJVMMaxMemMap;
 	}
 
@@ -178,11 +171,9 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return maximum memory of remote hadoop reduce task jvm
 	 */
-	public static long getRemoteMaxMemoryReduce()
-	{
-		if( _remoteJVMMaxMemReduce == -1 )
+	public static long getRemoteMaxMemoryReduce() {
+		if ((HadoopUtils.confAvailable()) && (_remoteJVMMaxMemReduce == -1))
 			analyzeHadoopConfiguration();
-		
 		return _remoteJVMMaxMemReduce;
 	}
 
@@ -196,22 +187,18 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return maximum sort buffer memory of hadoop task
 	 */
-	public static long getRemoteMaxMemorySortBuffer( )
-	{
-		if( _remoteMRSortMem == -1 )
+	public static long getRemoteMaxMemorySortBuffer() {
+		if ((HadoopUtils.confAvailable()) && (_remoteMRSortMem == -1))
 			analyzeHadoopConfiguration();
-		
-		return _remoteMRSortMem;		
+		return _remoteMRSortMem;
 	}
-	
-	public static boolean isLocalMode()
-	{
-		if( _remoteJVMMaxMemMap == -1 )
+
+	public static boolean isLocalMode() {
+		if ((HadoopUtils.confAvailable()) && (_remoteJVMMaxMemMap == -1))
 			analyzeHadoopConfiguration();
-		
-		return _localJT;		
+		return _localJT;
 	}
-	
+
 	public static boolean isLocalMode(JobConf job)
 	{
 		// Due to a bug in HDP related to fetching the "mode" of execution within mappers,
@@ -267,19 +254,15 @@ public class InfrastructureAnalyzer
 	 * 
 	 * @return HDFS block size
 	 */
-	public static long getHDFSBlockSize()
-	{
-		if( _blocksize == -1 )
+	public static long getHDFSBlockSize() {
+		if ((HadoopUtils.confAvailable()) && (_blocksize == -1))
 			analyzeHadoopConfiguration();
-		
-		return _blocksize;		
+		return _blocksize;
 	}
 
-	public static boolean isYarnEnabled()
-	{
-		if( _remoteJVMMaxMemMap == -1 )
+	public static boolean isYarnEnabled() {
+		if ((HadoopUtils.confAvailable()) && (_remoteJVMMaxMemMap == -1))
 			analyzeHadoopConfiguration();
-		
 		return _yarnEnabled;
 	}
 
@@ -355,7 +338,7 @@ public class InfrastructureAnalyzer
 	{
 		//in local mode, the cluster utilization is always 0.0 
 		
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		JobClient client = new JobClient(job);
 		ClusterStatus stat = client.getClusterStatus();
 		
@@ -405,7 +388,7 @@ public class InfrastructureAnalyzer
 	{
 		try 
 		{
-			JobConf job = ConfigurationManager.getCachedJobConf();
+			JobConf job = HadoopConfigurationManager.getCachedJobConf();
 			JobClient client = new JobClient(job);
 			ClusterStatus stat = client.getClusterStatus();
 			if( stat != null ) //if in cluster mode
@@ -431,7 +414,7 @@ public class InfrastructureAnalyzer
 	 */
 	private static void analyzeHadoopConfiguration()
 	{
-		JobConf job = ConfigurationManager.getCachedJobConf();
+		JobConf job = HadoopConfigurationManager.getCachedJobConf();
 		
 		_remoteMRSortMem = (1024*1024) * job.getLong(MRConfigurationNames.MR_TASK_IO_SORT_MB,100); //1MB
 			

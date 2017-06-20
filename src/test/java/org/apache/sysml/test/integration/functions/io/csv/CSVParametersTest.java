@@ -22,16 +22,15 @@ package org.apache.sysml.test.integration.functions.io.csv;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
 public class CSVParametersTest extends AutomatedTestBase 
@@ -97,9 +96,9 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 0.1;
 		
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 		
-		rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+		rtplatform = ExecutionMode.SINGLE_NODE;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
@@ -110,9 +109,9 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 1.0;
 		
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 
-		rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+		rtplatform = ExecutionMode.SINGLE_NODE;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
@@ -123,9 +122,9 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 0.1;
 
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		rtplatform = ExecutionMode.HADOOP;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
@@ -136,9 +135,9 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 1.0;
 
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		rtplatform = ExecutionMode.HADOOP;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
@@ -149,9 +148,9 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 0.1;
 		
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 
-		rtplatform = RUNTIME_PLATFORM.HYBRID;
+		rtplatform = ExecutionMode.HYBRID;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
@@ -162,15 +161,15 @@ public class CSVParametersTest extends AutomatedTestBase
 		setup();
 		sparsity = 1.0;
 		
-		RUNTIME_PLATFORM old_platform = rtplatform;
+		ExecutionMode old_platform = rtplatform;
 
-		rtplatform = RUNTIME_PLATFORM.HYBRID;
+		rtplatform = ExecutionMode.HYBRID;
 		csvParameterTest(rtplatform, sparsity);
 		
 		rtplatform = old_platform;
 	}
 	
-	private void csvParameterTest(RUNTIME_PLATFORM platform, double sp) {
+	private void csvParameterTest(ExecutionMode platform, double sp) {
 		
 		//generate actual dataset
 		double[][] D = getRandomMatrix(rows, cols, 0, 1, sp, 7777); 

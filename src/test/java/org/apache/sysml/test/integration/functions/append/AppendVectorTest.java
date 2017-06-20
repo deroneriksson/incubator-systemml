@@ -22,16 +22,16 @@ package org.apache.sysml.test.integration.functions.append;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AppendVectorTest extends AutomatedTestBase
 {
@@ -55,44 +55,44 @@ public class AppendVectorTest extends AutomatedTestBase
 	
 	@Test
 	public void testAppendInBlockSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows1, cols1);
+		commonAppendTest(ExecutionMode.SPARK, rows1, cols1);
 	}
 	@Test
 	public void testAppendOutBlockSP() {
-		commonAppendTest(RUNTIME_PLATFORM.SPARK, rows2, cols2);
+		commonAppendTest(ExecutionMode.SPARK, rows2, cols2);
 	}
 	
 
 	@Test
 	public void testAppendInBlockCP() {
-		commonAppendTest(RUNTIME_PLATFORM.SINGLE_NODE, rows1, cols1);
+		commonAppendTest(ExecutionMode.SINGLE_NODE, rows1, cols1);
 	}
 	
 	@Test
 	public void testAppendOutBlockCP() {
-		commonAppendTest(RUNTIME_PLATFORM.SINGLE_NODE, rows2, cols2);
+		commonAppendTest(ExecutionMode.SINGLE_NODE, rows2, cols2);
 	}	
 
 	@Test
 	public void testAppendInBlockMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows1, cols1);
+		commonAppendTest(ExecutionMode.HADOOP, rows1, cols1);
 	}   
 	
 	@Test
 	public void testAppendOutBlockMR() {
-		commonAppendTest(RUNTIME_PLATFORM.HADOOP, rows2, cols2);
+		commonAppendTest(ExecutionMode.HADOOP, rows2, cols2);
 	}   
 
 	
-	public void commonAppendTest(RUNTIME_PLATFORM platform, int rows, int cols)
+	public void commonAppendTest(ExecutionMode platform, int rows, int cols)
 	{
 		TestConfiguration config = getAndLoadTestConfiguration(TEST_NAME);
 	    
-		RUNTIME_PLATFORM prevPlfm=rtplatform;
+		ExecutionMode prevPlfm=rtplatform;
 		
 	    rtplatform = platform;
 	    boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-	    if( rtplatform == RUNTIME_PLATFORM.SPARK )
+	    if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
 	    try {
@@ -119,8 +119,8 @@ public class AppendVectorTest extends AutomatedTestBase
 	        writeInputMatrix("B", B, true);
 	        
 	        boolean exceptionExpected = false;
-	        int expectedCompiledMRJobs = (rtplatform==RUNTIME_PLATFORM.HADOOP)? 2 : 1;
-			int expectedExecutedMRJobs = (rtplatform==RUNTIME_PLATFORM.HADOOP)? 2 : 0;
+	        int expectedCompiledMRJobs = (rtplatform==ExecutionMode.HADOOP)? 2 : 1;
+			int expectedExecutedMRJobs = (rtplatform==ExecutionMode.HADOOP)? 2 : 0;
 			runTest(true, exceptionExpected, null, expectedCompiledMRJobs);
 			Assert.assertEquals("Wrong number of executed MR jobs.",
 					             expectedExecutedMRJobs, Statistics.getNoOfExecutedMRJobs());

@@ -21,10 +21,6 @@ package org.apache.sysml.test.integration.functions.io;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -38,6 +34,9 @@ import org.apache.sysml.runtime.util.UtilFunctions;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FullDynWriteTest extends AutomatedTestBase 
 {
@@ -133,8 +132,8 @@ public class FullDynWriteTest extends AutomatedTestBase
 	private void runDynamicWriteTest( Type type, OutputInfo fmt, ExecType et )
 	{		
 		String TEST_NAME = (type==Type.Scalar) ? TEST_NAME1 : TEST_NAME2;		 
-		RUNTIME_PLATFORM platformOld = rtplatform;
-		rtplatform = (et==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode platformOld = rtplatform;
+		rtplatform = (et==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		
 		TestConfiguration config = getTestConfiguration(TEST_NAME);
 		config.addVariable("rows", rows);

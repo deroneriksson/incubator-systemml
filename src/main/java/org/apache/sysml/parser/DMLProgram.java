@@ -25,11 +25,9 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.Lop;
+import org.apache.sysml.lops.LopProperties;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.lops.compile.Dag;
 import org.apache.sysml.parser.Expression.DataType;
@@ -47,6 +45,7 @@ import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
 import org.apache.sysml.runtime.instructions.CPInstructionParser;
 import org.apache.sysml.runtime.instructions.Instruction;
 import org.apache.sysml.runtime.instructions.cp.VariableCPInstruction;
+import org.apache.sysml.utils.GlobalState;
 
 
 public class DMLProgram 
@@ -460,7 +459,7 @@ public class DMLProgram
 				buff.append(scratchSpaceLoc);
 				buff.append(Lop.FILE_SEPARATOR);
 				buff.append(Lop.PROCESS_PREFIX);
-				buff.append(DMLScript.getUUID());
+				buff.append(GlobalState.uuid);
 				buff.append(Lop.FILE_SEPARATOR);
 				buff.append(ProgramConverter.CP_ROOT_THREAD_ID);
 				buff.append(Lop.FILE_SEPARATOR);

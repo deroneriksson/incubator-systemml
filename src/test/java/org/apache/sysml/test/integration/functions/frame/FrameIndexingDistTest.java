@@ -26,10 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.LeftIndexingOp;
 import org.apache.sysml.hops.LeftIndexingOp.LeftIndexingMethod;
 import org.apache.sysml.lops.LopProperties.ExecType;
@@ -43,6 +40,9 @@ import org.apache.sysml.runtime.util.UtilFunctions;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FrameIndexingDistTest extends AutomatedTestBase
 {
@@ -123,7 +123,7 @@ public class FrameIndexingDistTest extends AutomatedTestBase
 	private void runTestLeftIndexing(ExecType et, LeftIndexingOp.LeftIndexingMethod indexingMethod, ValueType[] schema, IXType itype, boolean bSparse) throws DMLRuntimeException, IOException {
 		
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		RUNTIME_PLATFORM oldRTP = rtplatform;
+		ExecutionMode oldRTP = rtplatform;
 		TestConfiguration config = null;
 		
 		HashMap<String, ValueType[]> outputSchema = new HashMap<String, ValueType[]>();
@@ -140,13 +140,13 @@ public class FrameIndexingDistTest extends AutomatedTestBase
 			}
 			
 			if(et == ExecType.SPARK) {
-		    	rtplatform = RUNTIME_PLATFORM.SPARK;
+		    	rtplatform = ExecutionMode.SPARK;
 		    }
 			else {
-				// rtplatform = (et==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.SINGLE_NODE;
-			    rtplatform = RUNTIME_PLATFORM.HYBRID;
+				// rtplatform = (et==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.SINGLE_NODE;
+			    rtplatform = ExecutionMode.HYBRID;
 			}
-			if( rtplatform == RUNTIME_PLATFORM.SPARK )
+			if( rtplatform == ExecutionMode.SPARK )
 				DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			
 		    

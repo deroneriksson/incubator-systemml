@@ -21,11 +21,7 @@ package org.apache.sysml.test.integration.functions.parfor;
 
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitioner;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
@@ -33,6 +29,9 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ParForBlockwiseDataPartitioningTest extends AutomatedTestBase 
 {	
@@ -180,13 +179,13 @@ public class ParForBlockwiseDataPartitioningTest extends AutomatedTestBase
 	
 	private void runParForDataPartitioningTest( String testname, PDataPartitioner partitioner, PExecMode mode, boolean sparse )
 	{
-		RUNTIME_PLATFORM oldRT = rtplatform;
+		ExecutionMode oldRT = rtplatform;
 		boolean oldUseSparkConfig = DMLScript.USE_LOCAL_SPARK_CONFIG;
 		boolean oldDynRecompile = CompilerConfig.FLAG_DYN_RECOMPILE;
 		
 		//run always in spark execution mode
 		DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-		rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+		rtplatform = ExecutionMode.HYBRID_SPARK;
 		
 		try
 		{

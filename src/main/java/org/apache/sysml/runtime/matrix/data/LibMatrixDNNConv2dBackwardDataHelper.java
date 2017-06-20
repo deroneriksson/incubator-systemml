@@ -21,7 +21,7 @@ package org.apache.sysml.runtime.matrix.data;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.NativeHelper;
 
 /**
@@ -89,19 +89,19 @@ public class LibMatrixDNNConv2dBackwardDataHelper {
 				
 				// dout_reshaped %*% filter => temp
 				MatrixBlock temp = new MatrixBlock(PQ, CRS, false);
-				long t1 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t1 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				LibMatrixDNNHelper.singleThreadedMatMult(dout_reshaped, filter, temp, true, false, _params);
-				long t2 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t2 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				// col2im(temp) => output[n,] 
 				LibMatrixDNNHelper.doCol2imOverSingleImage(n, temp, _params);
-				long t3 = DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
+				long t3 = GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS ? System.nanoTime() : 0;
 				
-				if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+				if(GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 					time1 += t2 - t1;
 					time2 += t3 - t2;
 				}
 			}
-			if(DMLScript.STATISTICS && LibMatrixDNN.DISPLAY_STATISTICS) {
+			if(GlobalState.statistics && LibMatrixDNN.DISPLAY_STATISTICS) {
 				LibMatrixDNN.loopedConvBwdDataMatMultTime.addAndGet(time1);
 				LibMatrixDNN.loopedConvBwdDataCol2ImTime.addAndGet(time2);
 			}

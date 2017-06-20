@@ -33,8 +33,6 @@ import java.util.List;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
@@ -106,6 +104,8 @@ import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.util.UtilFunctions;
+import org.apache.sysml.utils.ExecutionMode;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 import org.apache.sysml.yarn.ropt.YarnClusterAnalyzer;
 
@@ -629,7 +629,7 @@ public class ParForProgramBlock extends ForProgramBlock
 			switch( _execMode )
 			{
 				case LOCAL: //create parworkers as local threads
-					if (DMLScript.USE_ACCELERATOR) {
+					if (GlobalState.useAccelerator) {
 						setDegreeOfParallelism(ec.getNumGPUContexts());
 					}
 					executeLocalParFor(ec, iterVar, from, to, incr);
@@ -764,7 +764,7 @@ public class ParForProgramBlock extends ForProgramBlock
 			
 			//maintain statistics
 			long tinit = (long) time.stop();
-			if( DMLScript.STATISTICS )
+			if( GlobalState.statistics )
 				Statistics.incrementParForInitTime(tinit);
 			if( _monitor ) 
 				StatisticMonitor.putPFStat(_ID, Stat.PARFOR_INIT_PARWRK_T, tinit);
@@ -827,7 +827,7 @@ public class ParForProgramBlock extends ForProgramBlock
 
 			// Frees up the GPUContexts used in the threaded Parfor and sets
 			// the main thread to use the GPUContext
-			if (DMLScript.USE_ACCELERATOR) {
+			if (GlobalState.useAccelerator) {
 				for (int i = 0; i < _numThreads; i++) {
 					workers[i].getExecutionContext().setGPUContexts(null);
 				}
@@ -1358,7 +1358,7 @@ public class ParForProgramBlock extends ForProgramBlock
 				String varname = var.getKey();
 				boolean unpinned = var.getValue();
 				String fprefix = ConfigurationManager.getConfig().getTextValue("scratch") 
-						         + Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + DMLScript.getUUID();
+						         + Lop.FILE_SEPARATOR + Lop.PROCESS_PREFIX + GlobalState.uuid;
 				
 				//delete unpinned vars if not in liveout (similar like rmvar) and not persistent input
 				if( unpinned && !liveout.containsVariable(varname) )
@@ -1416,7 +1416,7 @@ public class ParForProgramBlock extends ForProgramBlock
 
 			// If GPU mode is enabled, gets a GPUContext from the pool of GPUContexts
 			// and sets it in the ExecutionContext of the parfor
-			if (DMLScript.USE_ACCELERATOR){
+			if (GlobalState.useAccelerator){
 				cpEc.setGPUContexts(Arrays.asList(ec.getGPUContext(index)));
 			}
 			
@@ -1773,7 +1773,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		if( numTasks != expTasks || numIters !=expIters ) //consistency check
 			throw new DMLRuntimeException("PARFOR: Number of executed tasks does not match the number of created tasks: tasks "+numTasks+"/"+expTasks+", iters "+numIters+"/"+expIters+".");
 	
-		if( DMLScript.STATISTICS )
+		if( GlobalState.statistics )
 			Statistics.incrementParForMergeTime((long) time.stop());
 	}
 	
@@ -1867,7 +1867,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(GlobalState.uuid);
 		sb.append(PARFOR_MR_TASKS_TMP_FNAME.replaceAll("%ID%", String.valueOf(_ID)));
 		
 		return sb.toString();   
@@ -1887,7 +1887,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(GlobalState.uuid);
 		sb.append(PARFOR_MR_RESULT_TMP_FNAME.replaceAll("%ID%", String.valueOf(_ID)));
 		
 		return sb.toString();   
@@ -1905,7 +1905,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(GlobalState.uuid);
 		sb.append(fname);
 		
 		return sb.toString();   		
@@ -1923,7 +1923,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		sb.append(scratchSpaceLoc);
 		sb.append(Lop.FILE_SEPARATOR);
 		sb.append(Lop.PROCESS_PREFIX);
-		sb.append(DMLScript.getUUID());
+		sb.append(GlobalState.uuid);
 		sb.append(fname);
 		
 		return sb.toString();   		
@@ -1934,7 +1934,7 @@ public class ParForProgramBlock extends ForProgramBlock
 		long ret = -1;
 		
 		//if forced remote exec and single node
-		if(    DMLScript.rtplatform == RUNTIME_PLATFORM.SINGLE_NODE 
+		if(    GlobalState.rtplatform == ExecutionMode.SINGLE_NODE 
 			&& _execMode == PExecMode.REMOTE_MR
 			&& _optMode == POptMode.NONE      )
 		{

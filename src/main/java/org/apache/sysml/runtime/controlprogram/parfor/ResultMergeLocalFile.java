@@ -40,7 +40,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.parser.Expression.DataType;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.DMLRuntimeException;
@@ -220,7 +220,7 @@ public class ResultMergeLocalFile extends ResultMerge
 			}
 			
 			//actual merge
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path( fnameNew );
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(fs.create(path,true)));		
@@ -233,7 +233,7 @@ public class ResultMergeLocalFile extends ResultMerge
 				{
 					LOG.trace("ResultMerge (local, file): Merge input "+in.getVarName()+" (fname="+in.getFileName()+") via stream merge");
 					
-					JobConf tmpJob = new JobConf(ConfigurationManager.getCachedJobConf());
+					JobConf tmpJob = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 					Path tmpPath = new Path(in.getFileName());
 					FileInputFormat.addInputPath(tmpJob, tmpPath);
 					TextInputFormat informat = new TextInputFormat();
@@ -322,7 +322,7 @@ public class ResultMergeLocalFile extends ResultMerge
 			}
 			
 			//actual merge
-			JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+			JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 			Path path = new Path( fnameNew );					
 			FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 			SequenceFile.Writer out = new SequenceFile.Writer(fs, job, path, MatrixIndexes.class, MatrixCell.class); //beware ca 50ms
@@ -336,7 +336,7 @@ public class ResultMergeLocalFile extends ResultMerge
 				{
 					LOG.trace("ResultMerge (local, file): Merge input "+in.getVarName()+" (fname="+in.getFileName()+") via stream merge");
 					
-					JobConf tmpJob = new JobConf(ConfigurationManager.getCachedJobConf());
+					JobConf tmpJob = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 					Path tmpPath = new Path(in.getFileName());
 					
 					for(Path lpath : IOUtilFunctions.getSequenceFilePaths(fs, tmpPath) )
@@ -472,7 +472,7 @@ public class ResultMergeLocalFile extends ResultMerge
 		MatrixIndexes key = new MatrixIndexes(); 
 		MatrixBlock value = new MatrixBlock();
 		
-		JobConf tmpJob = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf tmpJob = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path tmpPath = new Path(mo.getFileName());
 		FileSystem fs = IOUtilFunctions.getFileSystem(tmpPath, tmpJob);
 		
@@ -501,7 +501,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void createTextCellStagingFile( String fnameStaging, MatrixObject mo, long ID ) 
 		throws IOException, DMLRuntimeException
 	{		
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path(mo.getFileName());
 		FileInputFormat.addInputPath(job, path);
 		TextInputFormat informat = new TextInputFormat();
@@ -563,7 +563,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void createBinaryCellStagingFile( String fnameStaging, MatrixObject mo, long ID ) 
 		throws IOException, DMLRuntimeException
 	{		
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path(mo.getFileName());
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -647,7 +647,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void createBinaryBlockResultFile( String fnameStaging, String fnameStagingCompare, String fnameNew, MatrixFormatMetaData metadata, boolean withCompare ) 
 		throws IOException, DMLRuntimeException
 	{
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fnameNew );	
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -743,7 +743,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void createTextCellResultFile( String fnameStaging, String fnameStagingCompare, String fnameNew, MatrixFormatMetaData metadata, boolean withCompare ) 
 		throws IOException, DMLRuntimeException
 	{
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fnameNew );	
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -880,7 +880,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void createBinaryCellResultFile( String fnameStaging, String fnameStagingCompare, String fnameNew, MatrixFormatMetaData metadata, boolean withCompare ) 
 		throws IOException, DMLRuntimeException
 	{
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fnameNew );	
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		
@@ -1007,7 +1007,7 @@ public class ResultMergeLocalFile extends ResultMerge
 	private void copyAllFiles( String fnameNew, ArrayList<MatrixObject> inMO ) 
 		throws CacheException, IOException
 	{
-		JobConf job = new JobConf(ConfigurationManager.getCachedJobConf());
+		JobConf job = new JobConf(HadoopConfigurationManager.getCachedJobConf());
 		Path path = new Path( fnameNew );
 		FileSystem fs = IOUtilFunctions.getFileSystem(path, job);
 		

@@ -23,16 +23,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
 public class FormatChangeTest extends AutomatedTestBase 
@@ -103,8 +102,8 @@ public class FormatChangeTest extends AutomatedTestBase
 	@Test
 	public void testFormatChangeCP() {
 		setup();
-		RUNTIME_PLATFORM old_platform = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+		ExecutionMode old_platform = rtplatform;
+		rtplatform = ExecutionMode.SINGLE_NODE;
 		formatChangeTest();
 		rtplatform =  old_platform;
 	}
@@ -112,8 +111,8 @@ public class FormatChangeTest extends AutomatedTestBase
 	@Test
 	public void testFormatChangeMR() {
 		setup();
-		RUNTIME_PLATFORM old_platform = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		ExecutionMode old_platform = rtplatform;
+		rtplatform = ExecutionMode.HADOOP;
 		formatChangeTest();
 		rtplatform =  old_platform;
 	}
@@ -121,8 +120,8 @@ public class FormatChangeTest extends AutomatedTestBase
 	@Test
 	public void testFormatChangeHybrid() {
 		setup();
-		RUNTIME_PLATFORM old_platform = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode old_platform = rtplatform;
+		rtplatform = ExecutionMode.HYBRID;
 		formatChangeTest();
 		rtplatform =  old_platform;
 	}

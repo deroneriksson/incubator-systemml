@@ -29,7 +29,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.conf.ConfigurationManager;
+import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PDataPartitionFormat;
 import org.apache.sysml.runtime.controlprogram.caching.CacheStatistics;
@@ -47,6 +47,7 @@ import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.LocalFileUtils;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.Statistics;
 
 public class RemoteDPParWorkerReducer extends ParWorker
@@ -153,7 +154,7 @@ public class RemoteDPParWorkerReducer extends ParWorker
 			//which includes a core-default.xml configuration which hides the actual default cluster configuration
 			//in the context of mr jobs (for example this config points to local fs instead of hdfs by default). 
 			if( !InfrastructureAnalyzer.isLocalMode(job) ) {
-				ConfigurationManager.setCachedJobConf(job);
+				HadoopConfigurationManager.setCachedJobConf(job);
 			}
 			
 			//create local runtime program
@@ -193,7 +194,7 @@ public class RemoteDPParWorkerReducer extends ParWorker
 		StatisticMonitor.disableStatMonitoring();
 		
 		//always reset stats because counters per map task (for case of JVM reuse)
-		if( DMLScript.STATISTICS && !InfrastructureAnalyzer.isLocalMode(job) )
+		if( GlobalState.statistics && !InfrastructureAnalyzer.isLocalMode(job) )
 		{
 			CacheStatistics.reset();
 			Statistics.reset();
@@ -213,8 +214,8 @@ public class RemoteDPParWorkerReducer extends ParWorker
 			RemoteParForUtils.incrementParForMRCounters(_report, 0, 0);
 			
 			//print heaver hitter per task
-			JobConf job = ConfigurationManager.getCachedJobConf();
-			if( DMLScript.STATISTICS && !InfrastructureAnalyzer.isLocalMode(job) )
+			JobConf job = HadoopConfigurationManager.getCachedJobConf();
+			if( GlobalState.statistics && !InfrastructureAnalyzer.isLocalMode(job) )
 				LOG.info("\nSystemML Statistics:\nHeavy hitter instructions (name, time, count):\n" + Statistics.getHeavyHitters(DMLScript.STATISTICS_COUNT));
 		}
 		catch(Exception ex)

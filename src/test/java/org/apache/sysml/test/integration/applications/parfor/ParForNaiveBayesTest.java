@@ -21,9 +21,6 @@ package org.apache.sysml.test.integration.applications.parfor;
 
 import java.util.HashMap;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock.PExecMode;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
@@ -32,6 +29,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 /**
  * 
@@ -151,8 +150,8 @@ public class ParForNaiveBayesTest extends AutomatedTestBase
 		int cols = (instType==ExecType.MR)? cols2 : cols1;
 		
 		//inst exec type, influenced via rows
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
-		rtplatform = (instType==ExecType.MR)? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+		ExecutionMode oldPlatform = rtplatform;
+		rtplatform = (instType==ExecType.MR)? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 		
 		//determine the script
 		int scriptNum = -1;

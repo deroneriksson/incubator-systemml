@@ -20,10 +20,10 @@
 package org.apache.sysml.test.integration.functions.misc;
 
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 
 
@@ -56,7 +56,7 @@ public class IPANnzPropagationTest extends AutomatedTestBase
 	{
 		// Save old settings
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		
 		try
 		{
@@ -67,7 +67,7 @@ public class IPANnzPropagationTest extends AutomatedTestBase
 			fullDMLScriptName = HOME + testname + ".dml";
 			programArgs = new String[]{"-stats", "-explain", "recompile_hops"};
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
-			rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			rtplatform = ExecutionMode.HYBRID_SPARK;
 			
 			runTest(true, false, null, -1);
 			

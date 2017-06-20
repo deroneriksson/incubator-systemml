@@ -19,12 +19,11 @@
 
 package org.apache.sysml.test.integration.functions.binary.matrix;
 
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 public class MatrixVectorTest extends AutomatedTestBase 
 {
@@ -51,79 +50,79 @@ public class MatrixVectorTest extends AutomatedTestBase
 	@Test
 	public void testMVwideSparseCP() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testMVwideSparseMR() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.HADOOP, true);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.HADOOP, true);
 	}
 
 	@Test
 	public void testMVwideSparseHYBRID() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.HYBRID, true);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.HYBRID, true);
 	}
 	
 	@Test
 	public void testMVwideDenseCP() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testMVwideDenseMR() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.HADOOP, false);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.HADOOP, false);
 	}
 
 	@Test
 	public void testMVwideDenseHYBRID() 
 	{
-		runMatrixVectorMultiplicationTest(cols_wide, RUNTIME_PLATFORM.HYBRID, false);
+		runMatrixVectorMultiplicationTest(cols_wide, ExecutionMode.HYBRID, false);
 	}
 	
 	@Test
 	public void testMVskinnySparseCP() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testMVskinnySparseMR() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.HADOOP, true);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.HADOOP, true);
 	}
 
 	@Test
 	public void testMVskinnySparseHYBRID() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.HYBRID, true);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.HYBRID, true);
 	}
 	
 	@Test
 	public void testMVskinnyDenseCP() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testMVskinnyDenseMR() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.HADOOP, false);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.HADOOP, false);
 	}
 
 	@Test
 	public void testMVskinnyDenseHYBRID() 
 	{
-		runMatrixVectorMultiplicationTest(cols_skinny, RUNTIME_PLATFORM.HYBRID, false);
+		runMatrixVectorMultiplicationTest(cols_skinny, ExecutionMode.HYBRID, false);
 	}
 	
-	private void runMatrixVectorMultiplicationTest( int cols, RUNTIME_PLATFORM rt, boolean sparse )
+	private void runMatrixVectorMultiplicationTest( int cols, ExecutionMode rt, boolean sparse )
 	{
 
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		rtplatform = rt;
 
 		try

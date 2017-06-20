@@ -19,13 +19,13 @@
 
 package org.apache.sysml.test.integration.functions.io.csv;
 
-import org.junit.Test;
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Test;
 
 /**
  * JUnit Test cases to evaluate the functionality of reading CSV files.
@@ -54,101 +54,101 @@ public class ReadCSVTest extends AutomatedTestBase
 	
 	@Test
 	public void testCSV1_Sequential_CP1() {
-		runCSVTest(1, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runCSVTest(1, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testCSV1_Parallel_CP1() {
-		runCSVTest(1, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runCSVTest(1, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testCSV1_Sequential_CP() {
-		runCSVTest(1, RUNTIME_PLATFORM.HYBRID, false);
+		runCSVTest(1, ExecutionMode.HYBRID, false);
 	}
 	
 	@Test
 	public void testCSV1_Parallel_CP() {
-		runCSVTest(1, RUNTIME_PLATFORM.HYBRID, true);
+		runCSVTest(1, ExecutionMode.HYBRID, true);
 	}
 	
 	@Test
 	public void testCSV1_MR() {
-		runCSVTest(1, RUNTIME_PLATFORM.HADOOP, true);
+		runCSVTest(1, ExecutionMode.HADOOP, true);
 	}
 	
 	@Test
 	public void testCSV1_SP() {
-		runCSVTest(1, RUNTIME_PLATFORM.SPARK, true);
+		runCSVTest(1, ExecutionMode.SPARK, true);
 	}
 	
 	@Test
 	public void testCSV2_Sequential_CP1() {
-		runCSVTest(2, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runCSVTest(2, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testCSV2_Parallel_CP1() {
-		runCSVTest(2, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runCSVTest(2, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testCSV2_Sequential_CP() {
-		runCSVTest(2, RUNTIME_PLATFORM.HYBRID, false);
+		runCSVTest(2, ExecutionMode.HYBRID, false);
 	}
 	
 	@Test
 	public void testCSV2_Parallel_CP() {
-		runCSVTest(2, RUNTIME_PLATFORM.HYBRID, true);
+		runCSVTest(2, ExecutionMode.HYBRID, true);
 	}
 	
 	@Test
 	public void testCSV2_MR() {
-		runCSVTest(2, RUNTIME_PLATFORM.HADOOP, true);
+		runCSVTest(2, ExecutionMode.HADOOP, true);
 	}
 	
 	@Test
 	public void testCSV2_SP() {
-		runCSVTest(2, RUNTIME_PLATFORM.SPARK, true);
+		runCSVTest(2, ExecutionMode.SPARK, true);
 	}
 
 	@Test
 	public void testCSV3_Sequential_CP1() {
-		runCSVTest(3, RUNTIME_PLATFORM.SINGLE_NODE, false);
+		runCSVTest(3, ExecutionMode.SINGLE_NODE, false);
 	}
 	
 	@Test
 	public void testCSV3_Parallel_CP1() {
-		runCSVTest(3, RUNTIME_PLATFORM.SINGLE_NODE, true);
+		runCSVTest(3, ExecutionMode.SINGLE_NODE, true);
 	}
 	
 	@Test
 	public void testCSV3_Sequential_CP() {
-		runCSVTest(3, RUNTIME_PLATFORM.HYBRID, false);
+		runCSVTest(3, ExecutionMode.HYBRID, false);
 	}
 	
 	@Test
 	public void testCSV3_Parallel_CP() {
-		runCSVTest(3, RUNTIME_PLATFORM.HYBRID, true);
+		runCSVTest(3, ExecutionMode.HYBRID, true);
 	}
 	
 	@Test
 	public void testCSV3_MR() {
-		runCSVTest(3, RUNTIME_PLATFORM.HADOOP, false);
+		runCSVTest(3, ExecutionMode.HADOOP, false);
 	}
 	
 	@Test
 	public void testCSV3_SP() {
-		runCSVTest(3, RUNTIME_PLATFORM.SPARK, false);
+		runCSVTest(3, ExecutionMode.SPARK, false);
 	}
 
-	private void runCSVTest(int testNumber, RUNTIME_PLATFORM platform, boolean parallel) 
+	private void runCSVTest(int testNumber, ExecutionMode platform, boolean parallel) 
 	{
-		RUNTIME_PLATFORM oldPlatform = rtplatform;
+		ExecutionMode oldPlatform = rtplatform;
 		rtplatform = platform;
 		
 		boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-		if( rtplatform == RUNTIME_PLATFORM.SPARK )
+		if( rtplatform == ExecutionMode.SPARK )
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 		
 		boolean oldpar = CompilerConfig.FLAG_PARREADWRITE_TEXT;

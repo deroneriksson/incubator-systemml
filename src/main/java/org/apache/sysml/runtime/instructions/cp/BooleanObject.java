@@ -20,9 +20,9 @@
 package org.apache.sysml.runtime.instructions.cp;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.parser.Expression.ValueType;
+import org.apache.sysml.utils.GlobalState;
 
 
 public class BooleanObject extends ScalarObject  
@@ -62,7 +62,7 @@ public class BooleanObject extends ScalarObject
 
 	@Override
 	public String getLanguageSpecificStringValue() {
-		return (DMLScript.SCRIPT_TYPE == ScriptType.DML) ? 
+		return (GlobalState.scriptType == ScriptType.DML) ? 
 			Boolean.toString(_value).toUpperCase() : 
 			StringUtils.capitalize(Boolean.toString(_value));
 	}

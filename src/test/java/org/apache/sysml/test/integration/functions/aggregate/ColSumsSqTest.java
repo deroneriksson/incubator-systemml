@@ -19,8 +19,9 @@
 
 package org.apache.sysml.test.integration.functions.aggregate;
 
+import java.util.HashMap;
+
 import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.instructions.Instruction;
@@ -28,11 +29,10 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
 
 /**
  * Test for the column sums of squared values function, "colSums(X^2)".
@@ -204,21 +204,21 @@ public class ColSumsSqTest extends AutomatedTestBase {
         boolean rewritesOld = OptimizerUtils.ALLOW_ALGEBRAIC_SIMPLIFICATION;
         OptimizerUtils.ALLOW_ALGEBRAIC_SIMPLIFICATION = rewrites;
 
-        RUNTIME_PLATFORM platformOld = rtplatform;
+        ExecutionMode platformOld = rtplatform;
         switch (platform) {
             case MR:
-                rtplatform = RUNTIME_PLATFORM.HADOOP;
+                rtplatform = ExecutionMode.HADOOP;
                 break;
             case SPARK:
-                rtplatform = RUNTIME_PLATFORM.SPARK;
+                rtplatform = ExecutionMode.SPARK;
                 break;
             default:
-                rtplatform = RUNTIME_PLATFORM.SINGLE_NODE;
+                rtplatform = ExecutionMode.SINGLE_NODE;
                 break;
         }
 
         boolean sparkConfigOld = DMLScript.USE_LOCAL_SPARK_CONFIG;
-        if (rtplatform == RUNTIME_PLATFORM.SPARK)
+        if (rtplatform == ExecutionMode.SPARK)
             DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 
         try {

@@ -21,14 +21,13 @@ package org.apache.sysml.test.integration.functions.piggybacking;
 
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PiggybackingTest2 extends AutomatedTestBase 
 {
@@ -54,10 +53,10 @@ public class PiggybackingTest2 extends AutomatedTestBase
 	public void testPiggybacking_iqm()
 	{		
 
-		RUNTIME_PLATFORM rtold = rtplatform;
+		ExecutionMode rtold = rtplatform;
 		
 		// bug can be reproduced only when exec mode is HADOOP 
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		rtplatform = ExecutionMode.HADOOP;
 		
 		TestConfiguration config = getTestConfiguration(TEST_NAME);
 		loadTestConfiguration(config);

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.Hop;
 import org.apache.sysml.hops.OptimizerUtils;
@@ -46,6 +45,7 @@ import org.apache.sysml.runtime.instructions.cp.ScalarObject;
 import org.apache.sysml.runtime.instructions.cp.StringObject;
 import org.apache.sysml.runtime.instructions.cp.VariableCPInstruction;
 import org.apache.sysml.runtime.matrix.data.MatrixBlock;
+import org.apache.sysml.utils.GlobalState;
 import org.apache.sysml.utils.MLContextProxy;
 import org.apache.sysml.utils.Statistics;
 import org.apache.sysml.yarn.DMLAppMasterUtils;
@@ -137,10 +137,10 @@ public class ProgramBlock
 		//dynamically recompile instructions if enabled and required
 		try
 		{
-			if( DMLScript.isActiveAM() ) //set program block specific remote memory
+			if( GlobalState.activeAM ) //set program block specific remote memory
 				DMLAppMasterUtils.setupProgramBlockRemoteMaxMemory(this);
 
-			long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+			long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 			if(    ConfigurationManager.isDynamicRecompilation()
 				&& _sb != null
 				&& _sb.requiresRecompilation() )
@@ -151,7 +151,7 @@ public class ProgramBlock
 				if( MLContextProxy.isActive() )
 					tmp = MLContextProxy.performCleanupAfterRecompilation(tmp);
 			}
-			if( DMLScript.STATISTICS ){
+			if( GlobalState.statistics ){
 				long t1 = System.nanoTime();
 				Statistics.incrementHOPRecompileTime(t1-t0);
 				if( tmp!=_inst )
@@ -185,14 +185,14 @@ public class ProgramBlock
 
 		//dynamically recompile instructions if enabled and required
 		try {
-			long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+			long t0 = GlobalState.statistics ? System.nanoTime() : 0;
 			if(    ConfigurationManager.isDynamicRecompilation()
 				&& requiresRecompile )
 			{
 				tmp = Recompiler.recompileHopsDag(
 					hops, ec.getVariables(), null, false, true, _tid);
 			}
-			if( DMLScript.STATISTICS ){
+			if( GlobalState.statistics ){
 				long t1 = System.nanoTime();
 				Statistics.incrementHOPRecompileTime(t1-t0);
 				if( tmp!=inst )
@@ -280,7 +280,7 @@ public class ProgramBlock
 		try
 		{
 			// start time measurement for statistics
-			long t0 = (DMLScript.STATISTICS || LOG.isTraceEnabled()) ?
+			long t0 = (GlobalState.statistics || LOG.isTraceEnabled()) ?
 					System.nanoTime() : 0;
 
 			// pre-process instruction (debug state, inst patching, listeners)
@@ -293,7 +293,7 @@ public class ProgramBlock
 			tmp.postprocessInstruction( ec );
 
 			// maintain aggregate statistics
-			if( DMLScript.STATISTICS) {
+			if( GlobalState.statistics) {
 				Statistics.maintainCPHeavyHitters(
 					tmp.getExtendedOpcode(), System.nanoTime()-t0);
 			}
@@ -313,7 +313,7 @@ public class ProgramBlock
 		}
 		catch (Exception e)
 		{
-			if (!DMLScript.ENABLE_DEBUG_MODE) {
+			if (!GlobalState.enableDebugMode) {
 				if ( e instanceof DMLScriptException)
 					throw (DMLScriptException)e;
 				else

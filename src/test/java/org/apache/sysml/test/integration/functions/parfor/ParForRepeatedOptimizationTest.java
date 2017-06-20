@@ -21,12 +21,6 @@ package org.apache.sysml.test.integration.functions.parfor;
 
 import java.util.HashMap;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.lops.LopProperties.ExecType;
 import org.apache.sysml.runtime.controlprogram.ParForProgramBlock;
@@ -35,7 +29,12 @@ import org.apache.sysml.runtime.matrix.data.MatrixValue.CellIndex;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
 import org.apache.sysml.test.utils.TestUtils;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ParForRepeatedOptimizationTest extends AutomatedTestBase 
 {
@@ -131,7 +130,7 @@ public class ParForRepeatedOptimizationTest extends AutomatedTestBase
 	 */
 	private void runParForRepeatedOptTest( boolean reusePartitionedData, boolean update, boolean changedDim, ExecType et, int numExpectedMR )
 	{
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		double memfactorOld = OptimizerUtils.MEM_UTIL_FACTOR;
 		boolean reuseOld = ParForProgramBlock.ALLOW_REUSE_PARTITION_VARS;
 		
@@ -151,7 +150,7 @@ public class ParForRepeatedOptimizationTest extends AutomatedTestBase
 		
 		try
 		{
-			rtplatform = (et==ExecType.MR) ? RUNTIME_PLATFORM.HADOOP : RUNTIME_PLATFORM.HYBRID;
+			rtplatform = (et==ExecType.MR) ? ExecutionMode.HADOOP : ExecutionMode.HYBRID;
 			OptimizerUtils.MEM_UTIL_FACTOR = computeMemoryUtilFactor( 70 ); //force partitioning
 			ParForProgramBlock.ALLOW_REUSE_PARTITION_VARS = reusePartitionedData;
 			

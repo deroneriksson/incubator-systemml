@@ -22,16 +22,15 @@ package org.apache.sysml.test.integration.functions.data;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.sysml.api.DMLException;
+import org.apache.sysml.api.DMLScript;
+import org.apache.sysml.test.integration.AutomatedTestBase;
+import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import org.apache.sysml.api.DMLException;
-import org.apache.sysml.api.DMLScript;
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
-import org.apache.sysml.test.integration.AutomatedTestBase;
-import org.apache.sysml.test.integration.TestConfiguration;
 
 /**
  * Tests if Rand produces the same output, for a given set of parameters, across different (CP vs. MR) runtime platforms.   
@@ -95,16 +94,16 @@ public class SampleTest extends AutomatedTestBase
 	
 	@Test
 	public void testSample() {
-		RUNTIME_PLATFORM platformOld = rtplatform;
+		ExecutionMode platformOld = rtplatform;
 		
 		try
 		{
-			rtplatform = RUNTIME_PLATFORM.HYBRID;
+			rtplatform = ExecutionMode.HYBRID;
 			runSampleTest();
-			rtplatform = RUNTIME_PLATFORM.SPARK;
+			rtplatform = ExecutionMode.SPARK;
 			DMLScript.USE_LOCAL_SPARK_CONFIG = true;
 			runSampleTest();
-			rtplatform = RUNTIME_PLATFORM.HYBRID_SPARK;
+			rtplatform = ExecutionMode.HYBRID_SPARK;
 			runSampleTest();
 			DMLScript.USE_LOCAL_SPARK_CONFIG = false;
 		}

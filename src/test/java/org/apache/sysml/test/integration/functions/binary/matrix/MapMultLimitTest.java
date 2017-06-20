@@ -19,14 +19,13 @@
 
 package org.apache.sysml.test.integration.functions.binary.matrix;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.test.integration.AutomatedTestBase;
 import org.apache.sysml.test.integration.TestConfiguration;
+import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.Statistics;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Tests the number of mapmult operations that can be piggybacked into the same GMR job.
@@ -57,8 +56,8 @@ public class MapMultLimitTest extends AutomatedTestBase
 	public void testMapMultLimit()
 	{
 
-		RUNTIME_PLATFORM rtold = rtplatform;
-		rtplatform = RUNTIME_PLATFORM.HADOOP;
+		ExecutionMode rtold = rtplatform;
+		rtplatform = ExecutionMode.HADOOP;
 
 		try
 		{
