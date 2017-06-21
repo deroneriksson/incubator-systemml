@@ -41,7 +41,6 @@ import org.apache.sysml.runtime.instructions.gpu.context.GPUContext;
 import org.apache.sysml.runtime.instructions.gpu.context.GPUObject;
 import org.apache.sysml.runtime.instructions.spark.data.BroadcastObject;
 import org.apache.sysml.runtime.instructions.spark.data.RDDObject;
-import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.MatrixCharacteristics;
 import org.apache.sysml.runtime.matrix.MatrixDimensionsMetaData;
 import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
@@ -54,6 +53,7 @@ import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.HadoopFSUtils;
 
 
 /**
@@ -770,7 +770,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			setHDFSFileExists(true);
 		
 		//check for common file scheme (otherwise no copy/rename)
-		boolean eqScheme = IOUtilFunctions.isSameFileScheme(
+		boolean eqScheme = HadoopFSUtils.isSameFileScheme(
 			new Path(_hdfsFileName), new Path(fName));
 		
 		//actual export (note: no direct transfer of local copy in order to ensure blocking (and hence, parallelism))
@@ -997,7 +997,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 			}
 			
 			//write the actual meta data file
-			MapReduceTool.writeMetaDataFile (filePathAndName + ".mtd", valueType, 
+			HadoopFSUtils.writeMetaDataFile (filePathAndName + ".mtd", valueType, 
 					getSchema(), dataType, mc, oinfo, formatProperties);
 		}
 	}
@@ -1358,7 +1358,7 @@ public abstract class CacheableData<T extends CacheBlock> extends Data
 		try
 		{
 			//check for common file scheme (otherwise no copy/rename)
-			boolean eqScheme = IOUtilFunctions.isSameFileScheme(
+			boolean eqScheme = HadoopFSUtils.isSameFileScheme(
 				new Path(_hdfsFileName), new Path(fName));
 			
 			//export or rename to target file on hdfs

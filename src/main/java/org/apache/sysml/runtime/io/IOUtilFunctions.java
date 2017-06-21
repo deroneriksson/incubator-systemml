@@ -71,15 +71,6 @@ public class IOUtilFunctions
 		return FileSystem.get(fname.toUri(), conf);
 	}
 	
-	public static boolean isSameFileScheme(Path path1, Path path2) {
-		if( path1 == null || path2 == null || path1.toUri() == null || path2.toUri() == null)
-			return false;
-		String scheme1 = path1.toUri().getScheme();
-		String scheme2 = path2.toUri().getScheme();
-		return (scheme1 == null && scheme2 == null)
-			|| (scheme1 != null && scheme1.equals(scheme2));
-	}
-	
 	public static boolean isObjectStoreFileScheme(Path path) {
 		if( path == null || path.toUri() == null || path.toUri().getScheme() == null )
 			return false;

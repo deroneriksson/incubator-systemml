@@ -65,6 +65,7 @@
 <!-- 					<include>org/apache/hadoop/io/Writable.class</include>
 					<include>org/apache/hadoop/io/WritableComparable.class</include>
 					<include>org/apache/hadoop/io/DataInputBuffer.class</include> -->
+					<include>org/apache/hadoop/HadoopIllegalArgumentException.class</include>
 					<include>org/apache/hadoop/io/**</include>
 					<include>org/apache/hadoop/fs/**</include>
 					<!-- <include>org/apache/hadoop/conf/**</include> -->
@@ -81,8 +82,10 @@
 			<unpackOptions>
 				<includes>
 					<include>org/apache/commons/lang/ArrayUtils.class</include>
+					<include>org/apache/commons/lang/NotImplementedException.class</include>
 					<include>org/apache/commons/lang/StringUtils.class</include>
 					<include>org/apache/commons/lang/SystemUtils.class</include>
+					<include>org/apache/commons/lang/exception/Nestable.class</include>
 				</includes>
 			</unpackOptions>
 			<scope>compile</scope>
@@ -93,6 +96,7 @@
 			<includes>
 				<!-- <include>*:commons-lang</include> -->
 				<include>*:commons-logging*</include>
+				<include>*:log4j*</include>
 				<include>*:systemml*</include>
 			</includes>
 			<unpackOptions>
@@ -107,6 +111,7 @@
 					<exclude>kernels/**</exclude>
 					<exclude>lib/**</exclude>
 					<exclude>META-INF/maven/commons-logging/**</exclude>
+					<exclude>META-INF/maven/log4j/**</exclude>
 					<exclude>META-INF/maven/org.antlr/**</exclude>
 				</excludes>
 			</unpackOptions>

@@ -59,6 +59,7 @@ import org.apache.sysml.runtime.matrix.data.NumItemsByEachReducerMetaData;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 import org.apache.sysml.runtime.matrix.sort.ReadWithZeros;
+import org.apache.sysml.utils.HadoopFSUtils;
 import org.apache.wink.json4j.JSONException;
 import org.apache.wink.json4j.OrderedJSONObject;
 
@@ -210,7 +211,7 @@ public class MapReduceTool
 	public static void renameFileOnHDFS(String originalDir, String newDir) throws IOException {
 		Path pathOrig = new Path(originalDir);
 		Path pathNew = new Path(newDir);
-		if( !IOUtilFunctions.isSameFileScheme(pathOrig, pathNew) )
+		if( !HadoopFSUtils.isSameFileScheme(pathOrig, pathNew) )
 			throw new IOException("Cannot rename files to different target file system.");
 		
 		deleteFileIfExistOnHDFS(newDir);
@@ -224,7 +225,7 @@ public class MapReduceTool
 	public static void mergeIntoSingleFile(String originalDir, String newFile) throws IOException {
 		Path pathOrig = new Path(originalDir);
 		Path pathNew = new Path(newFile);
-		if( !IOUtilFunctions.isSameFileScheme(pathOrig, pathNew) )
+		if( !HadoopFSUtils.isSameFileScheme(pathOrig, pathNew) )
 			throw new IOException("Cannot merge files into different target file system.");
 		FileSystem fs = IOUtilFunctions.getFileSystem(pathOrig);
 		FileUtil.copyMerge(fs, pathOrig, fs, pathNew, true, 

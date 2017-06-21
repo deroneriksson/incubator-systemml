@@ -60,6 +60,7 @@ import org.apache.sysml.runtime.transform.meta.TfMetaUtils;
 import org.apache.sysml.runtime.util.DataConverter;
 import org.apache.sysml.utils.ExecutionMode;
 import org.apache.sysml.utils.GlobalState;
+import org.apache.sysml.utils.HadoopCheck;
 import org.apache.wink.json4j.JSONObject;
 
 /**
@@ -249,7 +250,17 @@ public class Connection implements Closeable
 			}
 		}
 		finally {
-			IOUtilFunctions.closeSilently(in);
+			if (HadoopCheck.confAvailable()) {
+				IOUtilFunctions.closeSilently(in);
+			} else {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		
 		return sb.toString();

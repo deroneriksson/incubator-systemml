@@ -26,10 +26,9 @@ public class HadoopConfigurationManager {
 	private static JobConf _rJob = new JobConf();
 
 	/**
-	 * TODO: fix this mysterious comment. Returns a cached JobConf object,
-	 * intended for global use by all operations with read-only access to job
-	 * conf. This prevents to read the hadoop conf files over and over again
-	 * from classpath. However,
+	 * Obtain a cached JobConf object, intended for global use by all operations
+	 * with read-only access to job conf. This prevents reading the hadoop conf
+	 * files over and over again.
 	 * 
 	 * @return the cached JobConf
 	 */

@@ -34,7 +34,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
-import org.apache.sysml.conf.HadoopConfigurationManager;
 import org.apache.sysml.hops.AggBinaryOp;
 import org.apache.sysml.hops.AggBinaryOp.MMultMethod;
 import org.apache.sysml.hops.DataGenOp;
@@ -106,6 +105,8 @@ import org.apache.sysml.runtime.matrix.data.MatrixBlock;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.runtime.matrix.data.SparseRowVector;
 import org.apache.sysml.utils.Explain;
+import org.apache.sysml.utils.HadoopCheck;
+import org.apache.sysml.utils.HadoopUtils;
 import org.apache.sysml.yarn.ropt.YarnClusterAnalyzer;
 
 /**
@@ -1105,26 +1106,27 @@ public class OptimizerRuleBased extends Optimizer
 			replication = (int)Math.min( replication, MAX_REPLICATION_FACTOR_PARTITIONING );
 			
 			//account for remaining hdfs capacity
-			try {
-				FileSystem fs = FileSystem.get(HadoopConfigurationManager.getCachedJobConf());
-				long hdfsCapacityRemain = fs.getStatus().getRemaining();
-				long sizeInputs = 0; //sum of all input sizes (w/o replication)
-				for( String var : partitionedMatrices.keySet() )
-				{
-					MatrixObject mo = (MatrixObject)vars.get(var);
-					Path fname = new Path(mo.getFileName());
-					if( fs.exists( fname ) ) //non-existing (e.g., CP) -> small file
-						sizeInputs += fs.getContentSummary(fname).getLength();		
+			if (HadoopCheck.confAvailable()) {
+				try {
+					FileSystem fs = HadoopUtils.getFileSystemFromHadoopJobConf();
+					long hdfsCapacityRemain = fs.getStatus().getRemaining();
+					// sum of all input sizes (w/o replication)
+					long sizeInputs = 0;
+					for (String var : partitionedMatrices.keySet()) {
+						MatrixObject mo = (MatrixObject) vars.get(var);
+						Path fname = new Path(mo.getFileName());
+						// non-existing (e.g., CP) -> small file
+						if (fs.exists(fname))
+							sizeInputs += fs.getContentSummary(fname).getLength();
+					}
+					replication = (int) Math.min(replication, Math.floor(0.9 * hdfsCapacityRemain / sizeInputs));
+
+					// ensure at least replication 1
+					replication = Math.max(replication, ParForProgramBlock.WRITE_REPLICATION_FACTOR);
+					sizeReplicated = replication * sizeInputs;
+				} catch (Exception ex) {
+					throw new DMLRuntimeException("Failed to analyze remaining hdfs capacity.", ex);
 				}
-				replication = (int) Math.min(replication, Math.floor(0.9*hdfsCapacityRemain/sizeInputs));
-				
-				//ensure at least replication 1
-				replication = Math.max( replication, ParForProgramBlock.WRITE_REPLICATION_FACTOR);
-				sizeReplicated = replication * sizeInputs;
-			}
-			catch(Exception ex)
-			{
-				throw new DMLRuntimeException("Failed to analyze remaining hdfs capacity.", ex);
 			}
 		}
 		

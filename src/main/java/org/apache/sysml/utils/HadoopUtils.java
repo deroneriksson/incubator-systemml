@@ -1,33 +1,22 @@
 package org.apache.sysml.utils;
 
+import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.sysml.conf.HadoopConfigurationManager;
+
 public class HadoopUtils {
 
 	/**
-	 * Is Hadoop 'conf' available?
-	 * 
-	 * @return true if available
+	 * Obtain FileSystem from Hadoop cached JobConf
+	 *
+	 * @return the FileSystem object
+	 * @throws IOException
+	 *             if problem occurs obtaining FileSystem from cached JobConf
 	 */
-	public static boolean confAvailable() {
-		try {
-			Class.forName("org.apache.hadoop.conf.Configuration");
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Is Hadoop 'fs' available?
-	 * 
-	 * @return true if available
-	 */
-	public static boolean fsAvailable() {
-		try {
-			Class.forName("org.apache.hadoop.fs.FileSystem");
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
+	public static FileSystem getFileSystemFromHadoopJobConf() throws IOException {
+		FileSystem fs = FileSystem.get(HadoopConfigurationManager.getCachedJobConf());
+		return fs;
 	}
 
 }
