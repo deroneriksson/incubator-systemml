@@ -416,7 +416,7 @@ public class CompressedMatrixBlock extends MatrixBlock implements Externalizable
 		}
 	}
 
-	private static ColGroup[] compressColGroups(MatrixBlock in, CompressedSizeEstimator estim, HashMap<Integer, Double> compRatios, int rlen, List<int[]> groups, boolean denseEst)
+	private ColGroup[] compressColGroups(MatrixBlock in, CompressedSizeEstimator estim, HashMap<Integer, Double> compRatios, int rlen, List<int[]> groups, boolean denseEst)
 	{
 		ColGroup[] ret = new ColGroup[groups.size()];
 		for( int i=0; i<groups.size(); i++ )
@@ -425,7 +425,7 @@ public class CompressedMatrixBlock extends MatrixBlock implements Externalizable
 		return ret;
 	}
 
-	private static ColGroup[] compressColGroups(MatrixBlock in, CompressedSizeEstimator estim, HashMap<Integer, Double> compRatios, int rlen, List<int[]> groups, boolean denseEst, int k) 
+	private ColGroup[] compressColGroups(MatrixBlock in, CompressedSizeEstimator estim, HashMap<Integer, Double> compRatios, int rlen, List<int[]> groups, boolean denseEst, int k)
 		throws DMLRuntimeException
 	{
 		try {
