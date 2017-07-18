@@ -28,13 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
 
@@ -477,31 +475,6 @@ public class YarnClusterAnalyzer
 		}
 		
 		return ret;
-	}
-
-	public static void setMaxMemoryOpt(JobConf job, String key, long bytes)
-	{
-		String javaOptsOld = job.get( key );
-		String javaOptsNew = null;
-
-		//StringTokenizer st = new StringTokenizer( javaOptsOld, " " );
-		String[] tokens = javaOptsOld.split(" "); //account also for no ' '
-		StringBuilder sb = new StringBuilder();
-		for( String arg : tokens )
-		{
-			if( arg.startsWith("-Xmx") ) //search for max mem
-			{
-				sb.append("-Xmx");
-				sb.append( (bytes/(1024*1024)) );
-				sb.append("M");
-			}
-			else
-				sb.append(arg);
-			
-			sb.append(" ");
-		}
-		javaOptsNew = sb.toString().trim();		
-		job.set(key, javaOptsNew);
 	}
 	
 	///////
