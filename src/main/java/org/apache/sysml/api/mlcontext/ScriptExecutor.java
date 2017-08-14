@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.DMLOptions;
 import org.apache.sysml.api.ScriptExecutorUtils;
@@ -111,6 +112,7 @@ import org.apache.sysml.utils.Statistics;
  * For more information, please see the {@link #execute} method.
  */
 public class ScriptExecutor {
+	protected static Logger log = Logger.getLogger(ScriptExecutor.class);
 
 	protected DMLConfig config;
 	protected DMLProgram dmlProgram;
@@ -130,11 +132,17 @@ public class ScriptExecutor {
 	protected ExecutionType executionType;
 	protected int statisticsMaxHeavyHitters = 10;
 	protected boolean maintainSymbolTable = false;
+	protected boolean performHopRewrites = true;
+	protected boolean compileBeforeEveryExecution = false;
 
 	/**
 	 * ScriptExecutor constructor.
+	 *
+	 * @param script
+	 *            the script to execute
 	 */
-	public ScriptExecutor() {
+	public ScriptExecutor(Script script) {
+		this.script = script;
 		config = ConfigurationManager.getDMLConfig();
 	}
 
@@ -142,10 +150,13 @@ public class ScriptExecutor {
 	 * ScriptExecutor constructor, where the configuration properties are passed
 	 * in.
 	 *
+	 * @param script
+	 *            the script to execute
 	 * @param config
 	 *            the configuration properties to use by the ScriptExecutor
 	 */
-	public ScriptExecutor(DMLConfig config) {
+	public ScriptExecutor(Script script, DMLConfig config) {
+		this.script = script;
 		this.config = config;
 		ConfigurationManager.setGlobalConfig(config);
 	}
@@ -249,7 +260,8 @@ public class ScriptExecutor {
 		DMLScript.USE_ACCELERATOR = gpu;
 		DMLScript.STATISTICS_COUNT = statisticsMaxHeavyHitters;
 
-		// Sets the GPUs to use for this process (a range, all GPUs, comma separated list or a specific GPU)
+		// Sets the GPUs to use for this process (a range, all GPUs, comma
+		// separated list or a specific GPU)
 		GPUContextPool.AVAILABLE_GPUS = ConfigurationManager.getDMLConfig().getTextValue(DMLConfig.AVAILABLE_GPUS);
 	}
 
@@ -263,20 +275,16 @@ public class ScriptExecutor {
 		DMLScript.USE_ACCELERATOR = oldGPU;
 		DMLScript.STATISTICS_COUNT = DMLOptions.defaultOptions.statsCount;
 	}
-	
-	public void compile(Script script) {
-		compile(script, true);
-	}
-	
+
 	/**
 	 * Compile a DML or PYDML script. This will help analysis of DML programs
-	 * that have dynamic recompilation flag set to false without actually executing it. 
-	 * 
-	 * This is broken down into the following
-	 * primary methods:
+	 * that have dynamic recompilation flag set to false without actually
+	 * executing it.
+	 *
+	 * This is broken down into the following primary methods:
 	 *
 	 * <ol>
-	 * <li>{@link #setup(Script)}</li>
+	 * <li>{@link #setup()}</li>
 	 * <li>{@link #parseScript()}</li>
 	 * <li>{@link #liveVariableAnalysis()}</li>
 	 * <li>{@link #validateScript()}</li>
@@ -295,12 +303,13 @@ public class ScriptExecutor {
 	 * @param script
 	 *            the DML or PYDML script to compile
 	 * @param performHOPRewrites
-	 *            should perform static rewrites, perform intra-/inter-procedural analysis to propagate size information into functions and apply dynamic rewrites
+	 *            should perform static rewrites, perform
+	 *            intra-/inter-procedural analysis to propagate size information
+	 *            into functions and apply dynamic rewrites
 	 */
-	public void compile(Script script, boolean performHOPRewrites) {
-
-		// main steps in script execution
-		setup(script);
+	public void compile() {
+		log.debug("Compile program");
+		setup();
 		if (statistics) {
 			Statistics.startCompileTimer();
 		}
@@ -308,8 +317,9 @@ public class ScriptExecutor {
 		liveVariableAnalysis();
 		validateScript();
 		constructHops();
-		if(performHOPRewrites)
+		if (performHopRewrites) {
 			rewriteHops();
+		}
 		rewritePersistentReadsAndWrites();
 		constructLops();
 		generateRuntimeProgram();
@@ -323,13 +333,12 @@ public class ScriptExecutor {
 		}
 	}
 
-
 	/**
 	 * Execute a DML or PYDML script. This is broken down into the following
 	 * primary methods:
 	 *
 	 * <ol>
-	 * <li>{@link #compile(Script)}</li>
+	 * <li>{@link #compile()}</li>
 	 * <li>{@link #createAndInitializeExecutionContext()}</li>
 	 * <li>{@link #executeRuntimeProgram()}</li>
 	 * <li>{@link #cleanupAfterExecution()}</li>
@@ -339,10 +348,21 @@ public class ScriptExecutor {
 	 *            the DML or PYDML script to execute
 	 * @return the results as a MLResults object
 	 */
-	public MLResults execute(Script script) {
+	public MLResults execute() {
 
-		// main steps in script execution
-		compile(script);
+		if (runtimeProgram == null) {
+			log.debug("Runtime program does not exist, so compile runtime program");
+			compile();
+		} else if (compileBeforeEveryExecution) {
+			log.debug("Compile program before every execution");
+			compile();
+		} else if (script.isInputParameterChanged()) {
+			log.debug("Input parameter(s) changed, so compile program");
+			compile();
+			script.resetInputParameterChanged();
+		} else {
+			log.debug("Program does not need to be compiled");
+		}
 
 		try {
 			createAndInitializeExecutionContext();
@@ -359,16 +379,14 @@ public class ScriptExecutor {
 	}
 
 	/**
-	 * Sets the script in the ScriptExecutor, checks that the script has a type
-	 * and string, sets the ScriptExecutor in the script, sets the script string
-	 * in the Spark Monitor, globally sets the script type, sets global flags,
-	 * and resets statistics if needed.
+	 * Checks that the script has a type and string, sets the ScriptExecutor in
+	 * the script, sets the script string in the Spark Monitor, globally sets
+	 * the script type, sets global flags, and resets statistics if needed.
 	 *
 	 * @param script
 	 *            the DML or PYDML script to execute
 	 */
-	protected void setup(Script script) {
-		this.script = script;
+	protected void setup() {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
@@ -429,6 +447,7 @@ public class ScriptExecutor {
 	 * recompilation.
 	 */
 	protected void executeRuntimeProgram() {
+		log.debug("Execute runtime program");
 		try {
 			ScriptExecutorUtils.executeRuntimeProgram(this, statistics ? statisticsMaxHeavyHitters : 0);
 		} catch (DMLRuntimeException e) {
@@ -734,7 +753,7 @@ public class ScriptExecutor {
 
 	/**
 	 * Obtain the current execution environment.
-	 * 
+	 *
 	 * @return the execution environment
 	 */
 	public ExecutionType getExecutionType() {
@@ -743,7 +762,7 @@ public class ScriptExecutor {
 
 	/**
 	 * Set the execution environment.
-	 * 
+	 *
 	 * @param executionType
 	 *            the execution environment
 	 */
@@ -751,4 +770,47 @@ public class ScriptExecutor {
 		DMLScript.rtplatform = executionType.getRuntimePlatform();
 		this.executionType = executionType;
 	}
+
+	/**
+	 * Whether or not Hops should be rewritten
+	 *
+	 * @return {@code true} if Hops should be rewritten, {@code false} otherwise
+	 */
+	public boolean isPerformHopRewrites() {
+		return performHopRewrites;
+	}
+
+	/**
+	 * Set whether or not Hops should be rewritten.
+	 *
+	 * @param performHopRewrites
+	 *            {@code true} if Hops should be rewritten, {@code false}
+	 *            otherwise
+	 */
+	public void setPerformHopRewrites(boolean performHopRewrites) {
+		this.performHopRewrites = performHopRewrites;
+	}
+
+	/**
+	 * Whether or not a program should be (re)compiled before every execution.
+	 *
+	 * @return {@code true} if program should be compiled before every
+	 *         execution, {@code false} otherwise
+	 */
+	public boolean isCompileBeforeEveryExecution() {
+		return compileBeforeEveryExecution;
+	}
+
+	/**
+	 * Set whether or not a program should be (re)compiled before every
+	 * execution.
+	 *
+	 * @param compileBeforeEveryExecution
+	 *            {@code true} if program should be (re)compiled before every
+	 *            execution, {@code false} otherwise
+	 */
+	public void setCompileBeforeEveryExecution(boolean compileBeforeEveryExecution) {
+		this.compileBeforeEveryExecution = compileBeforeEveryExecution;
+	}
+
 }

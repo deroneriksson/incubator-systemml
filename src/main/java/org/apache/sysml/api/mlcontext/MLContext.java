@@ -46,6 +46,7 @@ import org.apache.sysml.runtime.matrix.MatrixFormatMetaData;
 import org.apache.sysml.runtime.matrix.data.OutputInfo;
 import org.apache.sysml.utils.Explain.ExplainType;
 import org.apache.sysml.utils.MLContextProxy;
+
 /**
  * The MLContext API offers programmatic access to SystemML on Spark from
  * languages such as Scala, Java, and Python.
@@ -66,6 +67,11 @@ public class MLContext {
 	 * Reference to the current script.
 	 */
 	private Script executionScript = null;
+
+	/**
+	 * Reference to the script executor.
+	 */
+	private ScriptExecutor scriptExecutor = null;
 
 	/**
 	 * The currently active MLContext.
@@ -128,6 +134,11 @@ public class MLContext {
 	 * execution. See {@link ScriptExecutor#init(boolean)}.
 	 */
 	private boolean initBeforeExecution = true;
+
+	/**
+	 * Whether or not a program should be (re)compiled before every execution.
+	 */
+	private boolean compileBeforeEveryExecution = false;
 
 	/**
 	 * The different explain levels supported by SystemML.
@@ -203,6 +214,21 @@ public class MLContext {
 	 */
 	public static MLContext getActiveMLContext() {
 		return activeMLContext;
+	}
+
+	public MLContext() {
+		executionType = ExecutionType.DRIVER;
+		if (activeMLContext == null) {
+			System.out.println(MLContextUtil.welcomeMessage());
+		}
+
+		DMLScript.rtplatform = executionType.getRuntimePlatform();
+
+		activeMLContext = this;
+		MLContextProxy.setActive(true);
+
+		MLContextUtil.setDefaultConfig();
+		MLContextUtil.setCompilerConfig();
 	}
 
 	/**
@@ -286,8 +312,6 @@ public class MLContext {
 	public void resetConfig() {
 		MLContextUtil.setDefaultConfig();
 	}
-	
-	
 
 	/**
 	 * Set configuration property, such as
@@ -306,8 +330,7 @@ public class MLContext {
 			throw new MLContextException(e);
 		}
 	}
-	
-	
+
 	/**
 	 * Execute a DML or PYDML Script.
 	 *
@@ -316,7 +339,11 @@ public class MLContext {
 	 * @return the results as a MLResults object
 	 */
 	public MLResults execute(Script script) {
-		ScriptExecutor scriptExecutor = new ScriptExecutor();
+		if (scriptExecutor == null) {
+			scriptExecutor = new ScriptExecutor(script);
+		} else if (!script.getScriptExecutionString().equals(executionScript.getScriptExecutionString())) {
+			scriptExecutor = new ScriptExecutor(script);
+		}
 		scriptExecutor.setExecutionType(executionType);
 		scriptExecutor.setExplain(explain);
 		scriptExecutor.setExplainLevel(explainLevel);
@@ -329,7 +356,8 @@ public class MLContext {
 			initBeforeExecution = false;
 		}
 		scriptExecutor.setMaintainSymbolTable(maintainSymbolTable);
-		return execute(script, scriptExecutor);
+		scriptExecutor.setCompileBeforeEveryExecution(compileBeforeEveryExecution);
+		return execute(scriptExecutor);
 	}
 
 	/**
@@ -337,32 +365,31 @@ public class MLContext {
 	 * ScriptExecutor class can be extended to allow the modification of the
 	 * default execution pathway.
 	 *
-	 * @param script
-	 *            the DML or PYDML Script object
 	 * @param scriptExecutor
 	 *            the ScriptExecutor that defines the script execution pathway
 	 * @return the results as a MLResults object
 	 */
-	public MLResults execute(Script script, ScriptExecutor scriptExecutor) {
+	public MLResults execute(ScriptExecutor scriptExecutor) {
 		try {
-			executionScript = script;
+			executionScript = scriptExecutor.getScript();
+			this.scriptExecutor = scriptExecutor;
 
 			Long time = new Long((new Date()).getTime());
-			if ((script.getName() == null) || (script.getName().equals(""))) {
-				script.setName(time.toString());
+			if ((executionScript.getName() == null) || (executionScript.getName().equals(""))) {
+				executionScript.setName(time.toString());
 			}
 
-			MLResults results = scriptExecutor.execute(script);
+			MLResults results = scriptExecutor.execute();
 
 			return results;
 		} catch (RuntimeException e) {
 			throw new MLContextException("Exception when executing script", e);
 		}
 	}
-	
+
 	/**
 	 * Sets the script that is being executed
-	 * 
+	 *
 	 * @param executionScript
 	 *            script that is being executed
 	 */
@@ -508,7 +535,7 @@ public class MLContext {
 	public boolean isForceGPU() {
 		return this.forceGPU;
 	}
-	
+
 	/**
 	 * Used internally by MLContextProxy.
 	 *
@@ -745,7 +772,7 @@ public class MLContext {
 
 	/**
 	 * Obtain the current execution environment.
-	 * 
+	 *
 	 * @return the execution environment
 	 */
 	public ExecutionType getExecutionType() {
@@ -754,13 +781,35 @@ public class MLContext {
 
 	/**
 	 * Set the execution environment.
-	 * 
+	 *
 	 * @param executionType
 	 *            the execution environment
 	 */
 	public void setExecutionType(ExecutionType executionType) {
 		DMLScript.rtplatform = executionType.getRuntimePlatform();
 		this.executionType = executionType;
+	}
+
+	/**
+	 * Whether or not a program should be (re)compiled before every execution.
+	 *
+	 * @return {@code true} if program should be compiled before every
+	 *         execution, {@code false} otherwise
+	 */
+	public boolean isCompileBeforeEveryExecution() {
+		return compileBeforeEveryExecution;
+	}
+
+	/**
+	 * Set whether or not a program should be (re)compiled before every
+	 * execution.
+	 *
+	 * @param compileBeforeEveryExecution
+	 *            {@code true} if program should be (re)compiled before every
+	 *            execution, {@code false} otherwise
+	 */
+	public void setCompileBeforeEveryExecution(boolean compileBeforeEveryExecution) {
+		this.compileBeforeEveryExecution = compileBeforeEveryExecution;
 	}
 
 }

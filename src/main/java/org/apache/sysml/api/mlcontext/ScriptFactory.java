@@ -355,7 +355,7 @@ public class ScriptFactory {
 				|| IOUtilFunctions.isObjectStoreFileScheme(new Path(scriptFilePath))) {
 				Path path = new Path(scriptFilePath);
 				FileSystem fs = IOUtilFunctions.getFileSystem(path);
-				try( FSDataInputStream fsdis = fs.open(path) ) {
+				try (FSDataInputStream fsdis = fs.open(path)) {
 					return IOUtils.toString(fsdis);
 				}
 			} else {// from local file system
@@ -364,7 +364,7 @@ public class ScriptFactory {
 			}
 		} catch (IllegalArgumentException | IOException e) {
 			throw new MLContextException("Error trying to read script string from file: " + scriptFilePath, e);
-		} 
+		}
 	}
 
 	/**

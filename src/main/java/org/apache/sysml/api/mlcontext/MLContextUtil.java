@@ -91,7 +91,7 @@ import org.w3c.dom.NodeList;
  *
  */
 public final class MLContextUtil {
-	
+
 	/**
 	 * Get HOP DAG in dot format for a DML or PYDML Script.
 	 *
@@ -117,9 +117,8 @@ public final class MLContextUtil {
 	 * @throws HopsException
 	 *             if error occurs
 	 */
-	public static String getHopDAG(MLContext mlCtx, Script script, ArrayList<Integer> lines,
-			boolean performHOPRewrites, boolean withSubgraph) throws HopsException, DMLRuntimeException,
-			LanguageException {
+	public static String getHopDAG(MLContext mlCtx, Script script, ArrayList<Integer> lines, boolean performHOPRewrites,
+			boolean withSubgraph) throws HopsException, DMLRuntimeException, LanguageException {
 		return getHopDAG(mlCtx, script, lines, null, performHOPRewrites, withSubgraph);
 	}
 
@@ -151,8 +150,8 @@ public final class MLContextUtil {
 	 *             if error occurs
 	 */
 	public static String getHopDAG(MLContext mlCtx, Script script, ArrayList<Integer> lines, SparkConf newConf,
-			boolean performHOPRewrites, boolean withSubgraph) throws HopsException, DMLRuntimeException,
-			LanguageException {
+			boolean performHOPRewrites, boolean withSubgraph)
+			throws HopsException, DMLRuntimeException, LanguageException {
 		SparkConf oldConf = mlCtx.getSparkSession().sparkContext().getConf();
 		SparkExecutionContext.SparkClusterConfig systemmlConf = SparkExecutionContext.getSparkClusterConfig();
 		long oldMaxMemory = InfrastructureAnalyzer.getLocalMaxMemory();
@@ -161,7 +160,7 @@ public final class MLContextUtil {
 				systemmlConf.analyzeSparkConfiguation(newConf);
 				InfrastructureAnalyzer.setLocalMaxMemory(newConf.getSizeAsBytes("spark.driver.memory"));
 			}
-			ScriptExecutor scriptExecutor = new ScriptExecutor();
+			ScriptExecutor scriptExecutor = new ScriptExecutor(script);
 			scriptExecutor.setExecutionType(mlCtx.getExecutionType());
 			scriptExecutor.setGPU(mlCtx.isGPU());
 			scriptExecutor.setForceGPU(mlCtx.isForceGPU());
@@ -175,9 +174,9 @@ public final class MLContextUtil {
 			if ((script.getName() == null) || (script.getName().equals(""))) {
 				script.setName(time.toString());
 			}
-			
+
 			mlCtx.setExecutionScript(script);
-			scriptExecutor.compile(script, performHOPRewrites);
+			scriptExecutor.compile();
 			Explain.reset();
 			// To deal with potential Py4J issues
 			lines = lines.size() == 1 && lines.get(0) == -1 ? new ArrayList<Integer>() : lines;

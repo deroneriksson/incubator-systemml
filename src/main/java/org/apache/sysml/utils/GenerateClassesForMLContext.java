@@ -531,15 +531,15 @@ public class GenerateClassesForMLContext {
 	public static DMLProgram dmlProgramFromScriptFilePath(String scriptFilePath) {
 		String scriptString = fileToString(scriptFilePath);
 		Script script = new Script(scriptString);
-		ScriptExecutor se = new ScriptExecutor() {
+		ScriptExecutor se = new ScriptExecutor(script) {
 			@Override
-			public MLResults execute(Script script) {
-				setup(script);
+			public MLResults execute() {
+				setup();
 				parseScript();
 				return null;
 			}
 		};
-		se.execute(script);
+		se.execute();
 		DMLProgram dmlProgram = se.getDmlProgram();
 		return dmlProgram;
 	}

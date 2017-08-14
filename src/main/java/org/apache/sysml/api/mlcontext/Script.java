@@ -87,6 +87,8 @@ public class Script {
 	 */
 	private MLResults results;
 
+	private boolean inputParameterChanged = false;
+
 	/**
 	 * Script constructor, which by default creates a DML script.
 	 */
@@ -340,6 +342,9 @@ public class Script {
 			MLContextUtil.checkInputParameterType(name, value);
 			if (inputParameters == null) {
 				inputParameters = new LinkedHashMap<String, Object>();
+			}
+			if (inputParameters.containsKey(name)) {
+				inputParameterChanged = true;
 			}
 			inputParameters.put(name, value);
 		} else {
@@ -716,4 +721,23 @@ public class Script {
 		}
 		return ml.execute(this);
 	}
+
+	/**
+	 * Whether or not an existing input parameter has been updated.
+	 *
+	 * @return {@code true} if an input parameter has been updated,
+	 *         {@code false} otherwise
+	 */
+	boolean isInputParameterChanged() {
+		return inputParameterChanged;
+	}
+
+	/**
+	 * Reset (set to false) whether or not an existing input parameter has been
+	 * updated.
+	 */
+	void resetInputParameterChanged() {
+		inputParameterChanged = false;
+	}
+
 }
