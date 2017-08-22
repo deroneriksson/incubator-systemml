@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.sysml.parser.LanguageException.LanguageErrorCodes;
 import org.apache.sysml.runtime.util.ConvolutionUtils;
 import org.apache.sysml.runtime.util.UtilFunctions;
@@ -32,9 +33,9 @@ public class BuiltinFunctionExpression extends DataIdentifier
 	protected Expression[] 	  _args = null;
 	private BuiltinFunctionOp _opcode;
 
-	public BuiltinFunctionExpression(BuiltinFunctionOp bifop, ArrayList<ParameterExpression> args, String fname, int blp, int bcp, int elp, int ecp) {
+	public BuiltinFunctionExpression(ParserRuleContext ctx, BuiltinFunctionOp bifop, ArrayList<ParameterExpression> args, String fname) {
 		_opcode = bifop;
-		setAllPositions(fname, blp, bcp, elp, ecp);
+		setCtxValuesAndFilename(ctx, fname);
 		args = expandConvolutionArguments(args);
 		_args = new Expression[args.size()];
 		for(int i=0; i < args.size(); i++) {
@@ -42,25 +43,31 @@ public class BuiltinFunctionExpression extends DataIdentifier
 		}
 	}
 
-	public BuiltinFunctionExpression(BuiltinFunctionOp bifop, Expression[] args, String fname, int blp, int bcp, int elp, int ecp) {
+	public BuiltinFunctionExpression(BuiltinFunctionOp bifop, Expression[] args, ParseInfo parseInfo) {
+		_opcode = bifop;
+		_args = new Expression[args.length];
+		for (int i = 0; i < args.length; i++) {
+			_args[i] = args[i];
+		}
+		setParseInfo(parseInfo);
+	}
+
+	public BuiltinFunctionExpression(ParserRuleContext ctx, BuiltinFunctionOp bifop, Expression[] args, String fname) {
 		_opcode = bifop;
 		_args = new Expression[args.length];
 		for(int i=0; i < args.length; i++) {
 			_args[i] = args[i];
 		}
-		this.setAllPositions(fname, blp, bcp, elp, ecp);
+		setCtxValuesAndFilename(ctx, fname);
 	}
 
 	public Expression rewriteExpression(String prefix) throws LanguageException {
-
 		Expression[] newArgs = new Expression[_args.length];
-		for(int i=0; i < _args.length; i++) {
+		for (int i = 0; i < _args.length; i++) {
 			newArgs[i] = _args[i].rewriteExpression(prefix);
 		}
-		BuiltinFunctionExpression retVal = new BuiltinFunctionExpression(this._opcode, newArgs, 
-				this.getFilename(), this.getBeginLine(), this.getBeginColumn(), this.getEndLine(), this.getEndColumn());
+		BuiltinFunctionExpression retVal = new BuiltinFunctionExpression(this._opcode, newArgs, this);
 		return retVal;
-	
 	}
 
 	public BuiltinFunctionOp getOpCode() {
@@ -108,7 +115,7 @@ public class BuiltinFunctionExpression extends DataIdentifier
 		int count = 0;
 		for (DataIdentifier outParam: stmt.getTargetList()){
 			DataIdentifier tmp = new DataIdentifier(outParam);
-			tmp.setAllPositions(this.getFilename(), this.getBeginLine(), this.getBeginColumn(), this.getEndLine(), this.getEndColumn());
+			tmp.setParseInfo(this);
 			_outputs[count++] = tmp;
 		}
 		
@@ -287,10 +294,8 @@ public class BuiltinFunctionExpression extends DataIdentifier
 				HashSet<String> expand = new HashSet<String>();
 				expand.add("input_shape"); expand.add("pool_size"); expand.add("stride"); expand.add("padding");
 				paramExpression = expandListParams(paramExpression, expand);
-				paramExpression.add(new ParameterExpression("filter_shape1", 
-						new IntIdentifier(1, getFilename(), getBeginLine(), getBeginColumn(), getEndLine(), getEndColumn())));
-				paramExpression.add(new ParameterExpression("filter_shape2", 
-						new IntIdentifier(1, getFilename(), getBeginLine(), getBeginColumn(), getEndLine(), getEndColumn())));
+				paramExpression.add(new ParameterExpression("filter_shape1", new IntIdentifier(1, this)));
+				paramExpression.add(new ParameterExpression("filter_shape2", new IntIdentifier(1, this)));
 				paramExpression = replaceListParams(paramExpression, "pool_size", "filter_shape", 3);
 				if(_opcode == BuiltinFunctionOp.MAX_POOL_BACKWARD)
 					paramExpression = orderConvolutionParams(paramExpression, 2);
@@ -326,7 +331,7 @@ public class BuiltinFunctionExpression extends DataIdentifier
 		// checkIdentifierParams();
 		String outputName = getTempName();
 		DataIdentifier output = new DataIdentifier(outputName);
-		output.setAllPositions(this.getFilename(), this.getBeginLine(), this.getBeginColumn(), this.getEndLine(), this.getEndColumn());
+		output.setParseInfo(this);
 		
 		Identifier id = this.getFirstExpr().getOutput();
 		output.setProperties(this.getFirstExpr().getOutput());
@@ -987,9 +992,7 @@ public class BuiltinFunctionExpression extends DataIdentifier
 					// default value: 1 if from <= to; -1 if from > to
 					if(getThirdExpr() == null) {
 						expandArguments();
-						_args[2] = new DoubleIdentifier(((from > to) ? -1.0 : 1.0),
-								this.getFilename(), this.getBeginLine(), this.getBeginColumn(), 
-								this.getEndLine(), this.getEndColumn());
+						_args[2] = new DoubleIdentifier(((from > to) ? -1.0 : 1.0), this);
 					}
 					incr = getDoubleValue(getThirdExpr()); 
 					
@@ -1481,9 +1484,9 @@ public class BuiltinFunctionExpression extends DataIdentifier
 		}
 	}
 
-	public static BuiltinFunctionExpression getBuiltinFunctionExpression(
+	public static BuiltinFunctionExpression getBuiltinFunctionExpression(ParserRuleContext ctx, 
 			String functionName, ArrayList<ParameterExpression> paramExprsPassed,
-			String filename, int blp, int bcp, int elp, int ecp) {
+			String filename) {
 		
 		if (functionName == null || paramExprsPassed == null)
 			return null;
@@ -1667,8 +1670,7 @@ public class BuiltinFunctionExpression extends DataIdentifier
 		else
 			return null;
 		
-		BuiltinFunctionExpression retVal = new BuiltinFunctionExpression(bifop, paramExprsPassed,
-				filename, blp, bcp, elp, ecp);
+		BuiltinFunctionExpression retVal = new BuiltinFunctionExpression(ctx, bifop, paramExprsPassed, filename);
 	
 		return retVal;
 	} // end method getBuiltinFunctionExpression
