@@ -28,7 +28,6 @@ public abstract class LiveVariableAnalysis
 	VariableSet _kill;
 	VariableSet _liveIn;
 	VariableSet _liveOut;
-	boolean _initialized = false;
 	
 	VariableSet _warnSet;	// variables that may not be initialized
 							// applicable for control blocks

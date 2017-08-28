@@ -291,20 +291,19 @@ public class ParameterizedBuiltinSPInstruction  extends ComputationSPInstruction
 			if(mc1.getRowsPerBlock() == -1) {
 				throw new DMLRuntimeException("The block sizes are not specified for grouped aggregate");
 			}
-			int brlen = mc1.getRowsPerBlock();
 			
 			// Step 3: Now perform grouped aggregate operation (either on combiner side or reducer side)
 			JavaPairRDD<MatrixIndexes, MatrixCell> out = null;
 			if(_optr instanceof CMOperator && ((CMOperator) _optr).isPartialAggregateOperator() 
 				|| _optr instanceof AggregateOperator ) {
 				out = groupWeightedCells.reduceByKey(new PerformGroupByAggInCombiner(_optr))
-						.mapValues(new CreateMatrixCell(brlen, _optr));
+						.mapValues(new CreateMatrixCell(_optr));
 			}
 			else {
 				// Use groupby key because partial aggregation is not supported
 				out = groupWeightedCells.groupByKey()
 						.mapValues(new PerformGroupByAggInReducer(_optr))
-						.mapValues(new CreateMatrixCell(brlen, _optr));
+						.mapValues(new CreateMatrixCell(_optr));
 			}
 			
 			// Step 4: Set output characteristics and rdd handle 
@@ -707,9 +706,8 @@ public class ParameterizedBuiltinSPInstruction  extends ComputationSPInstruction
 	{
 		private static final long serialVersionUID = -5783727852453040737L;
 		
-		int brlen; Operator op;
-		public CreateMatrixCell(int brlen, Operator op) {
-			this.brlen = brlen;
+		Operator op;
+		public CreateMatrixCell(Operator op) {
 			this.op = op;
 		}
 

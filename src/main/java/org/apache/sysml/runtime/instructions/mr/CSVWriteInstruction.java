@@ -29,16 +29,13 @@ import org.apache.sysml.runtime.matrix.operators.Operator;
 
 public class CSVWriteInstruction extends UnaryMRInstructionBase{
 
-	
 	public String delim= DataExpression.DEFAULT_DELIM_DELIMITER;
-	public String header=null;//if null or empty string, then no header
 	public boolean sparse=DataExpression.DEFAULT_DELIM_SPARSE;
 	
-	public CSVWriteInstruction(Operator op, byte in, byte out, String del, String hdr, boolean sps, String istr) {
+	private CSVWriteInstruction(Operator op, byte in, byte out, String del, boolean sps, String istr) {
 		super(op, in, out);
 		mrtype = MRINSTRUCTION_TYPE.CSVWrite;
 		delim=del;
-		header=hdr;
 		sparse=sps;
 		instString = istr;
 	}
@@ -54,10 +51,9 @@ public class CSVWriteInstruction extends UnaryMRInstructionBase{
 		String[] outf = s[3].split(Instruction.DATATYPE_PREFIX);
 		output=Byte.parseByte(outf[0]);
 		
-		String header=s[4];
 		String delim=s[5];
 		boolean sparse=Boolean.parseBoolean(s[6]);
-		return new CSVWriteInstruction(op, input, output, delim, header, sparse, str);
+		return new CSVWriteInstruction(op, input, output, delim, sparse, str);
 	}
 	
 	@Override

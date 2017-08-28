@@ -76,7 +76,7 @@ public class LibMatrixDNNPoolingBackwardHelper {
 		private final ConvolutionParameters _params; 
 		double [] outputArray; boolean performReluBackward;
 		double [] inputArray;  MatrixBlock dout;
-		int C; int CHW; int P; int Q; int HW;
+		int CHW; int P; int Q; int HW;
 		public PoolingBackwardDenseSparse(int rl, int ru, ConvolutionParameters params, boolean performReluBackward) {
 			_rl = rl; _ru = ru;
 			_params = params;
@@ -84,7 +84,7 @@ public class LibMatrixDNNPoolingBackwardHelper {
 			inputArray = params.input1.getDenseBlock();
 			dout = params.input2;
 			outputArray = params.output.getDenseBlock();
-			C = params.C; CHW = params.C*params.H*params.W; HW = params.H*params.W;
+			CHW = params.C*params.H*params.W; HW = params.H*params.W;
 			P = params.P; Q = params.Q; 
 			if (inputArray == null || outputArray == null )
 				throw new RuntimeException("Incorrect usage: empty inputs");
@@ -171,13 +171,13 @@ public class LibMatrixDNNPoolingBackwardHelper {
 		public int _rl; public int _ru; 
 		private final ConvolutionParameters _params; 
 		double [] outputArray; boolean performReluBackward;
-		int C; int CHW; int P; int Q; int HW; 
+		int CHW; int P; int Q; int HW;
 		public PoolingBackwardSparseSparse(int rl, int ru, ConvolutionParameters params, boolean performReluBackward) {
 			_rl = rl; _ru = ru;
 			_params = params;
 			this.performReluBackward = performReluBackward;
 			outputArray = params.output.getDenseBlock();
-			C = params.C; CHW = params.C*params.H*params.W; HW = params.H*params.W;
+			CHW = params.C*params.H*params.W; HW = params.H*params.W;
 			P = params.P; Q = params.Q;
 			if (outputArray == null )
 				throw new RuntimeException("Incorrect usage: empty outputs");

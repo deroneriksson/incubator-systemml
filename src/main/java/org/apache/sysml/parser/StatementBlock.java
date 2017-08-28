@@ -66,7 +66,6 @@ public class StatementBlock extends LiveVariableAnalysis implements ParseInfo
 		_gen = new VariableSet();
 		_kill = new VariableSet();
 		_warnSet = new VariableSet();
-		_initialized = true;
 		_constVarsIn = new HashMap<String,ConstIdentifier>();
 		_constVarsOut = new HashMap<String,ConstIdentifier>();
 		_updateInPlaceVars = new ArrayList<String>();

@@ -59,11 +59,10 @@ public class LibMatrixDNNIm2ColHelper {
 	 */
 	static class DenseIm2colWorkerStride1Pad0 implements Im2colWorker {
 		double [] inputArray; double [] outputArray; 
-		int CRS; int S; int R; int P; int Q; int CHW; int H; int W;
+		int S; int R; int P; int Q; int CHW; int H; int W;
 		public DenseIm2colWorkerStride1Pad0(double [] inputArray, double [] outputArray, ConvolutionParameters params) {
 			this.inputArray = inputArray;
 			this.outputArray = outputArray;
-			this.CRS = params.C * params.R * params.S;
 			this.H = params.H; this.W = params.W; this.R = params.R; this.S = params.S; this.P = params.P; this.Q = params.Q;
 			this.CHW = params.C*params.H*params.W;
 		}
@@ -145,12 +144,11 @@ public class LibMatrixDNNIm2ColHelper {
 	 */
 	static class DenseIm2colWorker implements Im2colWorker {
 		double [] inputArray; double [] outputArray; 
-		int CRS; int S; int R; int P; int Q; int CHW; int H; int W; 
+		int S; int R; int P; int Q; int CHW; int H; int W;
 		int stride_h; int stride_w; int pad_h; int pad_w;
 		public DenseIm2colWorker(double [] inputArray, double [] outputArray, ConvolutionParameters params) {
 			this.inputArray = inputArray;
 			this.outputArray = outputArray;
-			this.CRS = params.C * params.R * params.S;
 			this.H = params.H; this.W = params.W; this.R = params.R; this.S = params.S; this.P = params.P; this.Q = params.Q;
 			this.CHW = params.C*params.H*params.W;
 			this.stride_h = params.stride_h; this.stride_w = params.stride_w;
@@ -316,12 +314,11 @@ public class LibMatrixDNNIm2ColHelper {
 	 */
 	static class SparseIm2colWorker implements Im2colWorker {
 		MatrixBlock input; double [] outputArray; 
-		int CRS; int S; int R; int P; int Q; int H; int W; 
+		int S; int R; int P; int Q; int H; int W;
 		int stride_h; int stride_w; int pad_h; int pad_w; double [] temp;
 		public SparseIm2colWorker(MatrixBlock input, MatrixBlock im2ColOutBlock, ConvolutionParameters params) {
 			this.input = input;
 			this.outputArray = im2ColOutBlock.getDenseBlock();
-			this.CRS = params.C * params.R * params.S;
 			this.H = params.H; this.W = params.W; this.R = params.R; this.S = params.S; this.P = params.P; this.Q = params.Q;
 			this.stride_h = params.stride_h; this.stride_w = params.stride_w;
 			this.pad_h = params.pad_h; this.pad_w = params.pad_w;

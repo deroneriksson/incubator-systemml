@@ -29,13 +29,11 @@ public class CacheDataInput implements DataInput, MatrixBlockDataInput
 {
 	
 	protected byte[] _buff;
-	protected int _bufflen;
 	protected int _count;
 
 	public CacheDataInput( byte[] mem ) 
 	{		
 		_buff = mem;
-		_bufflen = _buff.length;
 		_count = 0;
 	}
 

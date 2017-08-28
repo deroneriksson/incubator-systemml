@@ -34,12 +34,10 @@ import org.apache.sysml.runtime.matrix.data.SparseBlock;
 public class CacheDataOutput implements DataOutput, MatrixBlockDataOutput 
 {
 	protected byte[] _buff;
-	protected int _bufflen;
 	protected int _count;
 
 	public CacheDataOutput( byte[] mem ) {		
 		_buff = mem;
-		_bufflen = _buff.length;
 		_count = 0;
 	}
 	

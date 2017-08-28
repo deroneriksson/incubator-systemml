@@ -172,7 +172,6 @@ public class OptimizerRuleBased extends Optimizer
 	protected int _rk   = -1; //remote par (mappers)
 	protected int _rk2  = -1; //remote par (reducers)
 	protected int _rkmax = -1; //remote max par (mappers)
-	protected int _rkmax2 = -1; //remote max par (reducers)
 	protected double _lm = -1; //local memory constraint
 	protected double _rm = -1; //remote memory constraint (mappers)
 	protected double _rm2 = -1; //remote memory constraint (reducers)
@@ -393,7 +392,6 @@ public class OptimizerRuleBased extends Optimizer
 		}
 		
 		_rkmax   = (int) Math.ceil( PAR_K_FACTOR * _rk ); 
-		_rkmax2  = (int) Math.ceil( PAR_K_FACTOR * _rk2 ); 
 	}
 	
 	protected ExecType getRemoteExecType() {
@@ -2454,7 +2452,7 @@ public class OptimizerRuleBased extends Optimizer
 				//add candidate to update-in-place candidate list
 				if( !uipCands.containsKey(h.getName()) )
 					uipCands.put(h.getName(), new ArrayList<UIPCandidateHop>());
-				uipCands.get(h.getName()).add(new UIPCandidateHop(h, pb));
+				uipCands.get(h.getName()).add(new UIPCandidateHop(h));
 
 				//debug info update-in-place candidates
 				if(LOG.isTraceEnabled()) {
@@ -3443,15 +3441,13 @@ public class OptimizerRuleBased extends Optimizer
 	class UIPCandidateHop {
 		Hop hopCandidate, hopLix;
 		int iLocation = -1;
-		ProgramBlock pb;
 		Boolean bIntermediate = false, bIsLoopApplicable = false, bUpdateInPlace = true;
 		ArrayList<Hop> consumerHops = null;
 		
 		
-		UIPCandidateHop(Hop hopLix, ProgramBlock pb)
+		UIPCandidateHop(Hop hopLix)
 		{
 			this.hopLix = hopLix;
-			this.pb = pb;
 		}
 		
 		Hop getLixHop()

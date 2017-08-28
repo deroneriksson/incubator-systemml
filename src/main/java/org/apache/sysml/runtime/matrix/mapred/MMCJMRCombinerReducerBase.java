@@ -46,7 +46,6 @@ public class MMCJMRCombinerReducerBase extends ReduceBase
 	
 	//the tags to be output for the left and right matrice for the mmcj
 	protected byte tagForLeft=0;
-	protected byte tagForRight=1;
 	protected MatrixCharacteristics dim1;
 	protected MatrixCharacteristics dim2;
 //	protected int elementSize=8;
@@ -71,7 +70,6 @@ public class MMCJMRCombinerReducerBase extends ReduceBase
 		if(dim1.getRows()>dim2.getCols())
 		{
 			tagForLeft=1;
-			tagForRight=0;
 		}
 
 		//allocate space for the temporary variable
