@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -55,6 +56,7 @@ import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.HopsException;
+import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.parser.LanguageException;
 import org.apache.sysml.parser.ParseException;
 import org.apache.sysml.parser.Statement;
@@ -91,6 +93,8 @@ import org.w3c.dom.NodeList;
  *
  */
 public final class MLContextUtil {
+
+	protected static Logger log = Logger.getLogger(MLContextUtil.class);
 
 	/**
 	 * Get HOP DAG in dot format for a DML or PYDML Script.
@@ -356,22 +360,31 @@ public final class MLContextUtil {
 	}
 
 	/**
-	 * Set SystemML configuration properties based on a configuration file.
+	 * Set SystemML configuration and compiler configuration properties based on
+	 * a configuration file.
 	 *
 	 * @param configFilePath
 	 *            Path to configuration file.
+	 * @return the SystemML configuration
 	 * @throws MLContextException
 	 *             if configuration file was not found or a parse exception
 	 *             occurred
 	 */
-	public static void setConfig(String configFilePath) {
+	public static DMLConfig setConfig(String configFilePath) {
 		try {
 			DMLConfig config = new DMLConfig(configFilePath);
 			ConfigurationManager.setGlobalConfig(config);
+
+			CompilerConfig compilerConfig = OptimizerUtils.constructCompilerConfig(config);
+			ConfigurationManager.setGlobalConfig(compilerConfig);
+			log.debug("\nDML config: \n" + config.getConfigInfo());
+			return config;
 		} catch (ParseException e) {
 			throw new MLContextException("Parse Exception when setting config", e);
 		} catch (FileNotFoundException e) {
 			throw new MLContextException("File not found (" + configFilePath + ") when setting config", e);
+		} catch (DMLRuntimeException e) {
+			throw new MLContextException("DMLRuntimeException when setting config", e);
 		}
 	}
 
@@ -416,7 +429,7 @@ public final class MLContextUtil {
 		if (name == null) {
 			throw new MLContextException("No input name supplied");
 		} else if (value == null) {
-			throw new MLContextException("No input value supplied");
+			return; // value can be null initially (for JMLC)
 		}
 
 		Object o = value;
@@ -614,7 +627,7 @@ public final class MLContextUtil {
 		if (name == null) {
 			throw new MLContextException("Input parameter name is null");
 		} else if (value == null) {
-			throw new MLContextException("Input parameter value is null for: " + parameterName);
+			return null; // can be null initially (for JMLC)
 		} else if (value instanceof JavaRDD<?>) {
 			@SuppressWarnings("unchecked")
 			JavaRDD<String> javaRDD = (JavaRDD<String>) value;

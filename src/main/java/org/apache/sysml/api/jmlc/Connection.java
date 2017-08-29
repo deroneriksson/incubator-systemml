@@ -34,23 +34,17 @@ import org.apache.hadoop.fs.Path;
 import org.apache.sysml.api.DMLException;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.RUNTIME_PLATFORM;
+import org.apache.sysml.api.mlcontext.Script;
+import org.apache.sysml.api.mlcontext.ScriptExecutor;
 import org.apache.sysml.api.mlcontext.ScriptType;
 import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.codegen.SpoofCompiler;
-import org.apache.sysml.hops.rewrite.ProgramRewriter;
-import org.apache.sysml.hops.rewrite.RewriteRemovePersistentReadWrite;
-import org.apache.sysml.parser.DMLProgram;
-import org.apache.sysml.parser.DMLTranslator;
 import org.apache.sysml.parser.DataExpression;
 import org.apache.sysml.parser.LanguageException;
-import org.apache.sysml.parser.ParseException;
-import org.apache.sysml.parser.ParserFactory;
-import org.apache.sysml.parser.ParserWrapper;
 import org.apache.sysml.runtime.DMLRuntimeException;
-import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.caching.CacheableData;
 import org.apache.sysml.runtime.io.FrameReader;
 import org.apache.sysml.runtime.io.FrameReaderFactory;
@@ -164,79 +158,69 @@ public class Connection implements Closeable
 	{
 		return prepareScript(script, new HashMap<String,String>(), inputs, outputs, parsePyDML);
 	}
-	
+
 	/**
-	 * Prepares (precompiles) a script, sets input parameter values, and registers input and output variables.
-	 * 
-	 * @param script string representing the DML or PyDML script
-	 * @param args map of input parameters ($) and their values
-	 * @param inputs string array of input variables to register
-	 * @param outputs string array of output variables to register
-	 * @param parsePyDML {@code true} if PyDML, {@code false} if DML
+	 * Prepares (precompiles) a script, sets input parameter values, and
+	 * registers input and output variables.
+	 *
+	 * @param scriptString
+	 *            string representing the DML or PyDML script
+	 * @param args
+	 *            map of input parameters ($) and their values
+	 * @param inputs
+	 *            string array of input variables to register
+	 * @param outputs
+	 *            string array of output variables to register
+	 * @param parsePyDML
+	 *            {@code true} if PyDML, {@code false} if DML
 	 * @return PreparedScript object representing the precompiled script
-	 * @throws DMLException if DMLException occurs
+	 * @throws DMLException
+	 *             if DMLException occurs
 	 */
-	public PreparedScript prepareScript( String script, Map<String, String> args, String[] inputs, String[] outputs, boolean parsePyDML) 
-		throws DMLException 
-	{
+	public PreparedScript prepareScript(String scriptString, Map<String, String> args, String[] inputs,
+			String[] outputs, boolean parsePyDML) throws DMLException {
 		DMLScript.SCRIPT_TYPE = parsePyDML ? ScriptType.PYDML : ScriptType.DML;
 
-		//check for valid names of passed arguments
-		String[] invalidArgs = args.keySet().stream()
-			.filter(k -> k==null || !k.startsWith("$")).toArray(String[]::new);
-		if( invalidArgs.length > 0 )
-			throw new LanguageException("Invalid argument names: "+Arrays.toString(invalidArgs));
-		
-		//check for valid names of input and output variables
-		String[] invalidVars = UtilFunctions.asSet(inputs, outputs).stream()
-			.filter(k -> k==null || k.startsWith("$")).toArray(String[]::new);
-		if( invalidVars.length > 0 )
-			throw new LanguageException("Invalid variable names: "+Arrays.toString(invalidVars));
-		
-		//simplified compilation chain
-		Program rtprog = null;
-		try {
-			//parsing
-			ParserWrapper parser = ParserFactory.createParser(parsePyDML ? ScriptType.PYDML : ScriptType.DML);
-			DMLProgram prog = parser.parse(null, script, args);
-			
-			//language validate
-			DMLTranslator dmlt = new DMLTranslator(prog);
-			dmlt.liveVariableAnalysis(prog);			
-			dmlt.validateParseTree(prog);
-			
-			//hop construct/rewrite
-			dmlt.constructHops(prog);
-			dmlt.rewriteHopsDAG(prog);
-			
-			//rewrite persistent reads/writes
-			RewriteRemovePersistentReadWrite rewrite = new RewriteRemovePersistentReadWrite(inputs, outputs);
-			ProgramRewriter rewriter2 = new ProgramRewriter(rewrite);
-			rewriter2.rewriteProgramHopDAGs(prog);
-			
-			//lop construct and runtime prog generation
-			dmlt.constructLops(prog);
-			rtprog = dmlt.getRuntimeProgram(prog, _dmlconf);
-			
-			//final cleanup runtime prog
-			JMLCUtils.cleanupRuntimeProgram(rtprog, outputs);
-			
-			//activate thread-local proxy for dynamic recompilation
-			if( ConfigurationManager.isDynamicRecompilation() )
-				JMLCProxy.setActive(outputs);
+		// check for valid names of passed arguments
+		String[] invalidArgs = args.keySet().stream().filter(k -> k == null || !k.startsWith("$"))
+				.toArray(String[]::new);
+		if (invalidArgs.length > 0)
+			throw new LanguageException("Invalid argument names: " + Arrays.toString(invalidArgs));
+
+		// check for valid names of input and output variables
+		String[] invalidVars = UtilFunctions.asSet(inputs, outputs).stream().filter(k -> k == null || k.startsWith("$"))
+				.toArray(String[]::new);
+		if (invalidVars.length > 0)
+			throw new LanguageException("Invalid variable names: " + Arrays.toString(invalidVars));
+
+		Script script = new Script(scriptString, DMLScript.SCRIPT_TYPE);
+		script.in(args); // input parameters ($)
+		for (String input : inputs) { // input variables
+			script.in(input, null);
 		}
-		catch(ParseException pe) {
-			// don't chain ParseException (for cleaner error output)
-			throw pe;
-		}
-		catch(Exception ex) {
-			throw new DMLException(ex);
-		}
-			
-		//return newly create precompiled script 
-		return new PreparedScript(rtprog, inputs, outputs);
+		script.out(outputs); // for runtime program cleanup
+
+		ScriptExecutor se = new ScriptExecutor(script) {
+			@Override
+			public void countCompiledMRJobsAndSparkInstructions() {
+			};
+
+			@Override
+			public void initializeCachingAndScratchSpace() {
+			};
+
+			@Override
+			public void compile() {
+				super.compile();
+				// activate thread-local proxy for dynamic recompilation
+				if (ConfigurationManager.isDynamicRecompilation())
+					JMLCProxy.setActive(outputs);
+			};
+		};
+		se.compile();
+		return new PreparedScript(se);
 	}
-	
+
 	/**
 	 * Close connection to SystemML, which clears the
 	 * thread-local DML and compiler configurations.

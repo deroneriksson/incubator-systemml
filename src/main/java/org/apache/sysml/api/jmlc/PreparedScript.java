@@ -19,28 +19,25 @@
 
 package org.apache.sysml.api.jmlc;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.sysml.api.DMLException;
+import org.apache.sysml.api.mlcontext.Script;
+import org.apache.sysml.api.mlcontext.ScriptExecutor;
 import org.apache.sysml.conf.CompilerConfig;
-import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.CompilerConfig.ConfigType;
+import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.ipa.FunctionCallGraph;
 import org.apache.sysml.parser.DMLProgram;
 import org.apache.sysml.parser.Expression.ValueType;
 import org.apache.sysml.runtime.controlprogram.FunctionProgramBlock;
-import org.apache.sysml.runtime.controlprogram.LocalVariableMap;
-import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.caching.FrameObject;
 import org.apache.sysml.runtime.controlprogram.caching.MatrixObject;
-import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
-import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysml.runtime.instructions.cp.BooleanObject;
 import org.apache.sysml.runtime.instructions.cp.Data;
 import org.apache.sysml.runtime.instructions.cp.DoubleObject;
@@ -62,36 +59,25 @@ import org.apache.sysml.utils.Explain;
 public class PreparedScript 
 {
 	private static final Log LOG = LogFactory.getLog(PreparedScript.class.getName());
+
+	// input variables to reuse
+	private Map<String,Data> _inVarReuse = new HashMap<String, Data>();
 	
-	//input/output specification
-	private HashSet<String> _inVarnames = null;
-	private HashSet<String> _outVarnames = null;
-	private HashMap<String,Data> _inVarReuse = null;
-	
-	//internal state (reused)
-	private Program _prog = null;
-	private LocalVariableMap _vars = null; 
-	
+	private ScriptExecutor se;
+	private Script script;
+
 	/**
-	 * Meant to be invoked only from Connection.
+	 * Create PreparedScript based on compiled program. Meant to be invoked only
+	 * from Connection.
 	 * 
-	 * @param prog the DML/PyDML program
-	 * @param inputs input variables to register
-	 * @param outputs output variables to register
+	 * @param se
+	 *            the ScriptExecutor
 	 */
-	protected PreparedScript( Program prog, String[] inputs, String[] outputs ) 
-	{
-		_prog = prog;
-		_vars = new LocalVariableMap();
-		
-		//populate input/output vars
-		_inVarnames = new HashSet<String>();
-		Collections.addAll(_inVarnames, inputs);
-		_outVarnames = new HashSet<String>();
-		Collections.addAll(_outVarnames, outputs);
-		_inVarReuse = new HashMap<String, Data>();
+	protected PreparedScript(ScriptExecutor se) {
+		this.se = se;
+		this.script = se.getScript();
 	}
-	
+
 	/**
 	 * Binds a scalar boolean to a registered input variable.
 	 * 
@@ -196,10 +182,9 @@ public class PreparedScript
 	public void setScalar(String varname, ScalarObject scalar, boolean reuse) 
 		throws DMLException
 	{
-		if( !_inVarnames.contains(varname) )
+		if( !script.getInputVariables().contains(varname) )
 			throw new DMLException("Unspecified input variable: "+varname);
-		
-		_vars.put(varname, scalar);
+		script.getSymbolTable().put(varname, scalar);
 	}
 
 	/**
@@ -238,7 +223,7 @@ public class PreparedScript
 	public void setMatrix(String varname, MatrixBlock matrix, boolean reuse)
 		throws DMLException
 	{
-		if( !_inVarnames.contains(varname) )
+		if( !script.getInputVariables().contains(varname) )
 			throw new DMLException("Unspecified input variable: "+varname);
 				
 		int blocksize = ConfigurationManager.getBlocksize();
@@ -251,7 +236,7 @@ public class PreparedScript
 		mo.release();
 		
 		//put create matrix wrapper into symbol table
-		_vars.put(varname, mo);
+		script.getSymbolTable().put(varname, mo);
 		if( reuse ) {
 			mo.enableCleanup(false); //prevent cleanup
 			_inVarReuse.put(varname, mo);
@@ -347,7 +332,7 @@ public class PreparedScript
 	public void setFrame(String varname, FrameBlock frame, boolean reuse)
 		throws DMLException
 	{
-		if( !_inVarnames.contains(varname) )
+		if( !script.getInputVariables().contains(varname) )
 			throw new DMLException("Unspecified input variable: "+varname);
 		
 		//create new frame object
@@ -358,7 +343,7 @@ public class PreparedScript
 		fo.release();
 		
 		//put create matrix wrapper into symbol table
-		_vars.put(varname, fo);
+		script.getSymbolTable().put(varname, fo);
 		if( reuse ) {
 			fo.enableCleanup(false); //prevent cleanup
 			_inVarReuse.put(varname, fo);
@@ -370,7 +355,7 @@ public class PreparedScript
 	 * 
 	 */
 	public void clearParameters() {
-		_vars.removeAll();
+		script.getSymbolTable().removeAll();
 	}
 	
 	/**
@@ -384,21 +369,18 @@ public class PreparedScript
 		throws DMLException
 	{
 		//add reused variables
-		_vars.putAll(_inVarReuse);
-		
-		//create and populate execution context
-		ExecutionContext ec = ExecutionContextFactory.createContext(_vars, _prog);	
-		
-		//core execute runtime program	
-		_prog.execute(ec);  
-		
+		script.getSymbolTable().putAll(_inVarReuse);
+
+		se.createAndInitializeExecutionContext();
+		se.executeRuntimeProgram();
+
 		//cleanup unnecessary outputs
-		_vars.removeAllNotIn(_outVarnames);
+		script.getSymbolTable().removeAllNotIn(script.getOutputVariables());
 		
 		//construct results
 		ResultVariables rvars = new ResultVariables();
-		for( String ovar : _outVarnames ) {
-			Data tmpVar = _vars.get(ovar);
+		for( String ovar : script.getOutputVariables() ) {
+			Data tmpVar = script.getSymbolTable().get(ovar);
 			if( tmpVar != null )
 				rvars.addResult(ovar, tmpVar);
 		}
@@ -412,7 +394,7 @@ public class PreparedScript
 	 * @throws DMLException if DMLException occurs
 	 */
 	public String explain() throws DMLException {
-		return Explain.explain(_prog);
+		return Explain.explain(se.getRuntimeProgram());
 	}
 	
 	/**
@@ -442,14 +424,14 @@ public class PreparedScript
 		ConfigurationManager.setLocalConfig(cconf);
 		
 		//build function call graph (to probe for recursive functions)
-		FunctionCallGraph fgraph = _prog.getProgramBlocks().isEmpty() ? null :
-			new FunctionCallGraph(_prog.getProgramBlocks().get(0).getStatementBlock().getDMLProg());
+		FunctionCallGraph fgraph = se.getRuntimeProgram().getProgramBlocks().isEmpty() ? null :
+			new FunctionCallGraph(se.getRuntimeProgram().getProgramBlocks().get(0).getStatementBlock().getDMLProg());
 		
 		//enable requested functions for recompile once
 		for( String fname : fnames ) {
 			String fkey = DMLProgram.constructFunctionKey(fnamespace, fname);
 			if( !fgraph.isRecursiveFunction(fkey) ) {
-				FunctionProgramBlock fpb = _prog.getFunctionProgramBlock(fnamespace, fname);
+				FunctionProgramBlock fpb = se.getRuntimeProgram().getFunctionProgramBlock(fnamespace, fname);
 				if( fpb != null )
 					fpb.setRecompileOnce(true);
 				else

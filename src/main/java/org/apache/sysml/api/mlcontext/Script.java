@@ -86,7 +86,9 @@ public class Script {
 	 * The results of the execution of the script.
 	 */
 	private MLResults results;
-
+	/**
+	 * Whether or not an input parameter value has changed.
+	 */
 	private boolean inputParameterChanged = false;
 
 	/**
@@ -226,8 +228,8 @@ public class Script {
 	 *            map of inputs (parameters ($) and variables).
 	 * @return {@code this} Script object to allow chaining of methods
 	 */
-	public Script in(Map<String, Object> inputs) {
-		for (Entry<String, Object> input : inputs.entrySet()) {
+	public Script in(Map<String, ? extends Object> inputs) {
+		for (Entry<String, ? extends Object> input : inputs.entrySet()) {
 			in(input.getKey(), input.getValue());
 		}
 
@@ -360,6 +362,8 @@ public class Script {
 						inputMetadata.put(name, metadata);
 					((CacheableData<?>) data).enableCleanup(false);
 				}
+			} else if (name != null) { // for JMLC
+				inputVariables.add(name);
 			}
 		}
 		return this;
@@ -545,6 +549,8 @@ public class Script {
 				if (inValue instanceof String) {
 					String quotedString = MLContextUtil.quotedString((String) inValue);
 					sb.append(" = " + quotedString + ";\n");
+				} else if (inValue == null) {
+					sb.append(" = read('');\n");
 				} else if (MLContextUtil.isBasicType(inValue)) {
 					sb.append(" = read('', data_type='scalar', value_type='" + MLContextUtil.getBasicTypeString(inValue)
 							+ "');\n");
@@ -557,6 +563,8 @@ public class Script {
 				if (inValue instanceof String) {
 					String quotedString = MLContextUtil.quotedString((String) inValue);
 					sb.append(" = " + quotedString + "\n");
+				} else if (inValue == null) {
+					sb.append(" = read('');\n");
 				} else if (MLContextUtil.isBasicType(inValue)) {
 					sb.append(" = load('', data_type='scalar', value_type='" + MLContextUtil.getBasicTypeString(inValue)
 							+ "')\n");

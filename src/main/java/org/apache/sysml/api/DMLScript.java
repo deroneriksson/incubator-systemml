@@ -55,8 +55,13 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.sysml.api.mlcontext.MLContextException;
+import org.apache.sysml.api.mlcontext.MLContextUtil;
+import org.apache.sysml.api.mlcontext.Script;
+import org.apache.sysml.api.mlcontext.ScriptExecutor;
 import org.apache.sysml.api.mlcontext.ScriptType;
-import org.apache.sysml.conf.CompilerConfig;
+import org.apache.sysml.api.mlcontext.MLContext.ExecutionType;
+import org.apache.sysml.api.mlcontext.MLContext.ExplainLevel;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.debug.DMLDebugger;
@@ -64,8 +69,6 @@ import org.apache.sysml.debug.DMLDebuggerException;
 import org.apache.sysml.debug.DMLDebuggerProgramInfo;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.OptimizerUtils;
-import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
-import org.apache.sysml.hops.globalopt.GlobalOptimizerWrapper;
 import org.apache.sysml.lops.Lop;
 import org.apache.sysml.lops.LopsException;
 import org.apache.sysml.parser.DMLProgram;
@@ -76,16 +79,11 @@ import org.apache.sysml.parser.ParserFactory;
 import org.apache.sysml.parser.ParserWrapper;
 import org.apache.sysml.runtime.DMLRuntimeException;
 import org.apache.sysml.runtime.DMLScriptException;
-import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.caching.CacheStatistics;
 import org.apache.sysml.runtime.controlprogram.caching.CacheableData;
-import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
-import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
-import org.apache.sysml.runtime.controlprogram.context.SparkExecutionContext;
 import org.apache.sysml.runtime.controlprogram.parfor.ProgramConverter;
 import org.apache.sysml.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
 import org.apache.sysml.runtime.controlprogram.parfor.util.IDHandler;
-import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
 import org.apache.sysml.runtime.io.IOUtilFunctions;
 import org.apache.sysml.runtime.matrix.CleanupMR;
 import org.apache.sysml.runtime.matrix.mapred.MRConfigurationNames;
@@ -93,7 +91,6 @@ import org.apache.sysml.runtime.matrix.mapred.MRJobConfiguration;
 import org.apache.sysml.runtime.util.LocalFileUtils;
 import org.apache.sysml.runtime.util.MapReduceTool;
 import org.apache.sysml.utils.Explain;
-import org.apache.sysml.utils.Explain.ExplainCounts;
 import org.apache.sysml.utils.Explain.ExplainType;
 import org.apache.sysml.utils.Statistics;
 import org.apache.sysml.yarn.DMLAppMasterUtils;
@@ -638,118 +635,87 @@ public class DMLScript
 	////////
 
 	/**
-	 * The running body of DMLScript execution. This method should be called after execution properties have been correctly set,
-	 * and customized parameters have been put into _argVals
+	 * The running body of DMLScript execution. This method should be called
+	 * after execution properties have been correctly set, and customized
+	 * parameters have been put into _argVals
 	 * 
-	 * @param dmlScriptStr DML script string
-	 * @param fnameOptConfig configuration file
-	 * @param argVals map of argument values
-	 * @param allArgs arguments
-	 * @param scriptType type of script (DML or PyDML)
-	 * @throws ParseException if ParseException occurs
-	 * @throws IOException if IOException occurs
-	 * @throws DMLRuntimeException if DMLRuntimeException occurs
-	 * @throws LanguageException if LanguageException occurs
-	 * @throws HopsException if HopsException occurs
-	 * @throws LopsException if LopsException occurs
+	 * @param dmlScriptStr
+	 *            DML script string
+	 * @param fnameOptConfig
+	 *            configuration file
+	 * @param argVals
+	 *            map of argument values
+	 * @param allArgs
+	 *            arguments
+	 * @param scriptType
+	 *            type of script (DML or PyDML)
+	 * @throws ParseException
+	 *             if ParseException occurs
+	 * @throws IOException
+	 *             if IOException occurs
+	 * @throws DMLRuntimeException
+	 *             if DMLRuntimeException occurs
+	 * @throws LanguageException
+	 *             if LanguageException occurs
+	 * @throws HopsException
+	 *             if HopsException occurs
+	 * @throws LopsException
+	 *             if LopsException occurs
 	 */
-	private static void execute(String dmlScriptStr, String fnameOptConfig, Map<String,String> argVals, String[] allArgs, ScriptType scriptType)
-		throws ParseException, IOException, DMLRuntimeException, LanguageException, HopsException, LopsException 
-	{	
+	private static void execute(String dmlScriptStr, String fnameOptConfig, Map<String, String> argVals,
+			String[] allArgs, ScriptType scriptType)
+			throws ParseException, IOException, DMLRuntimeException, LanguageException, HopsException, LopsException {
 		SCRIPT_TYPE = scriptType;
 
-		//print basic time and environment info
-		printStartExecInfo( dmlScriptStr );
-		
-		//Step 1: parse configuration files & write any configuration specific global variables
-		DMLConfig dmlconf = DMLConfig.readConfigurationFile(fnameOptConfig);
-		ConfigurationManager.setGlobalConfig(dmlconf);		
-		CompilerConfig cconf = OptimizerUtils.constructCompilerConfig(dmlconf);
-		ConfigurationManager.setGlobalConfig(cconf);
-		LOG.debug("\nDML config: \n" + dmlconf.getConfigInfo());
+		// print basic time and environment info
+		printStartExecInfo(dmlScriptStr);
 
-		// Sets the GPUs to use for this process (a range, all GPUs, comma separated list or a specific GPU)
-		GPUContextPool.AVAILABLE_GPUS = dmlconf.getTextValue(DMLConfig.AVAILABLE_GPUS);
+		DMLConfig dmlConfig = MLContextUtil.setConfig(fnameOptConfig);
 
-		//Step 2: set local/remote memory if requested (for compile in AM context) 
-		if( dmlconf.getBooleanValue(DMLConfig.YARN_APPMASTER) ){
-			DMLAppMasterUtils.setupConfigRemoteMaxMemory(dmlconf); 
-		}
-		
-		//Step 3: parse dml script
-		Statistics.startCompileTimer();
-		ParserWrapper parser = ParserFactory.createParser(scriptType);
-		DMLProgram prog = parser.parse(DML_FILE_PATH_ANTLR_PARSER, dmlScriptStr, argVals);
-		
-		//Step 4: construct HOP DAGs (incl LVA, validate, and setup)
-		DMLTranslator dmlt = new DMLTranslator(prog);
-		dmlt.liveVariableAnalysis(prog);			
-		dmlt.validateParseTree(prog);
-		dmlt.constructHops(prog);
-		
-		//init working directories (before usage by following compilation steps)
-		initHadoopExecution( dmlconf );
-	
-		//Step 5: rewrite HOP DAGs (incl IPA and memory estimates)
-		dmlt.rewriteHopsDAG(prog);
-		
-		//Step 6: construct lops (incl exec type and op selection)
-		dmlt.constructLops(prog);
+		Script script = new Script(dmlScriptStr, SCRIPT_TYPE);
+		ScriptExecutor se = new ScriptExecutor(script) {
+			@Override
+			public void parseScript() {
+				ParserWrapper parser = ParserFactory.createParser(script.getScriptType());
+				try {
+					dmlProgram = parser.parse(DML_FILE_PATH_ANTLR_PARSER, script.getScriptExecutionString(), argVals);
+				} catch (ParseException e) {
+					throw new MLContextException("Exception when parsing script", e);
+				}
+			}
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("\n********************** LOPS DAG *******************");
-			dmlt.printLops(prog);
-			dmlt.resetLopsDAGVisitStatus(prog);
-		}
-		
-		//Step 7: generate runtime program, incl codegen
-		Program rtprog = dmlt.getRuntimeProgram(prog, dmlconf);
-		
-		//Step 8: [optional global data flow optimization]
-		if(OptimizerUtils.isOptLevel(OptimizationLevel.O4_GLOBAL_TIME_MEMORY) ) 
-		{
-			LOG.warn("Optimization level '" + OptimizationLevel.O4_GLOBAL_TIME_MEMORY + "' " +
-					"is still in experimental state and not intended for production use.");
-			rtprog = GlobalOptimizerWrapper.optimizeProgram(prog, rtprog);
-		}
-		
-		//launch SystemML appmaster (if requested and not already in launched AM)
-		if( dmlconf.getBooleanValue(DMLConfig.YARN_APPMASTER) ){
-			if( !isActiveAM() && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlconf, allArgs, rtprog) )
-				return; //if AM launch unsuccessful, fall back to normal execute
-			if( isActiveAM() ) //in AM context (not failed AM launch)
-				DMLAppMasterUtils.setupProgramMappingRemoteMaxMemory(rtprog);
-		}
-		
-		//Step 9: prepare statistics [and optional explain output]
-		//count number compiled MR jobs / SP instructions	
-		ExplainCounts counts = Explain.countDistributedOperations(rtprog);
-		Statistics.resetNoOfCompiledJobs( counts.numJobs );				
-		
-		//explain plan of program (hops or runtime)
-		if( EXPLAIN != ExplainType.NONE )
-			LOG.info(Explain.display(prog, rtprog, EXPLAIN, counts));
-		
-		Statistics.stopCompileTimer();
-		
-		//double costs = CostEstimationWrapper.getTimeEstimate(rtprog, ExecutionContextFactory.createContext());
-		//System.out.println("Estimated costs: "+costs);
-		
-		//Step 10: execute runtime program
-		ExecutionContext ec = null;
-		try {
-			ec = ExecutionContextFactory.createContext(rtprog);
-			ScriptExecutorUtils.executeRuntimeProgram(rtprog, ec, dmlconf, STATISTICS ? STATISTICS_COUNT : 0);
-		}
-		finally {
-			if(ec != null && ec instanceof SparkExecutionContext)
-				((SparkExecutionContext) ec).close();
-			LOG.info("END DML run " + getDateTime() );
-			//cleanup scratch_space and all working dirs
-			cleanupHadoopExecution( dmlconf );
-		}
-	}		
-	
+			@Override
+			public void rewritePersistentReadsAndWrites() {
+			}
+
+			@Override
+			public void globalDataFlowOptimization() {
+				super.globalDataFlowOptimization();
+				try {
+					// launch SystemML appmaster (if requested and not already
+					// in launched AM)
+					if (dmlConfig.getBooleanValue(DMLConfig.YARN_APPMASTER)) {
+						// if launch unsuccessful, fall back to normal execute
+						if (!isActiveAM() && DMLYarnClientProxy.launchDMLYarnAppmaster(dmlScriptStr, dmlConfig, allArgs,
+								runtimeProgram))
+							return;
+						// in AM context (not failed AM launch)
+						if (isActiveAM())
+							DMLAppMasterUtils.setupProgramMappingRemoteMaxMemory(runtimeProgram);
+					}
+				} catch (DMLRuntimeException | HopsException | LopsException | IOException e) {
+					throw new MLContextException("Exception when launching SystemML appmaster", e);
+				}
+			}
+		};
+		se.setStatistics(STATISTICS);
+		se.setStatisticsMaxHeavyHitters(STATISTICS ? STATISTICS_COUNT : 0);
+		se.setExplain(EXPLAIN != ExplainType.NONE ? true : false);
+		se.setExplainLevel(ExplainLevel.getExplainLevel(EXPLAIN));
+		se.setExecutionType(ExecutionType.getExecutionType(rtplatform));
+		se.execute();
+	}
+
 	/**
 	 * Launcher for DML debugger. This method should be called after 
 	 * execution and debug properties have been correctly set, and customized parameters

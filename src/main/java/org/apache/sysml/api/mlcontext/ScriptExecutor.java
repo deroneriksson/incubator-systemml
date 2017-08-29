@@ -20,6 +20,7 @@
 package org.apache.sysml.api.mlcontext;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,15 +28,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.DMLScript.DMLOptions;
-import org.apache.sysml.api.ScriptExecutorUtils;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.api.mlcontext.MLContext.ExecutionType;
 import org.apache.sysml.api.mlcontext.MLContext.ExplainLevel;
+import org.apache.sysml.conf.CompilerConfig;
 import org.apache.sysml.conf.ConfigurationManager;
 import org.apache.sysml.conf.DMLConfig;
 import org.apache.sysml.hops.HopsException;
 import org.apache.sysml.hops.OptimizerUtils;
 import org.apache.sysml.hops.OptimizerUtils.OptimizationLevel;
+import org.apache.sysml.hops.codegen.SpoofCompiler;
 import org.apache.sysml.hops.globalopt.GlobalOptimizerWrapper;
 import org.apache.sysml.hops.rewrite.ProgramRewriter;
 import org.apache.sysml.hops.rewrite.RewriteRemovePersistentReadWrite;
@@ -52,11 +54,15 @@ import org.apache.sysml.runtime.controlprogram.Program;
 import org.apache.sysml.runtime.controlprogram.caching.CacheStatistics;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysml.runtime.controlprogram.context.ExecutionContextFactory;
+import org.apache.sysml.runtime.instructions.gpu.context.GPUContext;
 import org.apache.sysml.runtime.instructions.gpu.context.GPUContextPool;
+import org.apache.sysml.runtime.matrix.data.LibMatrixDNN;
 import org.apache.sysml.utils.Explain;
 import org.apache.sysml.utils.Explain.ExplainCounts;
 import org.apache.sysml.utils.Explain.ExplainType;
+import org.apache.sysml.utils.GPUStatistics;
 import org.apache.sysml.utils.Statistics;
+import org.apache.sysml.yarn.DMLAppMasterUtils;
 
 /**
  * ScriptExecutor executes a DML or PYDML Script object using SystemML. This is
@@ -132,6 +138,11 @@ public class ScriptExecutor {
 	protected ExecutionType executionType;
 	protected int statisticsMaxHeavyHitters = 10;
 	protected boolean maintainSymbolTable = false;
+	/**
+	 * Whether or not to perform static rewrites, perform
+	 * intra-/inter-procedural analysis to propagate size information into
+	 * functions, and apply dynamic rewrites
+	 */
 	protected boolean performHopRewrites = true;
 	protected boolean compileBeforeEveryExecution = false;
 
@@ -159,13 +170,19 @@ public class ScriptExecutor {
 		this.script = script;
 		this.config = config;
 		ConfigurationManager.setGlobalConfig(config);
+		try {
+			CompilerConfig compilerConfig = OptimizerUtils.constructCompilerConfig(config);
+			ConfigurationManager.setGlobalConfig(compilerConfig);
+		} catch (DMLRuntimeException e) {
+			throw new MLContextException("DMLRuntimeException while setting CompilerConfig", e);
+		}
 	}
 
 	/**
 	 * Construct DAGs of high-level operators (HOPs) for each block of
 	 * statements.
 	 */
-	protected void constructHops() {
+	public void constructHops() {
 		try {
 			dmlTranslator.constructHops(dmlProgram);
 		} catch (LanguageException | ParseException e) {
@@ -178,7 +195,7 @@ public class ScriptExecutor {
 	 * propagate size information into functions, apply dynamic rewrites, and
 	 * compute memory estimates for all HOPs.
 	 */
-	protected void rewriteHops() {
+	public void rewriteHops() {
 		try {
 			dmlTranslator.rewriteHopsDAG(dmlProgram);
 		} catch (LanguageException | HopsException | ParseException | DMLRuntimeException e) {
@@ -205,9 +222,14 @@ public class ScriptExecutor {
 	 * Construct DAGs of low-level operators (LOPs) based on the DAGs of
 	 * high-level operators (HOPs).
 	 */
-	protected void constructLops() {
+	public void constructLops() {
 		try {
 			dmlTranslator.constructLops(dmlProgram);
+
+			if (log.isDebugEnabled()) {
+				dmlTranslator.printLops(dmlProgram);
+				dmlTranslator.resetLopsDAGVisitStatus(dmlProgram);
+			}
 		} catch (ParseException | LanguageException | HopsException | LopsException e) {
 			throw new MLContextException("Exception occurred while constructing LOPS (low-level operators)", e);
 		}
@@ -218,7 +240,7 @@ public class ScriptExecutor {
 	 * blocks into function program blocks and add these to the runtime program.
 	 * For each top-level block, add the program block to the runtime program.
 	 */
-	protected void generateRuntimeProgram() {
+	public void generateRuntimeProgram() {
 		try {
 			runtimeProgram = dmlTranslator.getRuntimeProgram(dmlProgram, config);
 		} catch (LanguageException | DMLRuntimeException | LopsException | IOException | HopsException e) {
@@ -230,7 +252,7 @@ public class ScriptExecutor {
 	 * Count the number of compiled MR Jobs/Spark Instructions in the runtime
 	 * program and set this value in the statistics.
 	 */
-	protected void countCompiledMRJobsAndSparkInstructions() {
+	public void countCompiledMRJobsAndSparkInstructions() {
 		ExplainCounts counts = Explain.countDistributedOperations(runtimeProgram);
 		Statistics.resetNoOfCompiledJobs(counts.numJobs);
 	}
@@ -239,7 +261,7 @@ public class ScriptExecutor {
 	 * Create an execution context and set its variables to be the symbol table
 	 * of the script.
 	 */
-	protected void createAndInitializeExecutionContext() {
+	public void createAndInitializeExecutionContext() {
 		executionContext = ExecutionContextFactory.createContext(runtimeProgram);
 		LocalVariableMap symbolTable = script.getSymbolTable();
 		if (symbolTable != null) {
@@ -260,9 +282,12 @@ public class ScriptExecutor {
 		DMLScript.USE_ACCELERATOR = gpu;
 		DMLScript.STATISTICS_COUNT = statisticsMaxHeavyHitters;
 
+		if (config == null) {
+			config = ConfigurationManager.getDMLConfig();
+		}
 		// Sets the GPUs to use for this process (a range, all GPUs, comma
 		// separated list or a specific GPU)
-		GPUContextPool.AVAILABLE_GPUS = ConfigurationManager.getDMLConfig().getTextValue(DMLConfig.AVAILABLE_GPUS);
+		GPUContextPool.AVAILABLE_GPUS = config.getTextValue(DMLConfig.AVAILABLE_GPUS);
 	}
 
 	/**
@@ -299,17 +324,11 @@ public class ScriptExecutor {
 	 * <li>{@link #initializeCachingAndScratchSpace()}</li>
 	 * <li>{@link #cleanupRuntimeProgram()}</li>
 	 * </ol>
-	 *
-	 * @param script
-	 *            the DML or PYDML script to compile
-	 * @param performHOPRewrites
-	 *            should perform static rewrites, perform
-	 *            intra-/inter-procedural analysis to propagate size information
-	 *            into functions and apply dynamic rewrites
 	 */
 	public void compile() {
 		log.debug("Compile program");
 		setup();
+		resetStatistics();
 		if (statistics) {
 			Statistics.startCompileTimer();
 		}
@@ -338,14 +357,12 @@ public class ScriptExecutor {
 	 * primary methods:
 	 *
 	 * <ol>
-	 * <li>{@link #compile()}</li>
+	 * <li>{@link #compile()} (if required)</li>
 	 * <li>{@link #createAndInitializeExecutionContext()}</li>
 	 * <li>{@link #executeRuntimeProgram()}</li>
 	 * <li>{@link #cleanupAfterExecution()}</li>
 	 * </ol>
 	 *
-	 * @param script
-	 *            the DML or PYDML script to execute
 	 * @return the results as a MLResults object
 	 */
 	public MLResults execute() {
@@ -361,9 +378,11 @@ public class ScriptExecutor {
 			compile();
 			script.resetInputParameterChanged();
 		} else {
+			Statistics.resetCompileTimer();
 			log.debug("Program does not need to be compiled");
 		}
 
+		resetStatistics();
 		try {
 			createAndInitializeExecutionContext();
 			executeRuntimeProgram();
@@ -382,19 +401,30 @@ public class ScriptExecutor {
 	 * Checks that the script has a type and string, sets the ScriptExecutor in
 	 * the script, sets the script string in the Spark Monitor, globally sets
 	 * the script type, sets global flags, and resets statistics if needed.
-	 *
-	 * @param script
-	 *            the DML or PYDML script to execute
 	 */
-	protected void setup() {
+	public void setup() {
 		checkScriptHasTypeAndString();
 		script.setScriptExecutor(this);
 		// Set global variable indicating the script type
 		DMLScript.SCRIPT_TYPE = script.getScriptType();
 		setGlobalFlags();
-		// reset all relevant summary statistics
-		Statistics.resetNoOfExecutedJobs();
+
+		if (config == null) {
+			config = ConfigurationManager.getDMLConfig();
+		}
+		if (config.getBooleanValue(DMLConfig.YARN_APPMASTER)) {
+			try {
+				DMLAppMasterUtils.setupConfigRemoteMaxMemory(config);
+			} catch (DMLRuntimeException e) {
+				throw new MLContextException("DMLRuntimeException while configuring remote max memory", e);
+			}
+		}
+	}
+
+	protected void resetStatistics() {
 		if (statistics) {
+			// reset all relevant summary statistics
+			Statistics.resetNoOfExecutedJobs();
 			CacheStatistics.reset();
 			Statistics.reset();
 		}
@@ -403,7 +433,7 @@ public class ScriptExecutor {
 	/**
 	 * Perform any necessary cleanup operations after program execution.
 	 */
-	protected void cleanupAfterExecution() {
+	public void cleanupAfterExecution() {
 		restoreInputsInSymbolTable();
 		resetGlobalFlags();
 	}
@@ -432,7 +462,7 @@ public class ScriptExecutor {
 	 * Shell. Otherwise, only delete 'remove variable' instructions for
 	 * registered outputs.
 	 */
-	protected void cleanupRuntimeProgram() {
+	public void cleanupRuntimeProgram() {
 		if (maintainSymbolTable) {
 			MLContextUtil.deleteRemoveVariableInstructions(runtimeProgram);
 		} else {
@@ -446,10 +476,50 @@ public class ScriptExecutor {
 	 * blocks that make up the runtime program and may involve dynamic
 	 * recompilation.
 	 */
-	protected void executeRuntimeProgram() {
+	public void executeRuntimeProgram() {
 		log.debug("Execute runtime program");
 		try {
-			ScriptExecutorUtils.executeRuntimeProgram(this, statistics ? statisticsMaxHeavyHitters : 0);
+			// Whether extra statistics useful for developers and others
+			// interested in digging into performance problems are recorded and
+			// displayed
+			GPUStatistics.DISPLAY_STATISTICS = config.getBooleanValue(DMLConfig.EXTRA_GPU_STATS);
+			LibMatrixDNN.DISPLAY_STATISTICS = config.getBooleanValue(DMLConfig.EXTRA_DNN_STATS);
+			DMLScript.FINEGRAINED_STATISTICS = config.getBooleanValue(DMLConfig.EXTRA_FINEGRAINED_STATS);
+			DMLScript.STATISTICS_MAX_WRAP_LEN = config.getIntValue(DMLConfig.STATS_MAX_WRAP_LEN);
+
+			Statistics.startRunTimer();
+			try {
+				// run execute (w/ exception handling to ensure proper shutdown)
+				if (DMLScript.USE_ACCELERATOR && executionContext != null) {
+					List<GPUContext> gCtxs = GPUContextPool.reserveAllGPUContexts();
+					if (gCtxs == null) {
+						throw new DMLRuntimeException(
+								"GPU : Could not create GPUContext, either no GPU or all GPUs currently in use");
+					}
+					gCtxs.get(0).initializeThread();
+					executionContext.setGPUContexts(gCtxs);
+				}
+				runtimeProgram.execute(executionContext);
+			} finally { // ensure cleanup/shutdown
+				if (DMLScript.USE_ACCELERATOR && !executionContext.getGPUContexts().isEmpty()) {
+					executionContext.getGPUContexts().forEach(gCtx -> gCtx.clearTemporaryMemory());
+					GPUContextPool.freeAllGPUContexts();
+				}
+				if (ConfigurationManager.isCodegenEnabled())
+					SpoofCompiler.cleanupCodeGenerator();
+
+				// display statistics (incl caching stats if enabled)
+				Statistics.stopRunTimer();
+
+				if (statistics) {
+					if (statisticsMaxHeavyHitters > 0) {
+						System.out.println(Statistics.display(statisticsMaxHeavyHitters));
+					} else {
+						System.out.println(Statistics.display());
+					}
+				}
+			}
+
 		} catch (DMLRuntimeException e) {
 			throw new MLContextException("Exception occurred while executing runtime program", e);
 		}
@@ -459,7 +529,7 @@ public class ScriptExecutor {
 	 * Check security, create scratch space, cleanup working directories,
 	 * initialize caching, and reset statistics.
 	 */
-	protected void initializeCachingAndScratchSpace() {
+	public void initializeCachingAndScratchSpace() {
 		if (!init)
 			return;
 
@@ -477,7 +547,7 @@ public class ScriptExecutor {
 	/**
 	 * Optimize the program.
 	 */
-	protected void globalDataFlowOptimization() {
+	public void globalDataFlowOptimization() {
 		if (OptimizerUtils.isOptLevel(OptimizationLevel.O4_GLOBAL_TIME_MEMORY)) {
 			try {
 				runtimeProgram = GlobalOptimizerWrapper.optimizeProgram(dmlProgram, runtimeProgram);
@@ -495,7 +565,7 @@ public class ScriptExecutor {
 	 * Parse the script into an ANTLR parse tree, and convert this parse tree
 	 * into a SystemML program. Parsing includes lexical/syntactic analysis.
 	 */
-	protected void parseScript() {
+	public void parseScript() {
 		try {
 			ParserWrapper parser = ParserFactory.createParser(script.getScriptType());
 			Map<String, Object> inputParameters = script.getInputParameters();
@@ -513,7 +583,7 @@ public class ScriptExecutor {
 	 * Replace persistent reads and writes with transient reads and writes in
 	 * the symbol table.
 	 */
-	protected void rewritePersistentReadsAndWrites() {
+	public void rewritePersistentReadsAndWrites() {
 		LocalVariableMap symbolTable = script.getSymbolTable();
 		if (symbolTable != null) {
 			String[] inputs = (script.getInputVariables() == null) ? new String[0]
@@ -547,7 +617,7 @@ public class ScriptExecutor {
 	 * Liveness analysis is performed on the program, obtaining sets of live-in
 	 * and live-out variables by forward and backward passes over the program.
 	 */
-	protected void liveVariableAnalysis() {
+	public void liveVariableAnalysis() {
 		try {
 			dmlTranslator = new DMLTranslator(dmlProgram);
 			dmlTranslator.liveVariableAnalysis(dmlProgram);
@@ -563,7 +633,7 @@ public class ScriptExecutor {
 	 * statement blocks in a single recursive pass over the program. Constant
 	 * and size propagation occurs during this step.
 	 */
-	protected void validateScript() {
+	public void validateScript() {
 		try {
 			dmlTranslator.validateParseTree(dmlProgram);
 		} catch (LanguageException e) {

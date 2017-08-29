@@ -364,7 +364,12 @@ public class Statistics
 	public static long getCompileTime() {
 		return compileEndTime - compileStartTime;
 	}
-	
+
+	public static void resetCompileTimer() {
+		compileStartTime = 0;
+		compileEndTime = 0;
+	}
+
 	/**
 	 * Starts the timer, should be invoked immediately before invoking
 	 * Program.execute()

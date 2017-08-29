@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.SparkSession.Builder;
 import org.apache.sysml.api.DMLScript;
 import org.apache.sysml.api.jmlc.JMLCUtils;
 import org.apache.sysml.conf.ConfigurationManager;
@@ -172,6 +173,23 @@ public class MLContext {
 				return ExplainType.HOPS;
 			}
 		}
+
+		public static ExplainLevel getExplainLevel(ExplainType explainType) {
+			switch (explainType) {
+			case NONE:
+				return ExplainLevel.NONE;
+			case HOPS:
+				return ExplainLevel.HOPS;
+			case RUNTIME:
+				return ExplainLevel.RUNTIME;
+			case RECOMPILE_HOPS:
+				return ExplainLevel.RECOMPILE_HOPS;
+			case RECOMPILE_RUNTIME:
+				return ExplainLevel.RECOMPILE_RUNTIME;
+			default:
+				return ExplainLevel.HOPS;
+			}
+		}
 	};
 
 	/**
@@ -202,6 +220,23 @@ public class MLContext {
 				return DMLScript.RUNTIME_PLATFORM.HYBRID;
 			default:
 				return DMLScript.RUNTIME_PLATFORM.HYBRID_SPARK;
+			}
+		}
+
+		public static ExecutionType getExecutionType(DMLScript.RUNTIME_PLATFORM runtimePlatform) {
+			switch (runtimePlatform) {
+			case SINGLE_NODE:
+				return DRIVER;
+			case SPARK:
+				return SPARK;
+			case HADOOP:
+				return HADOOP;
+			case HYBRID_SPARK:
+				return DRIVER_AND_SPARK;
+			case HYBRID:
+				return DRIVER_AND_HADOOP;
+			default:
+				return DRIVER_AND_SPARK;
 			}
 		}
 	}
@@ -413,6 +448,16 @@ public class MLContext {
 	 * @return the SparkSession associated with this MLContext.
 	 */
 	public SparkSession getSparkSession() {
+		if (spark == null) {
+			// create default SparkSession
+			log.info("Obtaining or creating SparkSession for MLContext.");
+			log.info(
+					"Note that the Spark master URL and application name can be set using the 'spark.master' and 'spark.app.name' properties.");
+			log.info("Example: -Dspark.master=local -Dspark.app.name=SystemML");
+			Builder builder = SparkSession.builder();
+			spark = builder.getOrCreate();
+			initMLContext(spark);
+		}
 		return spark;
 	}
 

@@ -781,6 +781,7 @@ public class DMLTranslator
 		
 	public void printLops(DMLProgram dmlp) throws ParseException, LanguageException, HopsException, LopsException {
 		if (LOG.isDebugEnabled()){
+			LOG.debug("\n********************** LOPS DAG *******************");
 			// for each namespace, handle function program blocks
 			for (String namespaceKey : dmlp.getNamespaces().keySet()){
 				for (String fname : dmlp.getFunctionStatementBlocks(namespaceKey).keySet()){
